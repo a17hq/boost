@@ -19,6 +19,7 @@
 namespace hash_examples
 {
     struct iequal_to
+        : std::binary_function<std::string, std::string, bool>
     {
         iequal_to() {}
         explicit iequal_to(std::locale const& l) : locale_(l) {}
@@ -33,6 +34,7 @@ namespace hash_examples
     };
 
     struct ihash
+        : std::unary_function<std::string, std::size_t>
     {
         ihash() {}
         explicit ihash(std::locale const& l) : locale_(l) {}

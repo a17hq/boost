@@ -14,7 +14,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/unit_test_log.hpp>
 #include <boost/math/tools/config.hpp>
-#include <boost/math/tools/test.hpp>
 
 
 template<typename T>

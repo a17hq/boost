@@ -69,16 +69,10 @@ namespace test {
     };
 
     struct check_instances {
-        int instances_;
-        int constructions_;
+        int instances;
         
-        check_instances() :
-            instances_(global_object_count.instances),
-            constructions_(global_object_count.constructions) {}
-        ~check_instances() { BOOST_TEST(global_object_count.instances == instances_); }
-
-        int instances() const { return global_object_count.instances - instances_; }
-        int constructions() const { return global_object_count.constructions - constructions_; }
+        check_instances() : instances(global_object_count.instances) {}
+        ~check_instances() { BOOST_TEST(global_object_count.instances == instances); }
     };
 }
 

@@ -85,11 +85,6 @@ struct gcc_atomic_operations
 {
     typedef T storage_type;
 
-    // Note: In the current implementation, gcc_atomic_operations are used onlu when the particularly sized __atomic
-    // intrinsics are always lock-free (i.e. the corresponding LOCK_FREE macro is 2). Therefore it is safe to
-    // always set is_always_lock_free to true here.
-    static BOOST_CONSTEXPR_OR_CONST bool is_always_lock_free = true;
-
     static BOOST_FORCEINLINE void store(storage_type volatile& storage, storage_type v, memory_order order) BOOST_NOEXCEPT
     {
         __atomic_store_n(&storage, v, atomics::detail::convert_memory_order_to_gcc(order));
@@ -185,7 +180,6 @@ template< bool Signed >
 struct operations< 16u, Signed > :
     public gcc_atomic_operations< typename make_storage_type< 16u, Signed >::type >
 {
-    typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
 };
 
 #endif
@@ -214,7 +208,6 @@ template< bool Signed >
 struct operations< 8u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 16u, Signed >::type >, 8u, Signed >
 {
-    typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
 };
 
 #else
@@ -223,7 +216,6 @@ template< bool Signed >
 struct operations< 8u, Signed > :
     public gcc_atomic_operations< typename make_storage_type< 8u, Signed >::type >
 {
-    typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
 };
 
 #endif
@@ -244,7 +236,6 @@ template< bool Signed >
 struct operations< 4u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 8u, Signed >::type >, 4u, Signed >
 {
-    typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
 };
 
 #else // !defined(BOOST_ATOMIC_DETAIL_INT64_EXTENDED)
@@ -253,7 +244,6 @@ template< bool Signed >
 struct operations< 4u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 16u, Signed >::type >, 4u, Signed >
 {
-    typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
 };
 
 #endif // !defined(BOOST_ATOMIC_DETAIL_INT64_EXTENDED)
@@ -264,7 +254,6 @@ template< bool Signed >
 struct operations< 4u, Signed > :
     public gcc_atomic_operations< typename make_storage_type< 4u, Signed >::type >
 {
-    typedef typename make_storage_type< 4u, Signed >::aligned aligned_storage_type;
 };
 
 #endif
@@ -285,7 +274,6 @@ template< bool Signed >
 struct operations< 2u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 4u, Signed >::type >, 2u, Signed >
 {
-    typedef typename make_storage_type< 4u, Signed >::aligned aligned_storage_type;
 };
 
 #elif !defined(BOOST_ATOMIC_DETAIL_INT64_EXTENDED)
@@ -294,7 +282,6 @@ template< bool Signed >
 struct operations< 2u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 8u, Signed >::type >, 2u, Signed >
 {
-    typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
 };
 
 #else
@@ -303,7 +290,6 @@ template< bool Signed >
 struct operations< 2u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 16u, Signed >::type >, 2u, Signed >
 {
-    typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
 };
 
 #endif
@@ -314,7 +300,6 @@ template< bool Signed >
 struct operations< 2u, Signed > :
     public gcc_atomic_operations< typename make_storage_type< 2u, Signed >::type >
 {
-    typedef typename make_storage_type< 2u, Signed >::aligned aligned_storage_type;
 };
 
 #endif
@@ -335,7 +320,6 @@ template< bool Signed >
 struct operations< 1u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 2u, Signed >::type >, 1u, Signed >
 {
-    typedef typename make_storage_type< 2u, Signed >::aligned aligned_storage_type;
 };
 
 #elif !defined(BOOST_ATOMIC_DETAIL_INT32_EXTENDED)
@@ -344,7 +328,6 @@ template< bool Signed >
 struct operations< 1u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 4u, Signed >::type >, 1u, Signed >
 {
-    typedef typename make_storage_type< 4u, Signed >::aligned aligned_storage_type;
 };
 
 #elif !defined(BOOST_ATOMIC_DETAIL_INT64_EXTENDED)
@@ -353,7 +336,6 @@ template< bool Signed >
 struct operations< 1u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 8u, Signed >::type >, 1u, Signed >
 {
-    typedef typename make_storage_type< 8u, Signed >::aligned aligned_storage_type;
 };
 
 #else
@@ -362,7 +344,6 @@ template< bool Signed >
 struct operations< 1u, Signed > :
     public extending_cas_based_operations< gcc_atomic_operations< typename make_storage_type< 16u, Signed >::type >, 1u, Signed >
 {
-    typedef typename make_storage_type< 16u, Signed >::aligned aligned_storage_type;
 };
 
 #endif
@@ -373,7 +354,6 @@ template< bool Signed >
 struct operations< 1u, Signed > :
     public gcc_atomic_operations< typename make_storage_type< 1u, Signed >::type >
 {
-    typedef typename make_storage_type< 1u, Signed >::aligned aligned_storage_type;
 };
 
 #endif

@@ -10,6 +10,7 @@
 #include <boost/detail/lightweight_test.hpp>
 #include <string>
 
+using namespace std;
 
 #include "impl/string_length.hpp"
 #include <boost/spirit/include/classic_core.hpp>
@@ -159,7 +160,7 @@ directives_test2()
 {
     //  Test that lexeme_d does not skip trailing spaces
 
-    std::string str1, str2;
+    string str1, str2;
     identifier ident;
 
     parse("rock_n_roll never_dies ",
@@ -167,7 +168,7 @@ directives_test2()
         ident[assign_a(str1)] >> ident[assign_a(str2)], space_p
     );
 
-    std::cout << '*' << str1 << ',' << str2 << '*' << std::endl;
+    cout << '*' << str1 << ',' << str2 << '*' << endl;
 
 
     BOOST_TEST(str1 == "rock_n_roll");

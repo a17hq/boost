@@ -1,14 +1,13 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
 // This file was modified by Oracle on 2014, 2015.
 // Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -41,7 +40,7 @@
 
 #include <boost/geometry/views/detail/range_type.hpp>
 
-#include <boost/geometry/algorithms/is_empty.hpp>
+#include <boost/geometry/algorithms/num_points.hpp>
 #include <boost/geometry/algorithms/detail/as_range.hpp>
 #include <boost/geometry/algorithms/detail/assign_box_corners.hpp>
 
@@ -83,7 +82,7 @@ struct hull_to_geometry
                 geometry::point_order<OutputGeometry>::value,
                 geometry::closure<OutputGeometry>::value
             >::apply(geometry,
-                range::back_inserter(
+                std::back_inserter(
                     // Handle linestring, ring and polygon the same:
                     detail::as_range
                         <
@@ -154,7 +153,7 @@ struct convex_hull
                              OutputGeometry& out,
                              Strategy const& strategy)
     {
-        BOOST_CONCEPT_ASSERT( (geometry::concepts::ConvexHullStrategy<Strategy>) );
+        BOOST_CONCEPT_ASSERT( (geometry::concept::ConvexHullStrategy<Strategy>) );
         dispatch::convex_hull<Geometry>::apply(geometry, out, strategy);
     }
 
@@ -179,7 +178,7 @@ struct convex_hull_insert
                                        OutputIterator& out,
                                        Strategy const& strategy)
     {
-        BOOST_CONCEPT_ASSERT( (geometry::concepts::ConvexHullStrategy<Strategy>) );
+        BOOST_CONCEPT_ASSERT( (geometry::concept::ConvexHullStrategy<Strategy>) );
 
         return dispatch::convex_hull_insert<
                    geometry::point_order<Geometry>::value,
@@ -212,7 +211,7 @@ struct convex_hull
     template <typename OutputGeometry, typename Strategy>
     static inline void apply(Geometry const& geometry, OutputGeometry& out, Strategy const& strategy)
     {
-        concepts::check_concepts_and_equal_dimensions<
+        concept::check_concepts_and_equal_dimensions<
             const Geometry,
             OutputGeometry
         >();
@@ -258,8 +257,8 @@ struct convex_hull_insert
     static inline OutputIterator apply(Geometry const& geometry, OutputIterator& out, Strategy const& strategy)
     {
         // Concept: output point type = point type of input geometry
-        concepts::check<Geometry const>();
-        concepts::check<typename point_type<Geometry>::type>();
+        concept::check<Geometry const>();
+        concept::check<typename point_type<Geometry>::type>();
 
         return resolve_strategy::convex_hull_insert::apply(geometry, out, strategy);
     }
@@ -302,7 +301,7 @@ template<typename Geometry, typename OutputGeometry, typename Strategy>
 inline void convex_hull(Geometry const& geometry,
             OutputGeometry& out, Strategy const& strategy)
 {
-    if (geometry::is_empty(geometry))
+    if (geometry::num_points(geometry) == 0)
     {
         // Leave output empty
         return;
@@ -327,7 +326,7 @@ template<typename Geometry, typename OutputGeometry>
 inline void convex_hull(Geometry const& geometry,
             OutputGeometry& hull)
 {
-    geometry::convex_hull(geometry, hull, default_strategy());
+    convex_hull(geometry, hull, default_strategy());
 }
 
 #ifndef DOXYGEN_NO_DETAIL

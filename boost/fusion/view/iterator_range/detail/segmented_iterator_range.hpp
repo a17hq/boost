@@ -8,7 +8,6 @@
 #define BOOST_FUSION_SEGMENTED_ITERATOR_RANGE_HPP_INCLUDED
 
 #include <boost/fusion/support/config.hpp>
-#include <boost/detail/workaround.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/type_traits/add_const.hpp>
 #include <boost/type_traits/remove_reference.hpp>
@@ -410,14 +409,11 @@ namespace boost { namespace fusion { namespace detail
     template <
         typename StackBegin
       , typename StackEnd
-      , bool SameSegment
-#if !(BOOST_WORKAROUND(BOOST_GCC, >= 40000) && BOOST_WORKAROUND(BOOST_GCC, < 40200))
-          = result_of::equal_to<
+      , bool SameSegment =
+            result_of::equal_to<
                 typename StackBegin::car_type::begin_type
               , typename StackEnd::car_type::begin_type
-            >::type::value
-#endif
-    >
+            >::type::value>
     struct make_segmented_range_reduce2
     {
         typedef
@@ -484,14 +480,7 @@ namespace boost { namespace fusion { namespace detail
 
     template <typename StackBegin, typename StackEnd, int StackBeginSize, int StackEndSize>
     struct make_segmented_range_reduce
-      : make_segmented_range_reduce2<StackBegin, StackEnd
-#if BOOST_WORKAROUND(BOOST_GCC, >= 40000) && BOOST_WORKAROUND(BOOST_GCC, < 40200)
-          , result_of::equal_to<
-                typename StackBegin::car_type::begin_type
-              , typename StackEnd::car_type::begin_type
-            >::type::value
-#endif
-        >
+      : make_segmented_range_reduce2<StackBegin, StackEnd>
     {};
 
     template <typename StackBegin, typename StackEnd>

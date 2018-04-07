@@ -15,7 +15,7 @@ import preprocess
 import os.path
 
 preprocess.main(
-      [ "plain", "typeof_based" ]
+      [ "plain", "typeof_based", "no_ctps" ]
     , "map"
     , os.path.join( "boost", "mpl", "map", "aux_", "preprocessed" )
     )

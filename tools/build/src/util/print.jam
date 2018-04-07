@@ -15,7 +15,6 @@ import regex ;
 import "class" ;
 import scanner ;
 import path ;
-import os ;
 
 # The current output target. Defaults to console.
 output-target = console ;
@@ -26,14 +25,6 @@ output-type = plain ;
 # Whitespace.
 .whitespace = [ string.whitespace ] ;
 
-# Redirect
-.redirect-out = ">" ;
-.redirect-append = ">>" ;
-if [ os.name ] = VMS
-{
-    .redirect-out = "| TYPE SYS$INPUT /OUT=" ;
-    .redirect-append = "| APPEND/NEW SYS$INPUT " ;
-}
 
 # Set the target and type of output to generate. This sets both the destination
 # output and the type of docs to generate to that output. The target can be
@@ -346,10 +337,10 @@ rule text (
 
         nl on $(output-target) = "
 " ;
-        text-redirect on $(output-target) = $(.redirect-append) ;
+        text-redirect on $(output-target) = ">>" ;
         if $(overwrite)
         {
-            text-redirect on $(output-target) = $(.redirect-out) ;
+            text-redirect on $(output-target) = ">" ;
         }
         text-content on $(output-target) = ;
 
@@ -411,13 +402,6 @@ actions quietly text-action
     @($(STDOUT):E=$(text-content:J=$(nl))) $(text-redirect) "$(<)"
 }
 
-if [ os.name ] = VMS
-{
-    actions quietly text-action
-    {
-        @($(STDOUT):E=$(text-content:J=$(nl))) $(text-redirect) $(<:W)
-    }
-}
 
 rule get-scanner ( )
 {
@@ -475,10 +459,6 @@ class print-scanner : scanner
         if [ os.name ] = NT
         {
             actual-content = [ SHELL "type \"$(file)\" 2>nul" ] ;
-        }
-        else if [ os.name ] = VMS
-        {
-            actual-content = [ SHELL "PIPE TYPE $(file:W) 2>NL:" ] ;
         }
         else
         {

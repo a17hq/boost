@@ -21,28 +21,28 @@ void expected_results()
       ".*",                          // platform
       ".*",                          // test type(s)
       "near.*",                      // test data group
-      "tgamma", 200, 100);  // test function
+      "boost::math::tgamma", 200, 100);  // test function
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
       ".*",                          // platform
       ".*",                          // test type(s)
       "near.*",                      // test data group
-      "lgamma", 10000000, 10000000);  // test function
+      "boost::math::lgamma", 10000000, 10000000);  // test function
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
       ".*",                          // platform
       ".*",                          // test type(s)
       "tgamma1pm1.*",                // test data group
-      "tgamma1pm1", 1000, 150);  // test function
+      "boost::math::tgamma1pm1", 1000, 150);  // test function
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
       ".*",                          // platform
       ".*",                          // test type(s)
       ".*",                          // test data group
-      "tgamma", 40, 20);  // test function
+      "boost::math::tgamma", 40, 20);  // test function
    //
    // Finish off by printing out the compiler/stdlib/platform names,
    // we do this to make it easier to mark up expected error rates.

@@ -127,12 +127,6 @@ class smart_ptr
       :  m_ptr(ptr.m_ptr)
    {}
 
-   pointer get() const
-   {  return m_ptr;  }
-
-   void set(pointer p)
-   {  m_ptr = p;  }
-
    //!Pointer-like -> operator. It can return 0 pointer. Never throws.
    pointer operator->() const
    {  return m_ptr; }
@@ -282,26 +276,25 @@ struct pointer_plus_bits<smart_ptr<T>, NumBits>
 
    static pointer get_pointer(const pointer &n)
    {
-      pointer p;
-      p.set(pointer_plus_bits<T*, NumBits>::get_pointer(n.get()));
-      return p;
+      return  pointer_traits<pointer>::pointer_to
+         (*pointer_plus_bits<T*, NumBits>::get_pointer(n.operator->()));
    }
 
    static void set_pointer(pointer &n, pointer p)
    {
-      T *raw_n = n.get();
+      T *raw_n = n.operator->();
       pointer_plus_bits<T*, NumBits>::set_pointer(raw_n, p.operator->());
-      n.set(raw_n);
+      n = pointer_traits<pointer>::pointer_to(*raw_n);
    }
 
    static std::size_t get_bits(const pointer &n)
-   {  return pointer_plus_bits<T*, NumBits>::get_bits(n.get());  }
+   {  return pointer_plus_bits<T*, NumBits>::get_bits(n.operator->());  }
 
    static void set_bits(pointer &n, std::size_t c)
    {
       T *raw_n = n.operator->();
       pointer_plus_bits<T*, NumBits>::set_bits(raw_n, c);
-      n.set(raw_n);
+      n = pointer_traits<pointer>::pointer_to(*raw_n);
    }
 };
 

@@ -44,10 +44,6 @@ public:
     {
         return -(l=r+val);
     }
-    char operator()(int& l, int& r)
-    {
-        return l=r+val;
-    }
 
     template <typename Sig>
     struct result
@@ -93,11 +89,8 @@ int main()
         // lvalue,lvalue
         BOOST_TEST(( is_same<
             result_of< f(int&, int&) >::type, char >::value ));
-        // result_of works differently for C++11 here, so compare
-        // with using it against test_func.
         BOOST_TEST(( is_same<
-            result_of< f const (int&, int&) >::type,
-            result_of< test_func<> const (int&, int&)>::type >::value ));
+            result_of< f const (int&, int&) >::type, char >::value ));
     }
 
     {

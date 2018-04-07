@@ -25,5 +25,5 @@ struct foo : boost::fusion::sequence_facade<foo, boost::fusion::random_access_tr
  
 int main()
 {
-  (void)(boost::phoenix::arg_names::arg1 < foo());
+  /*auto x = */ boost::phoenix::arg_names::arg1 < foo();
 }

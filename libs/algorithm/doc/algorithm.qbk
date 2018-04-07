@@ -66,7 +66,6 @@ Thanks to all the people who have reviewed this library and made suggestions for
 [include clamp-hpp.qbk]
 [include gather.qbk]
 [include hex.qbk]
-[include is_palindrome.qbk]
 [endsect]
 
 

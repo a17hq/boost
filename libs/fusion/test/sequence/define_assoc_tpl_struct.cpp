@@ -31,8 +31,6 @@ BOOST_FUSION_DEFINE_ASSOC_TPL_STRUCT(
     (int, y, ns::y_member)
 )
 
-BOOST_FUSION_DEFINE_ASSOC_TPL_STRUCT((M), BOOST_PP_EMPTY(), empty_struct, )
-
 int
 main()
 {
@@ -65,9 +63,9 @@ main()
     }
 
     {
-        vector<int, float> v1(4, 2.f);
+        vector<int, float> v1(4, 2);
         point v2(5, 3);
-        vector<long, double> v3(5, 4.0);
+        vector<long, double> v3(5, 4);
         BOOST_TEST(v1 < v2);
         BOOST_TEST(v1 <= v2);
         BOOST_TEST(v2 > v1);

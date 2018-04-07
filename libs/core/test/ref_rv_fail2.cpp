@@ -13,5 +13,4 @@
 int main()
 {
     boost::reference_wrapper<int> r = boost::ref( 2 ); // this should produce an ERROR
-    (void)r;
 }

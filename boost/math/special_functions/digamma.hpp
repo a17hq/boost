@@ -8,8 +8,6 @@
 
 #ifdef _MSC_VER
 #pragma once
-#pragma warning(push)
-#pragma warning(disable:4702) // Unreachable code (release mode only warning)
 #endif
 
 #include <boost/math/special_functions/math_fwd.hpp>
@@ -491,7 +489,7 @@ T digamma_imp(T x, const mpl::int_<0>* t, const Policy& pol)
    // limit = 10 at 50 bit precision and
    // limit = 250 at 1000 bit precision.
    //
-   int lim = 10 + ((tools::digits<T>() - 50) * 240L) / 950;
+   T lim = 10 + (tools::digits<T>() - 50) * 240 / 950;
    T two_x = ldexp(x, 1);
    if(x >= lim)
    {
@@ -626,10 +624,5 @@ inline typename tools::promote_args<T>::type
 
 } // namespace math
 } // namespace boost
-
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
-
 #endif
 

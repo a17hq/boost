@@ -6,12 +6,6 @@
 
 #include <boost/core/ignore_unused.hpp>
 
-BOOST_CXX14_CONSTEXPR int test_fun(int a)
-{
-    boost::ignore_unused(a);
-    return 0;
-}
-
 int main()
 {
     {
@@ -64,11 +58,6 @@ int main()
         typedef int d;
         typedef int e;
         boost::ignore_unused<a, b, c, d, e>();
-    }
-
-    {
-        BOOST_CXX14_CONSTEXPR const int a = test_fun(0);
-        boost::ignore_unused(a);
     }
 
     return 0;

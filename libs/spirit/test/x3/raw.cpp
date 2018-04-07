@@ -11,7 +11,8 @@
 #include <string>
 #include "test.hpp"
 
-int main()
+int
+main()
 {
     using spirit_test::test;
     using spirit_test::test_attr;
@@ -40,7 +41,7 @@ int main()
         BOOST_TEST((test("x", raw[alpha])));
         BOOST_TEST((test_attr("x", raw[alpha], range)));
     }
-
+    
     {
         boost::iterator_range<char const*> range;
         BOOST_TEST((test("x", raw[alpha][ ([&](auto& ctx){ range = _attr(ctx); }) ])));

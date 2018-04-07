@@ -82,7 +82,6 @@ static void ps_map_destroy( struct ps_map * map )
         for ( pos = map->table[ i ]; pos; )
         {
             struct ps_map_entry * tmp = pos->next;
-            object_free( pos->value );
             BJAM_FREE( pos );
             pos = tmp;
         }
@@ -165,7 +164,7 @@ LIST * property_set_create( FRAME * frame, int flags )
             list_new( object_new( "property-set" ) ), 0 );
         LISTITER iter, end;
         object_free( rulename );
-        pos->value = object_copy( list_front( val ) );
+        pos->value = list_front( val );
         var_set( bindmodule( pos->value ), varname, unique, VAR_SET );
         object_free( varname );
 

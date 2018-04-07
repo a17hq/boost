@@ -6,10 +6,11 @@ import package ;
 import os ;
 
 local ext = "" ;
-if [ os.on-windows ] || [ os.on-vms ]
+if [ os.on-windows ]
 {
     ext = ".exe" ;
 }
+
 
 package.install boost-build-engine boost-build
   : # properties

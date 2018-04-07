@@ -11,11 +11,7 @@
 #ifndef BOOST_GEOMETRY_INDEX_DETAIL_PREDICATES_HPP
 #define BOOST_GEOMETRY_INDEX_DETAIL_PREDICATES_HPP
 
-//#include <utility>
-
-#include <boost/mpl/assert.hpp>
-#include <boost/tuple/tuple.hpp>
-
+#include <boost/geometry/index/predicates.hpp>
 #include <boost/geometry/index/detail/tags.hpp>
 
 namespace boost { namespace geometry { namespace index { namespace detail {
@@ -29,7 +25,6 @@ namespace predicates {
 template <typename Fun, bool IsFunction>
 struct satisfies_impl
 {
-    satisfies_impl() : fun(NULL) {}
     satisfies_impl(Fun f) : fun(f) {}
     Fun * fun;
 };
@@ -37,7 +32,6 @@ struct satisfies_impl
 template <typename Fun>
 struct satisfies_impl<Fun, false>
 {
-    satisfies_impl() {}
     satisfies_impl(Fun const& f) : fun(f) {}
     Fun fun;
 };
@@ -48,7 +42,6 @@ struct satisfies
 {
     typedef satisfies_impl<Fun, ::boost::is_function<Fun>::value> base;
 
-    satisfies() {}
     satisfies(Fun const& f) : base(f) {}
     satisfies(base const& b) : base(b) {}
 };
@@ -67,7 +60,6 @@ struct within_tag {};
 template <typename Geometry, typename Tag, bool Negated>
 struct spatial_predicate
 {
-    spatial_predicate() {}
     spatial_predicate(Geometry const& g) : geometry(g) {}
     Geometry geometry;
 };
@@ -83,9 +75,6 @@ struct spatial_predicate
 template <typename PointOrRelation>
 struct nearest
 {
-    nearest()
-//        : count(0)
-    {}
     nearest(PointOrRelation const& por, unsigned k)
         : point_or_relation(por)
         , count(k)
@@ -97,9 +86,6 @@ struct nearest
 template <typename SegmentOrLinestring>
 struct path
 {
-    path()
-//        : count(0)
-    {}
     path(SegmentOrLinestring const& g, unsigned k)
         : geometry(g)
         , count(k)
@@ -302,7 +288,7 @@ struct predicate_check<predicates::satisfies<Fun, Negated>, bounds_tag>
 // NOT NEGATED
 // value_tag        bounds_tag
 // ---------------------------
-// contains(I,G)    covers(I,G)
+// contains(I,G)    contains(I,G)
 // covered_by(I,G)  intersects(I,G)
 // covers(I,G)      covers(I,G)
 // disjoint(I,G)    !covered_by(I,G)
@@ -333,7 +319,7 @@ struct predicate_check<predicates::spatial_predicate<Geometry, predicates::conta
     template <typename Value, typename Indexable>
     static inline bool apply(Pred const& p, Value const&, Indexable const& i)
     {
-        return spatial_predicate_call<predicates::covers_tag>::apply(i, p.geometry);
+        return spatial_predicate_call<predicates::contains_tag>::apply(i, p.geometry);
     }
 };
 

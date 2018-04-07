@@ -23,8 +23,6 @@
  *  file_collect_dir_content_() - collects directory content information
  *  file_dirscan_()             - OS specific file_dirscan() implementation
  *  file_query_()               - query information about a path from the OS
- *  file_collect_archive_content_() - collects information about archive members
- *  file_archivescan_()         - OS specific file_archivescan() implementation
  */
 
 #include "jam.h"
@@ -34,7 +32,6 @@
 #include "object.h"
 #include "pathsys.h"
 #include "strings.h"
-#include "output.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -223,65 +220,13 @@ void file_supported_fmt_resolution( timestamp * const t )
 /*
  * file_archscan() - scan an archive for files
  */
-void file_archscan( char const * arch, scanback func, void * closure )
-{
-    OBJECT * path = object_new( arch );
-    file_archive_info_t * archive = file_archive_query( path );
-
-    object_free( path );
-
-    if ( filelist_empty( archive->members ) )
-    {
-        if ( file_collect_archive_content_( archive ) < 0 )
-            return;
-    }
-
-    /* Report the collected archive content. */
-    {
-        FILELISTITER iter = filelist_begin( archive->members );
-        FILELISTITER const end = filelist_end( archive->members );
-        char buf[ MAXJPATH ];
-
-        for ( ; iter != end ; iter = filelist_next( iter ) )
-        {
-            file_info_t * member_file = filelist_item( iter );
-            LIST * symbols = member_file->files;
-
-            /* Construct member path: 'archive-path(member-name)'
-             */
-            sprintf( buf, "%s(%s)",
-                object_str( archive->file->name ),
-                object_str( member_file->name ) );
-            {
-                OBJECT * const member = object_new( buf );
-                (*func)( closure, member, 1 /* time valid */, &member_file->time );
-                object_free( member );
-            }
-        }
-    }
-}
-
-
-/*
- *  file_archivescan_()         - OS specific file_archivescan() implementation
- */
-
-void file_archivescan_( file_archive_info_t * const archive, archive_scanback func,
-                        void * closure )
-{
-}
-
-
-/*
- *  file_collect_archive_content_() - collects information about archive members
- */
 
 #ifndef AIAMAG  /* God-fearing UNIX */
 
 #define SARFMAG  2
 #define SARHDR  sizeof( struct ar_hdr )
 
-int file_collect_archive_content_( file_archive_info_t * const archive )
+void file_archscan( char const * archive, scanback func, void * closure )
 {
 #ifndef NO_AR
     struct ar_hdr ar_hdr;
@@ -289,24 +234,21 @@ int file_collect_archive_content_( file_archive_info_t * const archive )
     char buf[ MAXJPATH ];
     long offset;
     int fd;
-    const char * path = object_str( archive->file->name );
 
-    if ( ! filelist_empty( archive->members ) ) filelist_free( archive->members );
-
-    if ( ( fd = open( path, O_RDONLY, 0 ) ) < 0 )
-        return -1;
+    if ( ( fd = open( archive, O_RDONLY, 0 ) ) < 0 )
+        return;
 
     if ( read( fd, buf, SARMAG ) != SARMAG ||
         strncmp( ARMAG, buf, SARMAG ) )
     {
         close( fd );
-        return -1;
+        return;
     }
 
     offset = SARMAG;
 
     if ( DEBUG_BINDSCAN )
-        out_printf( "scan archive %s\n", path );
+        printf( "scan archive %s\n", archive );
 
     while ( ( read( fd, &ar_hdr, SARHDR ) == SARHDR ) &&
         !( memcmp( ar_hdr.ar_fmag, ARFMAG, SARFMAG )
@@ -341,7 +283,7 @@ int file_collect_archive_content_( file_archive_info_t * const archive )
                 string_table = (char *)BJAM_MALLOC_ATOMIC( lar_size );
                 lseek( fd, offset + SARHDR, 0 );
                 if ( read( fd, string_table, lar_size ) != lar_size )
-                    out_printf("error reading string table\n");
+                    printf("error reading string table\n");
             }
             else if ( string_table && ar_hdr.ar_name[ 1 ] != ' ' )
             {
@@ -363,20 +305,16 @@ int file_collect_archive_content_( file_archive_info_t * const archive )
         *c = '\0';
 
         if ( DEBUG_BINDSCAN )
-            out_printf( "archive name %s found\n", lar_name );
+            printf( "archive name %s found\n", lar_name );
 
-        sprintf( buf, "%s", lar_name );
+        sprintf( buf, "%s(%s)", archive, lar_name );
 
-        if ( strcmp( buf, "") != 0 )
         {
-            file_info_t * member = 0;
-
-            archive->members = filelist_push_back( archive->members, object_new( buf ) );
-            member = filelist_back( archive->members );
-            member->is_file = 1;
-            member->is_dir = 0;
-            member->exists = 0;
-            timestamp_init( &member->time, (time_t)lar_date, 0 );
+            OBJECT * const member = object_new( buf );
+            timestamp time;
+            timestamp_init( &time, (time_t)lar_date, 0 );
+            (*func)( closure, member, 1 /* time valid */, &time );
+            object_free( member );
         }
 
         offset += SARHDR + ( ( lar_size + 1 ) & ~1 );
@@ -388,13 +326,12 @@ int file_collect_archive_content_( file_archive_info_t * const archive )
 
     close( fd );
 #endif  /* NO_AR */
-
-    return 0;
 }
 
 #else  /* AIAMAG - RS6000 AIX */
 
-static void collect_archive_content_small( int fd, file_archive_info_t * const archive )
+static void file_archscan_small( int fd, char const * archive, scanback func,
+    void * closure )
 {
     struct fl_hdr fl_hdr;
 
@@ -405,7 +342,6 @@ static void collect_archive_content_small( int fd, file_archive_info_t * const a
 
     char buf[ MAXJPATH ];
     long offset;
-    const char * path = object_str( archive->file->name );
 
     if ( read( fd, (char *)&fl_hdr, FL_HSZ ) != FL_HSZ )
         return;
@@ -413,7 +349,7 @@ static void collect_archive_content_small( int fd, file_archive_info_t * const a
     sscanf( fl_hdr.fl_fstmoff, "%ld", &offset );
 
     if ( DEBUG_BINDSCAN )
-        out_printf( "scan archive %s\n", path );
+        printf( "scan archive %s\n", archive );
 
     while ( offset > 0 && lseek( fd, offset, 0 ) >= 0 &&
         read( fd, &ar_hdr, sizeof( ar_hdr ) ) >= (int)sizeof( ar_hdr.hdr ) )
@@ -430,18 +366,14 @@ static void collect_archive_content_small( int fd, file_archive_info_t * const a
 
         ar_hdr.hdr._ar_name.ar_name[ lar_namlen ] = '\0';
 
-        sprintf( buf, "%s", ar_hdr.hdr._ar_name.ar_name );
+        sprintf( buf, "%s(%s)", archive, ar_hdr.hdr._ar_name.ar_name );
 
-        if ( strcmp( buf, "") != 0 )
         {
-            file_info_t * member = 0;
-
-            archive->members = filelist_push_back( archive->members, object_new( buf ) );
-            member = filelist_back( archive->members );
-            member->is_file = 1;
-            member->is_dir = 0;
-            member->exists = 0;
-            timestamp_init( &member->time, (time_t)lar_date, 0 );
+            OBJECT * const member = object_new( buf );
+            timestamp time;
+            timestamp_init( &time, (time_t)lar_date, 0 );
+            (*func)( closure, member, 1 /* time valid */, &time );
+            object_free( member );
         }
     }
 }
@@ -449,7 +381,8 @@ static void collect_archive_content_small( int fd, file_archive_info_t * const a
 /* Check for OS versions supporting the big variant. */
 #ifdef AR_HSZ_BIG
 
-static void collect_archive_content_big( int fd, file_archive_info_t * const archive )
+static void file_archscan_big( int fd, char const * archive, scanback func,
+    void * closure )
 {
     struct fl_hdr_big fl_hdr;
 
@@ -460,7 +393,6 @@ static void collect_archive_content_big( int fd, file_archive_info_t * const arc
 
     char buf[ MAXJPATH ];
     long long offset;
-    const char * path = object_str( archive->file->name );
 
     if ( read( fd, (char *)&fl_hdr, FL_HSZ_BIG ) != FL_HSZ_BIG )
         return;
@@ -468,7 +400,7 @@ static void collect_archive_content_big( int fd, file_archive_info_t * const arc
     sscanf( fl_hdr.fl_fstmoff, "%lld", &offset );
 
     if ( DEBUG_BINDSCAN )
-        out_printf( "scan archive %s\n", path );
+        printf( "scan archive %s\n", archive );
 
     while ( offset > 0 && lseek( fd, offset, 0 ) >= 0 &&
         read( fd, &ar_hdr, sizeof( ar_hdr ) ) >= sizeof( ar_hdr.hdr ) )
@@ -485,58 +417,49 @@ static void collect_archive_content_big( int fd, file_archive_info_t * const arc
 
         ar_hdr.hdr._ar_name.ar_name[ lar_namlen ] = '\0';
 
-        sprintf( buf, "%s", ar_hdr.hdr._ar_name.ar_name );
+        sprintf( buf, "%s(%s)", archive, ar_hdr.hdr._ar_name.ar_name );
 
-        if ( strcmp( buf, "") != 0 )
         {
-            file_info_t * member = 0;
-
-            archive->members = filelist_push_back( archive->members, object_new( buf ) );
-            member = filelist_back( archive->members );
-            member->is_file = 1;
-            member->is_dir = 0;
-            member->exists = 0;
-            timestamp_init( &member->time, (time_t)lar_date, 0 );
+            OBJECT * const member = object_new( buf );
+            timestamp time;
+            timestamp_init( &time, (time_t)lar_date, 0 );
+            (*func)( closure, member, 1 /* time valid */, &time );
+            object_free( member );
         }
     }
 }
 
 #endif  /* AR_HSZ_BIG */
 
-int file_collect_archive_content_( file_archive_info_t * const archive )
+void file_archscan( char const * archive, scanback func, void * closure )
 {
     int fd;
     char fl_magic[ SAIAMAG ];
-    const char * path = object_str( archive->file->name );
 
-    if ( ! filelist_empty( archive->members ) ) filelist_free( archive->members );
-
-    if ( ( fd = open( path, O_RDONLY, 0 ) ) < 0 )
-        return -1;
+    if ( ( fd = open( archive, O_RDONLY, 0 ) ) < 0 )
+        return;
 
     if ( read( fd, fl_magic, SAIAMAG ) != SAIAMAG ||
         lseek( fd, 0, SEEK_SET ) == -1 )
     {
         close( fd );
-        return -1;
+        return;
     }
 
     if ( !strncmp( AIAMAG, fl_magic, SAIAMAG ) )
     {
         /* read small variant */
-        collect_archive_content_small( fd, archive );
+        file_archscan_small( fd, archive, func, closure );
     }
 #ifdef AR_HSZ_BIG
     else if ( !strncmp( AIAMAGBIG, fl_magic, SAIAMAG ) )
     {
         /* read big variant */
-        collect_archive_content_big( fd, archive );
+        file_archscan_big( fd, archive, func, closure );
     }
 #endif
 
     close( fd );
-
-    return 0;
 }
 
 #endif  /* AIAMAG - RS6000 AIX */

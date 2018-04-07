@@ -76,8 +76,7 @@ boostbook standalone
 
 install pdfinstall : standalone : <location>. <install-type>PDF <name>multiprecision.pdf ;
 
-###############################################################################
-alias boostdoc ;
-explicit boostdoc ;
-alias boostrelease : standalone ;
-explicit boostrelease ;
+
+
+
+

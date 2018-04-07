@@ -16,7 +16,6 @@
 #ifndef BOOST_LOG_ATTRIBUTE_SET_IMPL_HPP_INCLUDED_
 #define BOOST_LOG_ATTRIBUTE_SET_IMPL_HPP_INCLUDED_
 
-#include <boost/log/detail/config.hpp>
 #include <new>
 #include <memory>
 #include <limits>

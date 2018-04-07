@@ -12,6 +12,8 @@
 #ifndef BOOST_ALGORITHM_IS_PARTITIONED_HPP
 #define BOOST_ALGORITHM_IS_PARTITIONED_HPP
 
+#include <algorithm>    // for std::is_partitioned, if available
+
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 
@@ -24,6 +26,8 @@ namespace boost { namespace algorithm {
 /// \param last     One past the end of the input sequence
 /// \param p        The predicate to test the values with
 /// \note           This function is part of the C++2011 standard library.
+///  We will use the standard one if it is available, 
+///  otherwise we have our own implementation.
 template <typename InputIterator, typename UnaryPredicate>
 bool is_partitioned ( InputIterator first, InputIterator last, UnaryPredicate p )
 {

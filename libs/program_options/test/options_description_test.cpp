@@ -25,7 +25,6 @@ void test_type()
         ("bar", value<string>(), "")
         ;
     
-#ifndef BOOST_NO_RTTI
     const typed_value_base* b = dynamic_cast<const typed_value_base*>
         (desc.find("foo", false).semantic().get());
     BOOST_CHECK(b);
@@ -35,7 +34,6 @@ void test_type()
         (desc.find("bar", false).semantic().get());
     BOOST_CHECK(b2);
     BOOST_CHECK(b2->value_type() == typeid(string));
-#endif
 }
 
 void test_approximation()

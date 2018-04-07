@@ -12,7 +12,7 @@
 #ifndef BOOST_IOSTREAMS_GZIP_HPP_INCLUDED
 #define BOOST_IOSTREAMS_GZIP_HPP_INCLUDED
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
 # pragma once
 #endif
 
@@ -27,7 +27,6 @@
 #include <boost/config.hpp>               // Put size_t in std.
 #include <boost/detail/workaround.hpp>
 #include <boost/cstdint.hpp>              // uint8_t, uint32_t.
-#include <boost/iostreams/checked_operations.hpp>
 #include <boost/iostreams/constants.hpp>  // buffer size.
 #include <boost/iostreams/detail/adapter/non_blocking_adapter.hpp>
 #include <boost/iostreams/detail/adapter/range_adapter.hpp>
@@ -44,9 +43,7 @@
 // Must come last.
 #if defined(BOOST_MSVC)
 # pragma warning(push)
-# pragma warning(disable:4244)    // Possible truncation
-# pragma warning(disable:4251)    // Missing DLL interface for std::string
-# pragma warning(disable:4309)    // Truncation of constant value.
+# pragma warning(disable: 4309)    // Truncation of constant value.
 #endif
 
 #ifdef BOOST_NO_STDC_NAMESPACE
@@ -238,7 +235,7 @@ public:
         if (!(flags_ & f_header_done)) {
             std::streamsize amt = 
                 static_cast<std::streamsize>(header_.size() - offset_);
-            offset_ += boost::iostreams::write_if(snk, header_.data() + offset_, amt);
+            offset_ += boost::iostreams::write(snk, header_.data() + offset_, amt);
             if (offset_ == header_.size())
                 flags_ |= f_header_done;
             else
@@ -251,9 +248,6 @@ public:
     void close(Sink& snk, BOOST_IOS::openmode m)
     {
         try {
-            if (m == BOOST_IOS::out && !(flags_ & f_header_done))
-                this->write(snk, 0, 0);
-
             // Close zlib compressor.
             base_type::close(snk, m);
 
@@ -298,7 +292,13 @@ private:
 
     void close_impl()
     {
-        footer_.clear();
+        #if BOOST_WORKAROUND(__GNUC__, == 2) && defined(__STL_CONFIG_H) || \
+            BOOST_WORKAROUND(BOOST_DINKUMWARE_STDLIB, == 1) \
+            /**/
+            footer_.erase(0, std::string::npos);
+        #else
+            footer_.clear();
+        #endif
         offset_ = 0;
         flags_ = 0;
     }

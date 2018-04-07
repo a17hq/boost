@@ -111,28 +111,16 @@ namespace test {
         exceptions_enable(exceptions_enable const&);
 
         bool old_value_;
-        bool released_;
     public:
         exceptions_enable(bool enable)
-            : old_value_(exceptions_enabled), released_(false)
+            : old_value_(exceptions_enabled)
         {
             exceptions_enabled = enable;
         }
 
         ~exceptions_enable()
         {
-            if (!released_) {
-                exceptions_enabled = old_value_;
-                released_ = true;
-            }
-        }
-
-        void release()
-        {
-            if (!released_) {
-                exceptions_enabled = old_value_;
-                released_ = true;
-            }
+            exceptions_enabled = old_value_;
         }
     };
 
@@ -179,13 +167,12 @@ namespace test {
     class test_runner
     {
         Test const& test_;
-        bool exception_in_check_;
 
         test_runner(test_runner const&);
         test_runner& operator=(test_runner const&);
     public:
-        test_runner(Test const& t) : test_(t), exception_in_check_(false) {}
-        void run() {
+        test_runner(Test const& t) : test_(t) {}
+        void operator()() const {
             DISABLE_EXCEPTIONS;
             test::scope = "";
             BOOST_DEDUCED_TYPENAME Test::data_type x(test_.init());
@@ -200,22 +187,12 @@ namespace test {
                 >(&Test::run, test_, x, strong);
             }
             catch(...) {
-                try {
-                    DISABLE_EXCEPTIONS;
-                    call_ignore_extra_parameters<
-                        Test,
-                        BOOST_DEDUCED_TYPENAME Test::data_type const,
-                        BOOST_DEDUCED_TYPENAME Test::strong_type const
-                    >(&Test::check, test_, constant(x), constant(strong));
-                } catch(...) {
-                    exception_in_check_ = true;
-                }
+                call_ignore_extra_parameters<
+                    Test,
+                    BOOST_DEDUCED_TYPENAME Test::data_type const,
+                    BOOST_DEDUCED_TYPENAME Test::strong_type const
+                >(&Test::check, test_, constant(x), constant(strong));
                 throw;
-            }
-        }
-        void end() {
-            if (exception_in_check_) {
-                BOOST_ERROR("Unexcpected exception in test_runner check call.");
             }
         }
     };
@@ -247,30 +224,26 @@ namespace test {
 
             iteration = 0;
             bool success = false;
-            char const* error_msg = 0;
             do {
                 ++iteration;
                 count = 0;
 
                 try {
-                    runner.run();
+                    runner();
                     success = true;
                 }
                 catch(test_failure) {
-                    error_msg = "test_failure caught.";
+                    BOOST_ERROR("test_failure caught.");
                     break;
                 }
                 catch(test_exception) {
                     continue;
                 }
                 catch(...) {
-                    error_msg = "Unexpected exception.";
+                    BOOST_ERROR("Unexpected exception.");
                     break;
                 }
             } while(!success);
-
-            if (error_msg) { BOOST_ERROR(error_msg); }
-            runner.end();
         }
     }
 }

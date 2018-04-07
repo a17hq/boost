@@ -21,8 +21,6 @@
 #  pragma once
 #endif
 
-#include <boost/intrusive/detail/workaround.hpp>
-
 namespace boost {
 namespace intrusive {
 namespace detail {
@@ -41,7 +39,7 @@ class exception_disposer
       :  cont_(&cont), disp_(disp)
    {}
 
-   BOOST_INTRUSIVE_FORCEINLINE void release()
+   void release()
    {  cont_ = 0;  }
 
    ~exception_disposer()
@@ -69,7 +67,7 @@ class exception_array_disposer
       :  cont_(&cont), disp_(disp), constructed_(constructed)
    {}
 
-   BOOST_INTRUSIVE_FORCEINLINE void release()
+   void release()
    {  cont_ = 0;  }
 
    ~exception_array_disposer()

@@ -6,13 +6,13 @@
 import numbers ;
 
 
-.major = "2015" ;
-.minor = "07" ;
+.major = "2014" ;
+.minor = "03" ;
 
 
 rule boost-build ( )
 {
-    return "$(.major).$(.minor)-git" ;
+    return "$(.major).$(.minor)-svn" ;
 }
 
 

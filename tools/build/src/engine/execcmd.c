@@ -117,5 +117,5 @@ int interrupted( void )
 void onintr( int disp )
 {
     ++intr;
-    out_printf( "...interrupted\n" );
+    printf( "...interrupted\n" );
 }

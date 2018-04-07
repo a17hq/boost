@@ -23,7 +23,6 @@
 #endif
 
 #include <boost/intrusive/detail/config_begin.hpp>
-#include <boost/intrusive/detail/workaround.hpp>
 #include <boost/intrusive/pointer_rebind.hpp>
 #include <boost/intrusive/rbtree_algorithms.hpp>
 #include <boost/intrusive/pointer_plus_bits.hpp>
@@ -74,46 +73,46 @@ struct default_rbtree_node_traits_impl
 
    typedef typename node::color color;
 
-   BOOST_INTRUSIVE_FORCEINLINE static node_ptr get_parent(const const_node_ptr & n)
+   static node_ptr get_parent(const const_node_ptr & n)
    {  return n->parent_;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static node_ptr get_parent(const node_ptr & n)
+   static node_ptr get_parent(const node_ptr & n)
    {  return n->parent_;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static void set_parent(const node_ptr & n, const node_ptr & p)
+   static void set_parent(const node_ptr & n, const node_ptr & p)
    {  n->parent_ = p;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static node_ptr get_left(const const_node_ptr & n)
+   static node_ptr get_left(const const_node_ptr & n)
    {  return n->left_;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static node_ptr get_left(const node_ptr & n)
+   static node_ptr get_left(const node_ptr & n)
    {  return n->left_;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static void set_left(const node_ptr & n, const node_ptr & l)
+   static void set_left(const node_ptr & n, const node_ptr & l)
    {  n->left_ = l;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static node_ptr get_right(const const_node_ptr & n)
+   static node_ptr get_right(const const_node_ptr & n)
    {  return n->right_;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static node_ptr get_right(const node_ptr & n)
+   static node_ptr get_right(const node_ptr & n)
    {  return n->right_;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static void set_right(const node_ptr & n, const node_ptr & r)
+   static void set_right(const node_ptr & n, const node_ptr & r)
    {  n->right_ = r;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static color get_color(const const_node_ptr & n)
+   static color get_color(const const_node_ptr & n)
    {  return n->color_;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static color get_color(const node_ptr & n)
+   static color get_color(const node_ptr & n)
    {  return n->color_;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static void set_color(const node_ptr & n, color c)
+   static void set_color(const node_ptr & n, color c)
    {  n->color_ = c;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static color black()
+   static color black()
    {  return node::black_t;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static color red()
+   static color red()
    {  return node::red_t;  }
 };
 
@@ -130,46 +129,46 @@ struct compact_rbtree_node_traits_impl
 
    typedef typename node::color color;
 
-   BOOST_INTRUSIVE_FORCEINLINE static node_ptr get_parent(const const_node_ptr & n)
+   static node_ptr get_parent(const const_node_ptr & n)
    {  return ptr_bit::get_pointer(n->parent_);  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static node_ptr get_parent(const node_ptr & n)
+   static node_ptr get_parent(const node_ptr & n)
    {  return ptr_bit::get_pointer(n->parent_);  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static void set_parent(const node_ptr & n, const node_ptr & p)
+   static void set_parent(const node_ptr & n, const node_ptr & p)
    {  ptr_bit::set_pointer(n->parent_, p);  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static node_ptr get_left(const const_node_ptr & n)
+   static node_ptr get_left(const const_node_ptr & n)
    {  return n->left_;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static node_ptr get_left(const node_ptr & n)
+   static node_ptr get_left(const node_ptr & n)
    {  return n->left_;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static void set_left(const node_ptr & n, const node_ptr & l)
+   static void set_left(const node_ptr & n, const node_ptr & l)
    {  n->left_ = l;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static node_ptr get_right(const const_node_ptr & n)
+   static node_ptr get_right(const const_node_ptr & n)
    {  return n->right_;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static node_ptr get_right(const node_ptr & n)
+   static node_ptr get_right(const node_ptr & n)
    {  return n->right_;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static void set_right(const node_ptr & n, const node_ptr & r)
+   static void set_right(const node_ptr & n, const node_ptr & r)
    {  n->right_ = r;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static color get_color(const const_node_ptr & n)
+   static color get_color(const const_node_ptr & n)
    {  return (color)ptr_bit::get_bits(n->parent_);  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static color get_color(const node_ptr & n)
+   static color get_color(const node_ptr & n)
    {  return (color)ptr_bit::get_bits(n->parent_);  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static void set_color(const node_ptr & n, color c)
+   static void set_color(const node_ptr & n, color c)
    {  ptr_bit::set_bits(n->parent_, c != 0);  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static color black()
+   static color black()
    {  return node::black_t;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE static color red()
+   static color red()
    {  return node::red_t;  }
 };
 

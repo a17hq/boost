@@ -55,8 +55,8 @@ namespace
 
     const double sec = 1000000000.0L;
     nanosecond_type total = times.system + times.user;
-    double wall_sec = static_cast<double>(times.wall) / sec;
-    double total_sec = static_cast<double>(total) / sec;
+    double wall_sec = times.wall / sec;
+    double total_sec = total / sec;
 
     for (const char* format = fmt.c_str(); *format; ++format)
     {
@@ -72,10 +72,10 @@ namespace
           os << wall_sec;
           break;
         case 'u':
-          os << static_cast<double>(times.user) / sec;
+          os << times.user / sec;
           break;
         case 's':
-          os << static_cast<double>(times.system) / sec;
+          os << times.system / sec;
           break;
         case 't':
           os << total_sec;

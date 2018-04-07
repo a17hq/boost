@@ -17,23 +17,23 @@ class PolymorphTest(unittest.TestCase):
 
       # Python Created B Object and Cpp B Object
       # Should have same result by calling f()
-      self.assertEqual ('B::f()', a.f())
-      self.assertEqual ('B::f()', call_f(a))
-      self.assertEqual ('A::f()', call_f(A()))
+      self.failUnlessEqual ('B::f()', a.f())
+      self.failUnlessEqual ('B::f()', call_f(a))
+      self.failUnlessEqual ('A::f()', call_f(A()))
 
    def test_references(self):
       # B is not exposed to Python
       a = getBCppObj()
-      self.assertEqual(type(a), A)
+      self.failUnlessEqual(type(a), A)
 
       # C is exposed to Python
       c = getCCppObj()
-      self.assertEqual(type(c), C)
+      self.failUnlessEqual(type(c), C)
       
    def test_factory(self):
-      self.assertEqual(type(factory(0)), A)
-      self.assertEqual(type(factory(1)), A)
-      self.assertEqual(type(factory(2)), C)
+      self.failUnlessEqual(type(factory(0)), A)
+      self.failUnlessEqual(type(factory(1)), A)
+      self.failUnlessEqual(type(factory(2)), C)
 
    def test_return_py(self):
 
@@ -43,26 +43,26 @@ class PolymorphTest(unittest.TestCase):
 
       x = X()
       
-      self.assertEqual ('X.f', x.f())
-      self.assertEqual ('X.f', call_f(x))
+      self.failUnlessEqual ('X.f', x.f())
+      self.failUnlessEqual ('X.f', call_f(x))
 
    def test_wrapper_downcast(self):
       a = pass_a(D())
-      self.assertEqual('D::g()', a.g())
+      self.failUnlessEqual('D::g()', a.g())
 
    def test_pure_virtual(self):
       p = P()
       self.assertRaises(RuntimeError, p.f)
       
       q = Q()
-      self.assertEqual ('Q::f()', q.f())
+      self.failUnlessEqual ('Q::f()', q.f())
       
       class R(P):
          def f(self):
             return 'R.f'
 
       r = R()
-      self.assertEqual ('R.f', r.f())
+      self.failUnlessEqual ('R.f', r.f())
       
                         
 if __name__ == "__main__":

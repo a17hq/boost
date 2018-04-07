@@ -13,14 +13,12 @@
  *         at http://www.boost.org/doc/libs/release/libs/log/doc/html/index.html.
  */
 
-#include <boost/log/detail/config.hpp>
 #include <cstring>
 #include <string>
 #include <algorithm>
 #include <boost/spirit/include/karma_uint.hpp>
 #include <boost/spirit/include/karma_generate.hpp>
 #include <boost/range/iterator_range_core.hpp>
-#include <boost/log/detail/attachable_sstream_buf.hpp>
 #include <boost/log/detail/date_time_format_parser.hpp>
 #include <boost/log/detail/header.hpp>
 
@@ -320,6 +318,7 @@ template< typename CharT, typename ParserT, typename CallbackT >
 inline void parse_format(const CharT* begin, const CharT* end, ParserT& parser, CallbackT& callback)
 {
     typedef CharT char_type;
+    typedef CallbackT callback_type;
 
     while (begin != end)
     {
@@ -345,7 +344,7 @@ inline void parse_format(const CharT* begin, const CharT* end, ParserT& parser, 
 
 //! Parses the date format string and invokes the callback object
 template< typename CharT >
-BOOST_LOG_API void parse_date_format(const CharT* begin, const CharT* end, date_format_parser_callback< CharT >& callback)
+void parse_date_format(const CharT* begin, const CharT* end, date_format_parser_callback< CharT >& callback)
 {
     typedef CharT char_type;
     typedef date_format_parser_callback< char_type > callback_type;
@@ -355,7 +354,7 @@ BOOST_LOG_API void parse_date_format(const CharT* begin, const CharT* end, date_
 
 //! Parses the time format string and invokes the callback object
 template< typename CharT >
-BOOST_LOG_API void parse_time_format(const CharT* begin, const CharT* end, time_format_parser_callback< CharT >& callback)
+void parse_time_format(const CharT* begin, const CharT* end, time_format_parser_callback< CharT >& callback)
 {
     typedef CharT char_type;
     typedef time_format_parser_callback< char_type > callback_type;
@@ -365,7 +364,7 @@ BOOST_LOG_API void parse_time_format(const CharT* begin, const CharT* end, time_
 
 //! Parses the date and time format string and invokes the callback object
 template< typename CharT >
-BOOST_LOG_API void parse_date_time_format(const CharT* begin, const CharT* end, date_time_format_parser_callback< CharT >& callback)
+void parse_date_time_format(const CharT* begin, const CharT* end, date_time_format_parser_callback< CharT >& callback)
 {
     typedef CharT char_type;
     typedef date_time_format_parser_callback< char_type > callback_type;
@@ -374,7 +373,7 @@ BOOST_LOG_API void parse_date_time_format(const CharT* begin, const CharT* end, 
 }
 
 template< typename CharT >
-BOOST_LOG_API void put_integer(boost::log::aux::basic_ostringstreambuf< CharT >& strbuf, uint32_t value, unsigned int width, CharT fill_char)
+void put_integer(std::basic_string< CharT >& str, uint32_t value, unsigned int width, CharT fill_char)
 {
     typedef CharT char_type;
     char_type buf[std::numeric_limits< uint32_t >::digits10 + 2];
@@ -384,8 +383,8 @@ BOOST_LOG_API void put_integer(boost::log::aux::basic_ostringstreambuf< CharT >&
     karma::generate(p, uint_gen(), value);
     const std::size_t len = p - buf;
     if (len < width)
-        strbuf.append(width - len, fill_char);
-    strbuf.append(buf, len);
+        str.insert(str.end(), width - len, fill_char);
+    str.append(buf, p);
 }
 
 #ifdef BOOST_LOG_USE_CHAR
@@ -397,7 +396,7 @@ void parse_time_format(const char* begin, const char* end, time_format_parser_ca
 template BOOST_LOG_API
 void parse_date_time_format(const char* begin, const char* end, date_time_format_parser_callback< char >& callback);
 template BOOST_LOG_API
-void put_integer(boost::log::aux::basic_ostringstreambuf< char >& strbuf, uint32_t value, unsigned int width, char fill_char);
+void put_integer(std::basic_string< char >& str, uint32_t value, unsigned int width, char fill_char);
 
 #endif // BOOST_LOG_USE_CHAR
 
@@ -410,7 +409,7 @@ void parse_time_format(const wchar_t* begin, const wchar_t* end, time_format_par
 template BOOST_LOG_API
 void parse_date_time_format(const wchar_t* begin, const wchar_t* end, date_time_format_parser_callback< wchar_t >& callback);
 template BOOST_LOG_API
-void put_integer(boost::log::aux::basic_ostringstreambuf< wchar_t >& strbuf, uint32_t value, unsigned int width, wchar_t fill_char);
+void put_integer(std::basic_string< wchar_t >& str, uint32_t value, unsigned int width, wchar_t fill_char);
 
 #endif // BOOST_LOG_USE_WCHAR_T
 

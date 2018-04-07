@@ -1,72 +1,44 @@
 /*
-(c) 2014-2015 Glen Joseph Fernandes
-<glenjofe -at- gmail.com>
+ (c) 2014 Glen Joseph Fernandes
+ glenjofe at gmail dot com
 
-Distributed under the Boost Software
-License, Version 1.0.
-http://boost.org/LICENSE_1_0.txt
+ Distributed under the Boost Software
+ License, Version 1.0.
+ http://boost.org/LICENSE_1_0.txt
 */
-#include <boost/align/alignment_of.hpp>
 #include <boost/align/is_aligned.hpp>
 #include <boost/core/lightweight_test.hpp>
-#include <boost/config.hpp>
+#include <cstddef>
 
-template<std::size_t N>
-struct A { };
-
-template<class T, std::size_t N>
-void test(T* p, A<N>)
-{
-    BOOST_TEST(boost::alignment::is_aligned(p, N));
-    BOOST_TEST(!boost::alignment::is_aligned((char*)p + 1, N));
-}
-
-template<class T>
-void test(T* p, A<1>)
-{
-    BOOST_TEST(boost::alignment::is_aligned(p, 1));
-}
-
-template<class T>
+template<std::size_t Alignment>
 void test()
 {
-    T o;
-    test(&o, A<boost::alignment::alignment_of<T>::value>());
+    char s[Alignment + Alignment];
+    char* b = s;
+    while (!boost::alignment::is_aligned(Alignment, b)) {
+        b++;
+    }
+    std::size_t n = Alignment;
+    {
+        void* p = &b[n];
+        BOOST_TEST(boost::alignment::is_aligned(n, p));
+    }
+    if (n > 1) {
+        void* p = &b[1];
+        BOOST_TEST(!boost::alignment::is_aligned(n, p));
+    }
 }
-
-class X;
 
 int main()
 {
-    test<bool>();
-    test<char>();
-    test<wchar_t>();
-#if !defined(BOOST_NO_CXX11_CHAR16_T)
-    test<char16_t>();
-#endif
-#if !defined(BOOST_NO_CXX11_CHAR32_T)
-    test<char32_t>();
-#endif
-    test<short>();
-    test<int>();
-    test<long>();
-#if !defined(BOOST_NO_LONG_LONG) && !defined(_MSC_VER)
-    test<long long>();
-#endif
-    test<float>();
-#if !defined(_MSC_VER)
-    test<double>();
-    test<long double>();
-#endif
-    test<void*>();
-    test<char*>();
-    test<int*>();
-    test<X*>();
-    test<void(*)()>();
-#if !defined(_MSC_VER)
-    test<int X::*>();
-    test<int(X::*)()>();
-#endif
+    test<1>();
+    test<2>();
+    test<4>();
+    test<8>();
+    test<16>();
+    test<32>();
+    test<64>();
+    test<128>();
 
     return boost::report_errors();
 }

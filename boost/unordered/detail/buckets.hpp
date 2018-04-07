@@ -14,6 +14,14 @@
 
 #include <boost/unordered/detail/util.hpp>
 #include <boost/unordered/detail/allocate.hpp>
+#include <boost/type_traits/aligned_storage.hpp>
+#include <boost/type_traits/alignment_of.hpp>
+#include <boost/type_traits/is_nothrow_move_constructible.hpp>
+#include <boost/type_traits/is_nothrow_move_assignable.hpp>
+#include <boost/swap.hpp>
+#include <boost/assert.hpp>
+#include <boost/limits.hpp>
+#include <boost/iterator.hpp>
 
 namespace boost { namespace unordered { namespace detail {
 
@@ -48,7 +56,7 @@ namespace boost { namespace unordered { namespace iterator_detail {
 
     template <typename Node, typename Policy>
     struct l_iterator
-        : public std::iterator<
+        : public boost::iterator<
             std::forward_iterator_tag,
             typename Node::value_type,
             std::ptrdiff_t,
@@ -61,6 +69,7 @@ namespace boost { namespace unordered { namespace iterator_detail {
     private:
 #endif
         typedef typename Node::node_pointer node_pointer;
+        typedef boost::unordered::iterator_detail::iterator<Node> n_iterator;
         node_pointer ptr_;
         std::size_t bucket_;
         std::size_t bucket_count_;
@@ -71,8 +80,8 @@ namespace boost { namespace unordered { namespace iterator_detail {
 
         l_iterator() BOOST_NOEXCEPT : ptr_() {}
 
-        l_iterator(node_pointer n, std::size_t b, std::size_t c) BOOST_NOEXCEPT
-            : ptr_(n), bucket_(b), bucket_count_(c) {}
+        l_iterator(n_iterator x, std::size_t b, std::size_t c) BOOST_NOEXCEPT
+            : ptr_(x.node_), bucket_(b), bucket_count_(c) {}
 
         value_type& operator*() const {
             return ptr_->value();
@@ -107,7 +116,7 @@ namespace boost { namespace unordered { namespace iterator_detail {
 
     template <typename Node, typename Policy>
     struct cl_iterator
-        : public std::iterator<
+        : public boost::iterator<
             std::forward_iterator_tag,
             typename Node::value_type,
             std::ptrdiff_t,
@@ -119,6 +128,7 @@ namespace boost { namespace unordered { namespace iterator_detail {
     private:
 
         typedef typename Node::node_pointer node_pointer;
+        typedef boost::unordered::iterator_detail::iterator<Node> n_iterator;
         node_pointer ptr_;
         std::size_t bucket_;
         std::size_t bucket_count_;
@@ -129,8 +139,8 @@ namespace boost { namespace unordered { namespace iterator_detail {
 
         cl_iterator() BOOST_NOEXCEPT : ptr_() {}
 
-        cl_iterator(node_pointer n, std::size_t b, std::size_t c) BOOST_NOEXCEPT :
-            ptr_(n), bucket_(b), bucket_count_(c) {}
+        cl_iterator(n_iterator x, std::size_t b, std::size_t c) BOOST_NOEXCEPT :
+            ptr_(x.node_), bucket_(b), bucket_count_(c) {}
 
         cl_iterator(boost::unordered::iterator_detail::l_iterator<
                 Node, Policy> const& x) BOOST_NOEXCEPT :
@@ -174,7 +184,7 @@ namespace boost { namespace unordered { namespace iterator_detail {
 
     template <typename Node>
     struct iterator
-        : public std::iterator<
+        : public boost::iterator<
             std::forward_iterator_tag,
             typename Node::value_type,
             std::ptrdiff_t,
@@ -184,6 +194,10 @@ namespace boost { namespace unordered { namespace iterator_detail {
 #if !defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)
         template <typename>
         friend struct boost::unordered::iterator_detail::c_iterator;
+        template <typename, typename>
+        friend struct boost::unordered::iterator_detail::l_iterator;
+        template <typename, typename>
+        friend struct boost::unordered::iterator_detail::cl_iterator;
         template <typename>
         friend struct boost::unordered::detail::table;
         template <typename>
@@ -234,7 +248,7 @@ namespace boost { namespace unordered { namespace iterator_detail {
 
     template <typename Node>
     struct c_iterator
-        : public std::iterator<
+        : public boost::iterator<
             std::forward_iterator_tag,
             typename Node::value_type,
             std::ptrdiff_t,
@@ -305,14 +319,134 @@ namespace boost { namespace unordered { namespace detail {
 
     ///////////////////////////////////////////////////////////////////
     //
+    // Node construction
+
+    template <typename NodeAlloc>
+    struct node_constructor
+    {
+    private:
+
+        typedef NodeAlloc node_allocator;
+        typedef boost::unordered::detail::allocator_traits<NodeAlloc>
+            node_allocator_traits;
+        typedef typename node_allocator_traits::value_type node;
+        typedef typename node_allocator_traits::pointer node_pointer;
+        typedef typename node::value_type value_type;
+
+    protected:
+
+        node_allocator& alloc_;
+        node_pointer node_;
+        bool node_constructed_;
+        bool value_constructed_;
+
+    public:
+
+        node_constructor(node_allocator& n) :
+            alloc_(n),
+            node_(),
+            node_constructed_(false),
+            value_constructed_(false)
+        {
+        }
+
+        ~node_constructor();
+
+        void construct();
+
+        template <BOOST_UNORDERED_EMPLACE_TEMPLATE>
+        void construct_with_value(BOOST_UNORDERED_EMPLACE_ARGS)
+        {
+            construct();
+            boost::unordered::detail::func::construct_value_impl(
+                alloc_, node_->value_ptr(), BOOST_UNORDERED_EMPLACE_FORWARD);
+            value_constructed_ = true;
+        }
+
+        template <typename A0>
+        void construct_with_value2(BOOST_FWD_REF(A0) a0)
+        {
+            construct();
+            boost::unordered::detail::func::construct_value_impl(
+                alloc_, node_->value_ptr(),
+                BOOST_UNORDERED_EMPLACE_ARGS1(boost::forward<A0>(a0)));
+            value_constructed_ = true;
+        }
+
+        value_type const& value() const {
+            BOOST_ASSERT(node_ && node_constructed_ && value_constructed_);
+            return node_->value();
+        }
+
+        // no throw
+        node_pointer release()
+        {
+            BOOST_ASSERT(node_ && node_constructed_);
+            node_pointer p = node_;
+            node_ = node_pointer();
+            return p;
+        }
+
+    private:
+        node_constructor(node_constructor const&);
+        node_constructor& operator=(node_constructor const&);
+    };
+
+    template <typename Alloc>
+    node_constructor<Alloc>::~node_constructor()
+    {
+        if (node_) {
+            if (value_constructed_) {
+                boost::unordered::detail::func::destroy_value_impl(alloc_,
+                    node_->value_ptr());
+            }
+
+            if (node_constructed_) {
+                boost::unordered::detail::func::destroy(
+                    boost::addressof(*node_));
+            }
+
+            node_allocator_traits::deallocate(alloc_, node_, 1);
+        }
+    }
+
+    template <typename Alloc>
+    void node_constructor<Alloc>::construct()
+    {
+        if(!node_) {
+            node_constructed_ = false;
+            value_constructed_ = false;
+
+            node_ = node_allocator_traits::allocate(alloc_, 1);
+
+            new ((void*) boost::addressof(*node_)) node();
+            node_->init(node_);
+            node_constructed_ = true;
+        }
+        else {
+            BOOST_ASSERT(node_constructed_);
+
+            if (value_constructed_)
+            {
+                boost::unordered::detail::func::destroy_value_impl(alloc_,
+                    node_->value_ptr());
+                value_constructed_ = false;
+            }
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////
+    //
     // Node Holder
     //
     // Temporary store for nodes. Deletes any that aren't used.
 
     template <typename NodeAlloc>
-    struct node_holder
+    struct node_holder : private node_constructor<NodeAlloc>
     {
     private:
+        typedef node_constructor<NodeAlloc> base;
+
         typedef NodeAlloc node_allocator;
         typedef boost::unordered::detail::allocator_traits<NodeAlloc>
             node_allocator_traits;
@@ -322,14 +456,13 @@ namespace boost { namespace unordered { namespace detail {
         typedef typename node::link_pointer link_pointer;
         typedef boost::unordered::iterator_detail::iterator<node> iterator;
 
-        node_constructor<NodeAlloc> constructor_;
         node_pointer nodes_;
 
     public:
 
         template <typename Table>
         explicit node_holder(Table& b) :
-            constructor_(b.node_alloc()),
+            base(b.node_alloc()),
             nodes_()
         {
             if (b.size_) {
@@ -342,40 +475,61 @@ namespace boost { namespace unordered { namespace detail {
 
         ~node_holder();
 
-        node_pointer pop_node()
+        void node_for_assignment()
         {
-            node_pointer n = nodes_;
-            nodes_ = static_cast<node_pointer>(nodes_->next_);
-            n->init(n);
-            n->next_ = link_pointer();
-            return n;
+            if (!this->node_ && nodes_) {
+                this->node_ = nodes_;
+                nodes_ = static_cast<node_pointer>(nodes_->next_);
+                this->node_->init(this->node_);
+                this->node_->next_ = link_pointer();
+
+                this->node_constructed_ = true;
+                this->value_constructed_ = true;
+            }
         }
 
         template <typename T>
-        inline node_pointer copy_of(T const& v) {
-            if (nodes_) {
-                constructor_.reclaim(pop_node());
+        inline void assign_impl(T const& v) {
+            if (this->node_ && this->value_constructed_) {
+                this->node_->value() = v;
             }
             else {
-                constructor_.create_node();
+                this->construct_with_value2(v);
             }
-            boost::unordered::detail::func::call_construct(
-                constructor_.alloc_, constructor_.node_->value_ptr(), v);
-            return constructor_.release();
+        }
+
+        template <typename T1, typename T2>
+        inline void assign_impl(std::pair<T1 const, T2> const& v) {
+            this->construct_with_value2(v);
         }
 
         template <typename T>
-        inline node_pointer move_copy_of(T& v) {
-            if (nodes_) {
-                constructor_.reclaim(pop_node());
+        inline void move_assign_impl(T& v) {
+            if (this->node_ && this->value_constructed_) {
+                this->node_->value() = boost::move(v);
             }
             else {
-                constructor_.create_node();
+                this->construct_with_value2(boost::move(v));
             }
-            boost::unordered::detail::func::call_construct(
-                constructor_.alloc_, constructor_.node_->value_ptr(),
-                boost::move(v));
-            return constructor_.release();
+        }
+
+        template <typename T1, typename T2>
+        inline void move_assign_impl(std::pair<T1 const, T2>& v) {
+            this->construct_with_value2(boost::move(v));
+        }
+
+        node_pointer copy_of(value_type const& v)
+        {
+            node_for_assignment();
+            assign_impl(v);
+            return base::release();
+        }
+
+        node_pointer move_copy_of(value_type& v)
+        {
+            node_for_assignment();
+            move_assign_impl(v);
+            return base::release();
         }
 
         iterator begin() const
@@ -391,10 +545,10 @@ namespace boost { namespace unordered { namespace detail {
             node_pointer p = nodes_;
             nodes_ = static_cast<node_pointer>(p->next_);
 
-            boost::unordered::detail::func::call_destroy(constructor_.alloc_,
+            boost::unordered::detail::func::destroy_value_impl(this->alloc_,
                 p->value_ptr());
             boost::unordered::detail::func::destroy(boost::addressof(*p));
-            node_allocator_traits::deallocate(constructor_.alloc_, p, 1);
+            node_allocator_traits::deallocate(this->alloc_, p, 1);
         }
     }
 
@@ -546,12 +700,12 @@ namespace boost { namespace unordered { namespace detail {
     // TODO: Maybe not if std::size_t is smaller than long long.
 #if !defined(BOOST_NO_LONG_LONG)
     template <>
-    struct pick_policy<boost::long_long_type> {
+    struct pick_policy<long long> {
         typedef prime_policy<std::size_t> type;
     };
 
     template <>
-    struct pick_policy<boost::ulong_long_type> {
+    struct pick_policy<unsigned long long> {
         typedef prime_policy<std::size_t> type;
     };
 #endif

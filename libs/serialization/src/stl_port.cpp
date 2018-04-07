@@ -13,7 +13,8 @@
 #endif
 
 // this befuddles the msvc 6 compiler so we can't use it
-#if ! ((defined _MSC_VER) && (_MSC_VER <= 1300)) 
+#if ! ((defined _MSC_VER) && (_MSC_VER <= 1300)) \
+&&  ! defined(__BORLANDC__)
 
 #include <boost/config.hpp>
 

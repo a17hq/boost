@@ -20,7 +20,7 @@
 
 #include <boost/test/included/unit_test.hpp>
 
-#include "../test_set_ops_pointlike.hpp"
+#include "../test_set_ops_pl_pl.hpp"
 
 #include <boost/geometry/geometries/multi_point.hpp>
 
@@ -51,19 +51,17 @@ BOOST_AUTO_TEST_CASE( test_difference_point_point )
         > tester;
 
     tester::apply
-        ("ppdf01",
-         from_wkt<P>("POINT(0 0)"),
+        (from_wkt<P>("POINT(0 0)"),
          from_wkt<P>("POINT(1 1)"),
          from_wkt<MP>("MULTIPOINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT(1 1)")
-         );
+         from_wkt<MP>("MULTIPOINT(1 1)"),
+         "ppdf01");
 
     tester::apply
-        ("ppdf02",
+        (from_wkt<P>("POINT(0 0)"),
          from_wkt<P>("POINT(0 0)"),
-         from_wkt<P>("POINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT()")
-         );
+         from_wkt<MP>("MULTIPOINT()"),
+         "ppdf02");
 }
 
 
@@ -84,66 +82,58 @@ BOOST_AUTO_TEST_CASE( test_difference_multipoint_point )
         > tester;
 
     tester::apply
-        ("mppdf01",
-         from_wkt<MP>("MULTIPOINT(0 0)"),
+        (from_wkt<MP>("MULTIPOINT(0 0)"),
          from_wkt<P>("POINT(1 1)"),
          from_wkt<MP>("MULTIPOINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT(1 1)")
-         );
+         from_wkt<MP>("MULTIPOINT(1 1)"),
+         "mppdf01");
 
     tester::apply
-        ("mppdf02",
-         from_wkt<MP>("MULTIPOINT(0 0)"),
+        (from_wkt<MP>("MULTIPOINT(0 0)"),
          from_wkt<P>("POINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT()")
-         );
+         from_wkt<MP>("MULTIPOINT()"),
+         "mppdf02");
 
     tester::apply
-        ("mppdf03",
-         from_wkt<MP>("MULTIPOINT(0 0,0 0)"),
+        (from_wkt<MP>("MULTIPOINT(0 0,0 0)"),
          from_wkt<P>("POINT(1 1)"),
          from_wkt<MP>("MULTIPOINT(0 0,0 0)"),
-         from_wkt<MP>("MULTIPOINT(1 1)")
-         );
+         from_wkt<MP>("MULTIPOINT(1 1)"),
+         "mppdf03");
 
     tester::apply
-        ("mppdf04",
-         from_wkt<MP>("MULTIPOINT(0 0,0 0)"),
+        (from_wkt<MP>("MULTIPOINT(0 0,0 0)"),
          from_wkt<P>("POINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT()")
-         );
+         from_wkt<MP>("MULTIPOINT()"),
+         "mppdf04");
 
     tester::apply
-        ("mppdf05",
-         from_wkt<MP>("MULTIPOINT(0 0,0 0,1 0)"),
+        (from_wkt<MP>("MULTIPOINT(0 0,0 0,1 0)"),
          from_wkt<P>("POINT(1 1)"),
          from_wkt<MP>("MULTIPOINT(0 0,0 0,1 0)"),
-         from_wkt<MP>("MULTIPOINT(1 1)")
-         );
+         from_wkt<MP>("MULTIPOINT(1 1)"),
+         "mppdf05");
 
     tester::apply
-        ("mppdf06",
-         from_wkt<MP>("MULTIPOINT(0 0,0 0,1 0)"),
+        (from_wkt<MP>("MULTIPOINT(0 0,0 0,1 0)"),
          from_wkt<P>("POINT(1 0)"),
          from_wkt<MP>("MULTIPOINT(0 0,0 0)"),
-         from_wkt<MP>("MULTIPOINT()")
-         );
+         from_wkt<MP>("MULTIPOINT()"),
+         "mppdf06");
 
     tester::apply
-        ("mppdf07",
-         from_wkt<MP>("MULTIPOINT(0 0,0 0,1 0)"),
+        (from_wkt<MP>("MULTIPOINT(0 0,0 0,1 0)"),
          from_wkt<P>("POINT(0 0)"),
          from_wkt<MP>("MULTIPOINT(1 0)"),
-         from_wkt<MP>("MULTIPOINT()")
-         );
+         from_wkt<MP>("MULTIPOINT()"),
+         "mppdf07");
 
     tester::apply
-        ("mppdf08",
-         from_wkt<MP>("MULTIPOINT()"),
+        (from_wkt<MP>("MULTIPOINT()"),
          from_wkt<P>("POINT(0 0)"),
          from_wkt<MP>("MULTIPOINT()"),
-         from_wkt<MP>("MULTIPOINT(0 0)")
-         );
+         from_wkt<MP>("MULTIPOINT(0 0)"),
+         "mppdf08");
 }
 
 
@@ -164,28 +154,25 @@ BOOST_AUTO_TEST_CASE( test_difference_point_multipoint )
         > tester;
 
     tester::apply
-        ("pmpdf01",
-         from_wkt<P>("POINT(0 0)"),
+        (from_wkt<P>("POINT(0 0)"),
          from_wkt<MP>("MULTIPOINT(1 0,1 1,1 1)"),
          from_wkt<MP>("MULTIPOINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT(1 0,1 1,1 1)")
-         );
+         from_wkt<MP>("MULTIPOINT(1 0,1 1,1 1)"),
+         "pmpdf01");
 
     tester::apply
-        ("pmpdf02",
-         from_wkt<P>("POINT(0 0)"),
+        (from_wkt<P>("POINT(0 0)"),
          from_wkt<MP>("MULTIPOINT(1 0,0 0,1 1,0 0)"),
          from_wkt<MP>("MULTIPOINT()"),
-         from_wkt<MP>("MULTIPOINT(1 0,1 1)")
-         );
+         from_wkt<MP>("MULTIPOINT(1 0,1 1)"),
+         "pmpdf02");
 
     tester::apply
-        ("pmpdf03",
-         from_wkt<P>("POINT(0 0)"),
+        (from_wkt<P>("POINT(0 0)"),
          from_wkt<MP>("MULTIPOINT()"),
          from_wkt<MP>("MULTIPOINT(0 0)"),
-         from_wkt<MP>("MULTIPOINT()")
-         );
+         from_wkt<MP>("MULTIPOINT()"),
+         "pmpdf03");
 }
 
 
@@ -205,40 +192,35 @@ BOOST_AUTO_TEST_CASE( test_difference_multipoint_multipoint )
         > tester;
 
     tester::apply
-        ("mpmpdf01",
-         from_wkt<MP>("MULTIPOINT(2 2,3 3,0 0,0 0,2 2,1 1,1 1,1 0,1 0)"),
+        (from_wkt<MP>("MULTIPOINT(2 2,3 3,0 0,0 0,2 2,1 1,1 1,1 0,1 0)"),
          from_wkt<MP>("MULTIPOINT(1 0,1 1,1 1,4 4)"),
          from_wkt<MP>("MULTIPOINT(2 2,3 3,0 0,0 0,2 2)"),
-         from_wkt<MP>("MULTIPOINT(4 4)")
-         );
+         from_wkt<MP>("MULTIPOINT(4 4)"),
+         "mpmpdf01");
 
     tester::apply
-        ("mpmpdf02",
-         from_wkt<MP>("MULTIPOINT(0 0,1 1,1 0,1 1)"),
-         from_wkt<MP>("MULTIPOINT(1 0,0 0,1 1,0 0)"),
-         from_wkt<MP>("MULTIPOINT()")
-         );
-
-    tester::apply
-        ("mpmpdf03",
-         from_wkt<MP>("MULTIPOINT()"),
+        (from_wkt<MP>("MULTIPOINT(0 0,1 1,1 0,1 1)"),
          from_wkt<MP>("MULTIPOINT(1 0,0 0,1 1,0 0)"),
          from_wkt<MP>("MULTIPOINT()"),
-         from_wkt<MP>("MULTIPOINT(1 0,0 0,1 1,0 0)")
-         );
+         "mpmpdf02");
 
     tester::apply
-        ("mpmpdf04",
-         from_wkt<MP>("MULTIPOINT(0 0,1 1,1 0,1 1)"),
+        (from_wkt<MP>("MULTIPOINT()"),
+         from_wkt<MP>("MULTIPOINT(1 0,0 0,1 1,0 0)"),
          from_wkt<MP>("MULTIPOINT()"),
-         from_wkt<MP>("MULTIPOINT(0 0,1 1,1 0,1 1)"),
-         from_wkt<MP>("MULTIPOINT()")
-         );
+         from_wkt<MP>("MULTIPOINT(1 0,0 0,1 1,0 0)"),
+         "mpmpdf03");
 
     tester::apply
-        ("mpmpdf05",
+        (from_wkt<MP>("MULTIPOINT(0 0,1 1,1 0,1 1)"),
+         from_wkt<MP>("MULTIPOINT()"),
+         from_wkt<MP>("MULTIPOINT(0 0,1 1,1 0,1 1)"),
+         from_wkt<MP>("MULTIPOINT()"),
+         "mpmpdf04");
+
+    tester::apply
+        (from_wkt<MP>("MULTIPOINT()"),
          from_wkt<MP>("MULTIPOINT()"),
          from_wkt<MP>("MULTIPOINT()"),
-         from_wkt<MP>("MULTIPOINT()")
-         );
+         "mpmpdf05");
 }

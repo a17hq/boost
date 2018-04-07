@@ -345,9 +345,6 @@ void instantiate(RealType)
    boost::math::float_next(v1);
    boost::math::float_prior(v1);
    boost::math::float_distance(v1, v1);
-   boost::math::ulp(v1);
-   boost::math::relative_difference(v1, v2);
-   boost::math::epsilon_difference(v1, v2);
 
    boost::math::unchecked_bernoulli_b2n<RealType>(i);
    boost::math::bernoulli_b2n<RealType>(i);
@@ -534,9 +531,6 @@ void instantiate(RealType)
    boost::math::float_next(v1 * 1);
    boost::math::float_prior(v1 * 1);
    boost::math::float_distance(v1 * 1, v1 * 1);
-   boost::math::ulp(v1 * 1);
-   boost::math::relative_difference(v1 * 1, v2 * 1);
-   boost::math::epsilon_difference(v1 * 1, v2 * 1);
 #endif
 #ifndef BOOST_MATH_INSTANTIATE_MINIMUM
 #ifdef TEST_GROUP_5
@@ -719,7 +713,6 @@ void instantiate(RealType)
    boost::math::float_next(v1, pol);
    boost::math::float_prior(v1, pol);
    boost::math::float_distance(v1, v1, pol);
-   boost::math::ulp(v1, pol);
 
    boost::math::bernoulli_b2n<RealType>(i, pol);
    boost::math::bernoulli_b2n<RealType>(i, i, &v1, pol);
@@ -908,7 +901,6 @@ void instantiate(RealType)
    test::float_next(v1);
    test::float_prior(v1);
    test::float_distance(v1, v1);
-   test::ulp(v1);
 #endif
 #endif
 }

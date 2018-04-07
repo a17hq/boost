@@ -16,7 +16,9 @@ __std_ref 3.9.2 and 8.3.4.
 
 __header ` #include <boost/type_traits/is_array.hpp>` or ` #include <boost/type_traits.hpp>`
 
-[all_compilers]
+__compat If the compiler does not support 
+partial-specialization of class templates, then this template 
+can give the wrong result with function types.
 
 __examples
 

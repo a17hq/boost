@@ -32,7 +32,8 @@
 #include <boost/thread/thread.hpp>
 #include <boost/log/detail/thread_specific.hpp>
 #else
-#include <boost/log/exceptions.hpp>
+#include <boost/system/error_code.hpp>
+#include <boost/system/system_error.hpp>
 #include <boost/log/utility/once_block.hpp>
 #endif
 #if !defined(BOOST_LOG_USE_COMPILER_TLS)
@@ -43,6 +44,9 @@
 
 #if defined(BOOST_WINDOWS)
 
+#define WIN32_LEAN_AND_MEAN
+
+#include "windows_version.hpp"
 #include <windows.h>
 
 namespace boost {
@@ -140,7 +144,7 @@ BOOST_LOG_TLS id_storage g_id_storage = {};
 BOOST_LOG_API thread::id const& get_id()
 {
     id_storage& s = g_id_storage;
-    if (BOOST_UNLIKELY(!s.m_initialized))
+    if (!s.m_initialized)
     {
         new (s.m_storage.address()) thread::id(get_id_impl());
         s.m_initialized = true;
@@ -181,7 +185,7 @@ BOOST_LOG_API thread::id const& get_id()
 {
     id_storage& s = id_storage::get();
     thread::id const* p = s.m_id.get();
-    if (BOOST_UNLIKELY(!p))
+    if (!p)
     {
         p = new thread::id(get_id_impl());
         s.m_id.set(p);
@@ -211,12 +215,12 @@ BOOST_LOG_API thread::id const& get_id()
     {
         if (int err = pthread_key_create(&g_key, &deleter))
         {
-            BOOST_LOG_THROW_DESCR_PARAMS(system_error, "Failed to create a thread-specific storage for thread id", (err));
+            BOOST_THROW_EXCEPTION(system::system_error(err, system::system_category(), "Failed to create a thread-specific storage for thread id"));
         }
     }
 
     thread::id* p = static_cast< thread::id* >(pthread_getspecific(g_key));
-    if (BOOST_UNLIKELY(!p))
+    if (!p)
     {
         p = new thread::id(get_id_impl());
         pthread_setspecific(g_key, p);
@@ -236,7 +240,7 @@ void format_thread_id(char* buf, std::size_t size, thread::id tid)
 }
 
 template< typename CharT, typename TraitsT >
-BOOST_LOG_API std::basic_ostream< CharT, TraitsT >& operator<< (std::basic_ostream< CharT, TraitsT >& strm, thread::id const& tid)
+std::basic_ostream< CharT, TraitsT >& operator<< (std::basic_ostream< CharT, TraitsT >& strm, thread::id const& tid)
 {
     if (strm.good())
     {

@@ -4,8 +4,8 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2014, 2016.
-// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -33,13 +33,12 @@
 #include <boost/geometry/io/wkt/read.hpp>
 #include <boost/geometry/io/wkt/write.hpp>
 
+template <int Version = 0>
 struct expected_pusher
 {
-    void push_back(std::string const& ex)
-    {
-        vec.push_back(ex);
-    }
+    static const int version = Version;
 
+    void push_back(std::string const& ex) { vec.push_back(ex); }
     expected_pusher & operator()(std::string const& ex)
     {
         push_back(ex);
@@ -57,12 +56,13 @@ struct expected_pusher
     std::vector<std::string> vec;
 };
 
-inline expected_pusher expected(std::string const& ex)
+expected_pusher<1> expected(std::string const& ex)
 {
-    expected_pusher res;
+    expected_pusher<1> res;
     return res(ex);
 }
 
+template <int Version>
 struct equal_turn
 {
     equal_turn(std::string const& s) : turn_ptr(&s) {}
@@ -70,45 +70,43 @@ struct equal_turn
     template <typename T>
     bool operator()(T const& t) const
     {
-        std::string const& s = (*turn_ptr);
-        std::string::size_type const count = s.size();
-
-        return (count > 0
-               ? bg::method_char(t.method) == s[0]
-               : true)
-            && (count > 1
-                ? bg::operation_char(t.operations[0].operation) == s[1]
-                : true)
-            && (count > 2
-                ? bg::operation_char(t.operations[1].operation) == s[2]
-                : true)
-            && equal_operations_ex(t.operations[0], t.operations[1], s);
+        BOOST_ASSERT(turn_ptr && turn_ptr->size() == 3);
+        return bg::method_char(t.method) == (*turn_ptr)[0]
+            && bg::operation_char(t.operations[0].operation) == (*turn_ptr)[1]
+            && bg::operation_char(t.operations[1].operation) == (*turn_ptr)[2];
     }
 
-    template <typename P, typename R>
-    static bool equal_operations_ex(bg::detail::overlay::turn_operation<P, R> const& op0,
-                                    bg::detail::overlay::turn_operation<P, R> const& op1,
-                                    std::string const& s)
+    const std::string * turn_ptr;
+};
+
+template <>
+struct equal_turn<1>
+{
+    equal_turn(std::string const& s) : turn_ptr(&s) {}
+    
+    template <typename T>
+    bool operator()(T const& t) const
     {
-        return true;
+        std::string::size_type count = turn_ptr->size();
+        //BOOST_ASSERT(turn_ptr && count >= 1);
+        return ( count > 0
+               ? bg::method_char(t.method) == (*turn_ptr)[0]
+               : true )
+            && ( count > 1
+               ? bg::operation_char(t.operations[0].operation) == (*turn_ptr)[1]
+               : true )
+            && ( count > 2
+               ? bg::operation_char(t.operations[1].operation) == (*turn_ptr)[2]
+               : true )
+            && ( count > 3
+               ? is_colinear_char(t.operations[0].is_collinear) == (*turn_ptr)[3]
+               : true )
+            && ( count > 4
+               ? is_colinear_char(t.operations[1].is_collinear) == (*turn_ptr)[4]
+               : true );
     }
 
-    template <typename P, typename R>
-    static bool equal_operations_ex(bg::detail::overlay::turn_operation_linear<P, R> const& op0,
-                                    bg::detail::overlay::turn_operation_linear<P, R> const& op1,
-                                    std::string const& s)
-    {
-        std::string::size_type const count = s.size();
-
-        return (count > 3
-               ? is_colinear_char(op0.is_collinear) == s[3]
-               : true)
-            && (count > 4
-               ? is_colinear_char(op1.is_collinear) == s[4]
-               : true);
-    }
-
-    static char is_colinear_char(bool is_collinear)
+    static inline char is_colinear_char(bool is_collinear)
     {
         return is_collinear ? '=' : '+';
     }
@@ -117,11 +115,12 @@ struct equal_turn
 };
 
 template <typename Geometry1, typename Geometry2, typename Expected>
-void check_geometry_range(Geometry1 const& g1,
-                          Geometry2 const& g2,
-                          std::string const& wkt1,
-                          std::string const& wkt2,
-                          Expected const& expected)
+void check_geometry_range(
+    Geometry1 const& g1,
+    Geometry2 const& g2,
+    std::string const& wkt1,
+    std::string const& wkt2,
+    Expected const& expected)
 {
     typedef bg::detail::no_rescale_policy robust_policy_type;
     typedef typename bg::point_type<Geometry2>::type point_type;
@@ -169,7 +168,7 @@ void check_geometry_range(Geometry1 const& g1,
           sit != boost::end(expected) ; ++sit)
     {
         typename std::vector<turn_info>::iterator
-            it = std::find_if(turns.begin(), turns.end(), equal_turn(*sit));
+            it = std::find_if(turns.begin(), turns.end(), equal_turn<Expected::version>(*sit));
 
         if ( it != turns.end() )
             turns.erase(it);
@@ -246,9 +245,9 @@ void test_geometry(std::string const& wkt1, std::string const& wkt2,
     test_geometry_range<G1, G2>(wkt1, wkt2, expected(ex0)(ex1)(ex2));
 }
 
-template <typename G1, typename G2>
+template <typename G1, typename G2, int Version>
 void test_geometry(std::string const& wkt1, std::string const& wkt2,
-                   expected_pusher const& expected)
+                   expected_pusher<Version> const& expected)
 {
     test_geometry_range<G1, G2>(wkt1, wkt2, expected);
 }

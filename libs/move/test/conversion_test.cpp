@@ -313,7 +313,7 @@ int main()
    {
       container<int> c;
       {
-         int x = 0;
+         int x;
          c.push_back(x);
          assert(c.construction_type() == Copied);
          c.insert(c.begin(), c.construction_type());
@@ -359,7 +359,7 @@ int main()
    {
       container<int> c;
       {
-         int x = 0;
+         int x;
          c.push_back(x);
          assert(c.construction_type() == Copied);
          c.insert(c.begin(), c.construction_type());

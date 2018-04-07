@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2015.
+// (C) Copyright Ion Gaztanaga 2005-2012.
 // (C) Copyright Gennaro Prota 2003 - 2004.
 //
 // Distributed under the Boost Software License, Version 1.0.
@@ -33,7 +33,6 @@
 #include <boost/intrusive/pointer_traits.hpp>
 #include <boost/move/utility_core.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/cstdint.hpp>
 #include <climits>
 
 namespace boost {
@@ -123,8 +122,8 @@ struct is_intrusive_index
    static const bool value = false;
 };
 
-template <typename T>
-BOOST_INTERPROCESS_FORCEINLINE T* addressof(T& v)
+template <typename T> T*
+addressof(T& v)
 {
   return reinterpret_cast<T*>(
        &const_cast<char&>(reinterpret_cast<const volatile char &>(v)));
@@ -148,7 +147,7 @@ inline bool multiplication_overflows(SizeType a, SizeType b)
 }
 
 template<std::size_t SztSizeOfType, class SizeType>
-BOOST_INTERPROCESS_FORCEINLINE bool size_overflows(SizeType count)
+inline bool size_overflows(SizeType count)
 {
    //Compile time-check
    BOOST_STATIC_ASSERT(SztSizeOfType <= SizeType(-1));
@@ -157,28 +156,27 @@ BOOST_INTERPROCESS_FORCEINLINE bool size_overflows(SizeType count)
 }
 
 template<class RawPointer>
-class pointer_uintptr_caster;
-
-template<class T>
-class pointer_uintptr_caster<T*>
+class pointer_size_t_caster
 {
    public:
-   BOOST_INTERPROCESS_FORCEINLINE explicit pointer_uintptr_caster(uintptr_t sz)
-      : m_uintptr(sz)
+   BOOST_STATIC_ASSERT(sizeof(std::size_t) == sizeof(void*));
+
+   explicit pointer_size_t_caster(std::size_t sz)
+      : m_ptr(reinterpret_cast<RawPointer>(sz))
    {}
 
-   BOOST_INTERPROCESS_FORCEINLINE explicit pointer_uintptr_caster(const volatile T *p)
-      : m_uintptr(reinterpret_cast<uintptr_t>(p))
+   explicit pointer_size_t_caster(RawPointer p)
+      : m_ptr(p)
    {}
 
-   BOOST_INTERPROCESS_FORCEINLINE uintptr_t uintptr() const
-   {   return m_uintptr;   }
+   std::size_t size() const
+   {   return reinterpret_cast<std::size_t>(m_ptr);   }
 
-   BOOST_INTERPROCESS_FORCEINLINE T* pointer() const
-   {   return reinterpret_cast<T*>(m_uintptr);   }
+   RawPointer pointer() const
+   {   return m_ptr;   }
 
    private:
-   uintptr_t m_uintptr;
+   RawPointer m_ptr;
 };
 
 
@@ -196,7 +194,7 @@ class value_eraser
    ~value_eraser()
    {  if(m_erase) m_cont.erase(m_index_it);  }
 
-   BOOST_INTERPROCESS_FORCEINLINE void release() {  m_erase = false;  }
+   void release() {  m_erase = false;  }
 
    private:
    Cont                   &m_cont;

@@ -23,7 +23,6 @@
 
 #include "jam.h"
 #include "object.h"
-#include "output.h"
 
 #include <assert.h>
 #include <stddef.h>
@@ -259,9 +258,7 @@ OBJECT * object_new_range( char const * const string, int const size )
         strtotal += size + 1;
         memcpy( m->data, string, size );
         m->data[ size ] = '\0';
-#ifndef NDEBUG
         m->header.magic = OBJECT_MAGIC;
-#endif
         return (OBJECT *)m->data;
     }
 #else
@@ -389,9 +386,9 @@ void object_done()
 
     if ( DEBUG_MEM )
     {
-        out_printf( "%dK in strings\n", strtotal / 1024 );
+        printf( "%dK in strings\n", strtotal / 1024 );
         if ( strcount_in != strcount_out )
-            out_printf( "--- %d strings of %d dangling\n", strcount_in -
+            printf( "--- %d strings of %d dangling\n", strcount_in -
                 strcount_out, strcount_in );
     }
 }

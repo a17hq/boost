@@ -27,8 +27,8 @@
 #include <boost/range/const_iterator.hpp>
 #include <boost/range/value_type.hpp>
 #include <boost/move/core.hpp>
-#include <boost/move/utility_core.hpp>
-#include <boost/core/addressof.hpp>
+#include <boost/move/utility.hpp>
+#include <boost/utility/addressof.hpp>
 #include <boost/phoenix/core/actor.hpp>
 #include <boost/phoenix/core/meta_grammar.hpp>
 #include <boost/phoenix/core/terminal_fwd.hpp>
@@ -42,7 +42,6 @@
 #include <boost/log/detail/config.hpp>
 #include <boost/log/detail/custom_terminal_spec.hpp>
 #include <boost/log/detail/deduce_char_type.hpp>
-#include <boost/log/detail/sfinae_tools.hpp>
 #include <boost/log/utility/formatting_ostream.hpp>
 #include <boost/log/detail/header.hpp>
 
@@ -110,15 +109,10 @@ public:
      * of each pair is the source pattern, and the second one is the corresponding replacement.
      */
     template< typename RangeT >
-    explicit pattern_replacer(RangeT const& decorations
-#ifndef BOOST_LOG_DOXYGEN_PASS
-        // This is needed for a workaround against an MSVC-10 and older bug in constructor overload resolution
-        , typename boost::enable_if_has_type< typename range_const_iterator< RangeT >::type, boost::log::aux::sfinae_dummy >::type = boost::log::aux::sfinae_dummy()
-#endif
-    )
+    explicit pattern_replacer(RangeT const& decorations)
     {
         typedef typename range_const_iterator< RangeT >::type iterator;
-        for (iterator it = boost::begin(decorations), end_ = boost::end(decorations); it != end_; ++it)
+        for (iterator it = begin(decorations), end_ = end(decorations); it != end_; ++it)
         {
             string_lengths lens;
             {
@@ -146,8 +140,8 @@ public:
     {
         typedef typename range_const_iterator< FromRangeT >::type iterator1;
         typedef typename range_const_iterator< ToRangeT >::type iterator2;
-        iterator1 it1 = boost::begin(from), end1 = boost::end(from);
-        iterator2 it2 = boost::begin(to), end2 = boost::end(to);
+        iterator1 it1 = begin(from), end1 = end(from);
+        iterator2 it2 = begin(to), end2 = end(to);
         for (; it1 != end1 && it2 != end2; ++it1, ++it2)
         {
             string_lengths lens;
@@ -206,21 +200,25 @@ private:
     template< typename RangeT >
     static typename range_const_iterator< RangeT >::type string_begin(RangeT const& r)
     {
-        return boost::begin(r);
+        return begin(r);
     }
 
     static char_type* string_end(char_type* p)
     {
-        return p + std::char_traits< char_type >::length(p);
+        while (*p)
+            ++p;
+        return p;
     }
     static const char_type* string_end(const char_type* p)
     {
-        return p + std::char_traits< char_type >::length(p);
+        while (*p)
+            ++p;
+        return p;
     }
     template< typename RangeT >
     static typename range_const_iterator< RangeT >::type string_end(RangeT const& r)
     {
-        return boost::end(r);
+        return end(r);
     }
 };
 
@@ -235,10 +233,8 @@ private:
     typedef char_decorator_output_terminal< LeftT, SubactorT, ImplT > this_type;
 
 public:
-#ifndef BOOST_LOG_DOXYGEN_PASS
     //! Internal typedef for type categorization
     typedef void _is_boost_log_terminal;
-#endif
 
     //! Implementation type
     typedef ImplT impl_type;
@@ -302,12 +298,12 @@ public:
         typename string_type::size_type const start_pos = strm.rdbuf()->storage()->size();
 
         // Invoke the adopted formatter
+        typedef typename result< this_type(ContextT const&) >::type result_type;
         phoenix::eval(m_subactor, ctx);
 
         // Flush the buffered characters and apply decorations
         strm.flush();
         m_impl(*strm.rdbuf()->storage(), start_pos);
-        strm.rdbuf()->ensure_max_size();
 
         return strm;
     }
@@ -325,12 +321,12 @@ public:
         typename string_type::size_type const start_pos = strm.rdbuf()->storage()->size();
 
         // Invoke the adopted formatter
+        typedef typename result< const this_type(ContextT const&) >::type result_type;
         phoenix::eval(m_subactor, ctx);
 
         // Flush the buffered characters and apply decorations
         strm.flush();
         m_impl(*strm.rdbuf()->storage(), start_pos);
-        strm.rdbuf()->ensure_max_size();
 
         return strm;
     }
@@ -359,10 +355,8 @@ private:
     typedef char_decorator_terminal< SubactorT, ImplT > this_type;
 
 public:
-#ifndef BOOST_LOG_DOXYGEN_PASS
     //! Internal typedef for type categorization
     typedef void _is_boost_log_terminal;
-#endif
 
     //! Implementation type
     typedef ImplT impl_type;
@@ -443,7 +437,7 @@ public:
         strm.flush();
         m_impl(*strm.rdbuf()->storage());
 
-        return BOOST_LOG_NRVO_RESULT(str);
+        return boost::move(str);
     }
 
     /*!
@@ -475,7 +469,7 @@ public:
         strm.flush();
         m_impl(*strm.rdbuf()->storage());
 
-        return BOOST_LOG_NRVO_RESULT(str);
+        return boost::move(str);
     }
 
     BOOST_DELETED_FUNCTION(char_decorator_terminal())

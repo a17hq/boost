@@ -418,21 +418,20 @@ boost::unordered_multimap<test::object, test::object,
 
 using test::default_generator;
 using test::generate_collisions;
-using test::limited_range;
 
 UNORDERED_TEST(constructor_tests1,
     ((test_map_std_alloc)(test_set)(test_multiset)(test_map)(test_multimap))
-    ((default_generator)(generate_collisions)(limited_range))
+    ((default_generator)(generate_collisions))
 )
 
 UNORDERED_TEST(constructor_tests2,
     ((test_set)(test_multiset)(test_map)(test_multimap))
-    ((default_generator)(generate_collisions)(limited_range))
+    ((default_generator)(generate_collisions))
 )
 
 UNORDERED_TEST(map_constructor_test,
     ((test_map_std_alloc)(test_map)(test_multimap))
-    ((default_generator)(generate_collisions)(limited_range))
+    ((default_generator)(generate_collisions))
 )
 
 #if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)

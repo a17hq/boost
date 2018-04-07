@@ -31,13 +31,10 @@ struct ts_real_policies : boost::spirit::qi::ureal_policies<T>
     //  2 decimal places Max
     template <typename Iterator, typename Attribute>
     static bool
-    parse_frac_n(Iterator& first, Iterator const& last, Attribute& attr, int& frac_digits)
+    parse_frac_n(Iterator& first, Iterator const& last, Attribute& attr)
     {
         namespace qi = boost::spirit::qi;
-        Iterator savef = first;
-        bool r = qi::extract_uint<Attribute, 10, 1, 2, true>::call(first, last, attr);
-        frac_digits = static_cast<int>(std::distance(savef, first));
-        return r;
+        return qi::extract_uint<T, 10, 1, 2, true>::call(first, last, attr);
     }
 
     //  No exponent

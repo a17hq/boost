@@ -18,6 +18,7 @@
     }
 
     struct point_hash
+        : std::unary_function<point, std::size_t>
     {
         std::size_t operator()(point const& p) const
         {

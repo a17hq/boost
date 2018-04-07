@@ -24,7 +24,6 @@
 
 #ifndef BOOST_NO_EXCEPTIONS
    #include <stdexcept> //for std exception types
-   #include <string>    //for implicit std::string conversion
    #include <new>       //for std::bad_alloc
 #else
    #include <boost/assert.hpp>

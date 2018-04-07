@@ -21,7 +21,7 @@ TOOLS =
     bcp//bcp
     inspect/build//inspect
     quickbook//quickbook
-    /boost/libs/wave/tool//wave
+    wave/build//wave
     ;
 
 install dist-bin

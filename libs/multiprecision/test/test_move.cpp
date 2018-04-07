@@ -10,7 +10,6 @@
 #endif
 
 #include <boost/config.hpp>
-#include <vector>
 
 #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
 

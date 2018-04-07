@@ -8,8 +8,6 @@
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 
-#include <istream>
-
 #include <boost/config.hpp>
 
 #ifdef BOOST_NO_STD_WSTREAMBUF
@@ -20,8 +18,9 @@
 #  pragma warning (disable : 4786) // too long name, harmless warning
 #endif
 
+#include <istream>
+
 #define BOOST_WARCHIVE_SOURCE
-#include <boost/serialization/config.hpp>
 #include <boost/archive/detail/auto_link_warchive.hpp>
 #include <boost/archive/impl/basic_text_iprimitive.ipp>
 

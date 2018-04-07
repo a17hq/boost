@@ -26,9 +26,11 @@
 
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
+#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
 #include <boost/config.hpp>
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 #include <initializer_list>
+#endif
 #endif
 
 namespace boost { namespace geometry
@@ -44,7 +46,6 @@ namespace model
 \tparam Container \tparam_container
 \tparam Allocator \tparam_allocator
 
-\qbk{[include reference/geometries/linestring.qbk]}
 \qbk{before.synopsis,
 [heading Model of]
 [link geometry.reference.concepts.concept_linestring Linestring Concept]
@@ -59,7 +60,7 @@ template
 >
 class linestring : public Container<Point, Allocator<Point> >
 {
-    BOOST_CONCEPT_ASSERT( (concepts::Point<Point>) );
+    BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
 
     typedef Container<Point, Allocator<Point> > base_type;
 
@@ -75,6 +76,7 @@ public :
         : base_type(begin, end)
     {}
 
+#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 
     /// \constructor_initializer_list{linestring}
@@ -95,6 +97,7 @@ public :
 //    }
 //#endif
 
+#endif
 #endif
 };
 

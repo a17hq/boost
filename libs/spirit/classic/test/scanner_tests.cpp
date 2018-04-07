@@ -10,6 +10,7 @@
 #include <boost/detail/lightweight_test.hpp>
 #include <list>
 
+using namespace std;
 
 #include <boost/spirit/include/classic_core.hpp>
 #include "impl/string_length.hpp"
@@ -66,25 +67,25 @@ scanner_tests()
 
     while (!pp1.at_end())
     {
-        std::cout << *pp1;
+        cout << *pp1;
         ++pp1;
     }
-    std::cout << '\n';
+    cout << '\n';
     cp_first = cp;
 
-    std::list<char>              li(cp_first, cp_last);
-    std::list<char>::iterator    li_first = li.begin();
-    std::list<char>::iterator    li_last = li.end();
+    list<char>              li(cp_first, cp_last);
+    list<char>::iterator    li_first = li.begin();
+    list<char>::iterator    li_last = li.end();
 
-    scanner<std::list<char>::iterator>
+    scanner<list<char>::iterator>
         pp2(li_first, li_last);
 
     while (!pp2.at_end())
     {
-        std::cout << *pp2;
+        cout << *pp2;
         ++pp2;
     }
-    std::cout << '\n';
+    cout << '\n';
     li_first = li.begin();
 
     scanner<char const*, scanner_policies<to_upper_iter_policy> >
@@ -92,11 +93,11 @@ scanner_tests()
 
     while (!pp3.at_end())
     {
-        std::cout << *pp3;
+        cout << *pp3;
         BOOST_TEST(!test_islower(*pp3));
         ++pp3;
     }
-    std::cout << '\n';
+    cout << '\n';
     cp_first = cp;
 
     scanner<char const*, scanner_policies<skip_white_iter_policy> >
@@ -108,14 +109,14 @@ scanner_tests()
 
     while (!pp4.at_end())
     {
-        std::cout << *pp4;
+        cout << *pp4;
         BOOST_TEST(!test_isspace(*pp4));
         ++pp4;
     }
-    std::cout << '\n';
+    cout << '\n';
     cp_first = cp;
 
-    std::cout << "sizeof(scanner<>) == " << sizeof(scanner<>) << '\n';
+    cout << "sizeof(scanner<>) == " << sizeof(scanner<>) << '\n';
 
     parse_info<> pi = parse("12abcdefg12345ABCDEFG789", +digit_p, alpha_p);
     BOOST_TEST(pi.hit);

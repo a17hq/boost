@@ -17,6 +17,7 @@
 #include "functor.hpp"
 
 #include "handle_test_result.hpp"
+#include "test_expint_hooks.hpp"
 #include "table_type.hpp"
 
 #ifndef SC_
@@ -26,19 +27,21 @@
 template <class T>
 T expint_wrapper(T n, T z)
 {
-#ifdef EN_FUNCTION_TO_TEST
-   return EN_FUNCTION_TO_TEST(
-      boost::math::itrunc(n), z);
-#else
    return boost::math::expint(
       boost::math::itrunc(n), z);
-#endif
 }
 
+#ifdef TEST_OTHER
+template <class T>
+T other_expint_wrapper(T n, T z)
+{
+   return other::expint(
+      boost::math::itrunc(n), z);
+}
+#endif
 template <class Real, class T>
 void do_test_expint(const T& data, const char* type_name, const char* test_name)
 {
-#if !(defined(ERROR_REPORTING_MODE) && !defined(EN_FUNCTION_TO_TEST))
    //
    // test En(T) against data:
    //
@@ -62,15 +65,27 @@ void do_test_expint(const T& data, const char* type_name, const char* test_name)
       data,
       bind_func<Real>(funcp, 0, 1),
       extract_result<Real>(2));
-   handle_test_result(result, data[result.worst()], result.worst(), type_name, "expint (En)", test_name);
-   std::cout << std::endl;
+   handle_test_result(result, data[result.worst()], result.worst(), type_name, "boost::math::expint", test_name);
+#ifdef TEST_OTHER
+   if(boost::is_floating_point<value_type>::value && other::expint(2u, 2.0))
+   {
+      funcp = other_expint_wrapper;
+      //
+      // test expint against data:
+      //
+      result = boost::math::tools::test_hetero<Real>(
+         data,
+         bind_func<Real>(funcp, 0, 1),
+         extract_result<Real>(2));
+      handle_test_result(result, data[result.worst()], result.worst(), type_name, "other::expint", test_name);
+   }
 #endif
+   std::cout << std::endl;
 }
 
 template <class Real, class T>
 void do_test_expint_Ei(const T& data, const char* type_name, const char* test_name)
 {
-#if !(defined(ERROR_REPORTING_MODE) && !defined(EI_FUNCTION_TO_TEST))
    //
    // test Ei(T) against data:
    //
@@ -80,9 +95,7 @@ void do_test_expint_Ei(const T& data, const char* type_name, const char* test_na
    std::cout << test_name << " with type " << type_name << std::endl;
 
    typedef value_type (*pg)(value_type);
-#ifdef EI_FUNCTION_TO_TEST
-   pg funcp = EI_FUNCTION_TO_TEST;
-#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
    pg funcp = boost::math::expint<value_type>;
 #else
    pg funcp = boost::math::expint;
@@ -96,7 +109,20 @@ void do_test_expint_Ei(const T& data, const char* type_name, const char* test_na
       data,
       bind_func<Real>(funcp, 0),
       extract_result<Real>(1));
-   handle_test_result(result, data[result.worst()], result.worst(), type_name, "expint (Ei)", test_name);
+   handle_test_result(result, data[result.worst()], result.worst(), type_name, "boost::math::expint", test_name);
+#ifdef TEST_OTHER
+   if(boost::is_floating_point<value_type>::value && other::expint(2.0))
+   {
+      funcp = other::expint;
+      //
+      // test expint against data:
+      //
+      result = boost::math::tools::test_hetero<Real>(
+         data,
+         bind_func<Real>(funcp, 0),
+         extract_result<Real>(1));
+      handle_test_result(result, data[result.worst()], result.worst(), type_name, "other::expint", test_name);
+   }
 #endif
 }
 

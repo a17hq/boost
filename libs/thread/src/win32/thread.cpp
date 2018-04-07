@@ -5,9 +5,15 @@
 // (C) Copyright 2007 David Deakins
 // (C) Copyright 2011-2013 Vicente J. Botet Escriba
 
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x400
+#endif
+
+#ifndef WINVER
+#define WINVER 0x400
+#endif
 //#define BOOST_THREAD_VERSION 3
 
-#include <boost/detail/winapi/config.hpp>
 #include <boost/thread/thread_only.hpp>
 #include <boost/thread/once.hpp>
 #include <boost/thread/tss.hpp>
@@ -18,9 +24,7 @@
 #include <boost/cstdint.hpp>
 #if defined BOOST_THREAD_USES_DATETIME
 #include <boost/date_time/posix_time/conversion.hpp>
-#include <boost/thread/thread_time.hpp>
 #endif
-#include <boost/thread/csbl/memory/unique_ptr.hpp>
 #include <memory>
 #include <algorithm>
 #ifndef UNDER_CE
@@ -149,7 +153,7 @@ namespace boost
 
         DWORD WINAPI ThreadProxy(LPVOID args)
         {
-            boost::csbl::unique_ptr<ThreadProxyData> data(reinterpret_cast<ThreadProxyData*>(args));
+            std::auto_ptr<ThreadProxyData> data(reinterpret_cast<ThreadProxyData*>(args));
             DWORD ret=data->start_address_(data->arglist_);
             return ret;
         }
@@ -462,7 +466,7 @@ namespace boost
 #if defined BOOST_THREAD_USES_DATETIME
     bool thread::timed_join(boost::system_time const& wait_until)
     {
-      return do_try_join_until(boost::detail::get_milliseconds_until(wait_until));
+      return do_try_join_until(get_milliseconds_until(wait_until));
     }
 #endif
     bool thread::do_try_join_until_noexcept(uintmax_t milli, bool& res)
@@ -522,11 +526,8 @@ namespace boost
 
     unsigned thread::physical_concurrency() BOOST_NOEXCEPT
     {
-      // a bit too strict: Windows XP with SP3 would be sufficient
-#if BOOST_PLAT_WINDOWS_RUNTIME                                    \
-    || ( BOOST_USE_WINAPI_VERSION <= BOOST_WINAPI_VERSION_WINXP ) \
-    || ( ( defined(__MINGW32__) && !defined(__MINGW64__) ) && _WIN32_WINNT < 0x0600)
-        return 0;
+#if BOOST_PLAT_WINDOWS_RUNTIME || (defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR))
+        return hardware_concurrency();
 #else
         unsigned cores = 0;
         DWORD size = 0;
@@ -644,7 +645,7 @@ namespace boost
                     } Detailed;
                 } Reason;
             } REASON_CONTEXT, *PREASON_CONTEXT;
-            //static REASON_CONTEXT default_reason_context={0/*POWER_REQUEST_CONTEXT_VERSION*/, 0x00000001/*POWER_REQUEST_CONTEXT_SIMPLE_STRING*/, (LPWSTR)L"generic"};
+            static REASON_CONTEXT default_reason_context={0/*POWER_REQUEST_CONTEXT_VERSION*/, 0x00000001/*POWER_REQUEST_CONTEXT_SIMPLE_STRING*/, (LPWSTR)L"generic"};
             typedef BOOL (WINAPI *setwaitabletimerex_t)(HANDLE, const LARGE_INTEGER *, LONG, PTIMERAPCROUTINE, LPVOID, PREASON_CONTEXT, ULONG);
             static inline BOOL WINAPI SetWaitableTimerEx_emulation(HANDLE hTimer, const LARGE_INTEGER *lpDueTime, LONG lPeriod, PTIMERAPCROUTINE pfnCompletionRoutine, LPVOID lpArgToCompletionRoutine, PREASON_CONTEXT WakeContext, ULONG TolerableDelay)
             {
@@ -714,8 +715,7 @@ namespace boost
                     if(time_left.milliseconds/20>tolerable)  // 5%
                         tolerable=time_left.milliseconds/20;
                     LARGE_INTEGER due_time=get_due_time(target_time);
-                    //bool const set_time_succeeded=detail_::SetWaitableTimerEx()(timer_handle,&due_time,0,0,0,&detail_::default_reason_context,tolerable)!=0;
-                    bool const set_time_succeeded=detail_::SetWaitableTimerEx()(timer_handle,&due_time,0,0,0,NULL,tolerable)!=0;
+                    bool const set_time_succeeded=detail_::SetWaitableTimerEx()(timer_handle,&due_time,0,0,0,&detail_::default_reason_context,tolerable)!=0;
                     if(set_time_succeeded)
                     {
                         timeout_index=handle_count;
@@ -799,8 +799,7 @@ namespace boost
                     if(time_left.milliseconds/20>tolerable)  // 5%
                         tolerable=time_left.milliseconds/20;
                     LARGE_INTEGER due_time=get_due_time(target_time);
-                    //bool const set_time_succeeded=detail_::SetWaitableTimerEx()(timer_handle,&due_time,0,0,0,&detail_::default_reason_context,tolerable)!=0;
-                    bool const set_time_succeeded=detail_::SetWaitableTimerEx()(timer_handle,&due_time,0,0,0,NULL,tolerable)!=0;
+                    bool const set_time_succeeded=detail_::SetWaitableTimerEx()(timer_handle,&due_time,0,0,0,&detail_::default_reason_context,tolerable)!=0;
                     if(set_time_succeeded)
                     {
                         timeout_index=handle_count;

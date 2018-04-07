@@ -10,7 +10,6 @@
 #include <boost/graph/use_mpi.hpp>
 #include <boost/config.hpp>
 #include <boost/throw_exception.hpp>
-#include <boost/serialization/vector.hpp>
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/distributed/mpi_process_group.hpp>
 #include <boost/graph/distributed/adjacency_list.hpp>

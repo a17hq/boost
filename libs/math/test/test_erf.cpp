@@ -64,14 +64,14 @@ void expected_results()
       "Mac OS",                      // platform
       largest_type,                  // test type(s)
       "Erf Function:.*Large.*",      // test data group
-      "erfc", 4300, 1300);  // test function
+      "boost::math::erfc", 4300, 1300);  // test function
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
       "Mac OS",                      // platform
       largest_type,                  // test type(s)
       "Erf Function:.*",             // test data group
-      "erfc", 40, 10);  // test function
+      "boost::math::erfc", 40, 10);  // test function
 
    add_expected_result(
       ".*",                          // compiler
@@ -79,14 +79,14 @@ void expected_results()
       ".*",                          // platform
       "real_concept",                // test type(s)
       "Erf Function:.*",             // test data group
-      "erfc?", 20, 6);   // test function
+      "boost::math::erfc?", 20, 6);   // test function
    add_expected_result(
       ".*",                           // compiler
       ".*",                           // stdlib
       ".*",                           // platform
       "real_concept",                 // test type(s)
       "Inverse Erfc.*",               // test data group
-      "erfc_inv", 80, 10);  // test function
+      "boost::math::erfc_inv", 80, 10);  // test function
 
 
    //
@@ -98,21 +98,21 @@ void expected_results()
       ".*",                          // platform
       ".*",                          // test type(s)
       "Erf Function:.*",             // test data group
-      "erfc?", 2, 2);   // test function
+      "boost::math::erfc?", 2, 2);   // test function
    add_expected_result(
       ".*aCC.*",                     // compiler
       ".*",                          // stdlib
       ".*",                          // platform
       ".*",                          // test type(s)
       "Inverse Erfc.*",               // test data group
-      "erfc_inv", 80, 10);  // test function
+      "boost::math::erfc_inv", 80, 10);  // test function
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
       ".*",                          // platform
       ".*",                          // test type(s)
       "Inverse Erf.*",               // test data group
-      "erfc?_inv", 18, 4);  // test function
+      "boost::math::erfc?_inv", 18, 4);  // test function
 
    //
    // Finish off by printing out the compiler/stdlib/platform names,
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::endl;
+      "to pass.</note>" << std::cout;
 #endif
 }
 

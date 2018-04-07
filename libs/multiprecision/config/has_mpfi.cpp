@@ -51,12 +51,6 @@ int main()
 
    mpfr_buildopt_tls_p();
 
-   mpfi_t t;
-   mpfi_init2(t, 128);
-   if(t[0].left._mpfr_d)
-      mpfi_clear(t);
-
-
    return 0;
 }
 

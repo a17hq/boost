@@ -37,8 +37,6 @@ struct value_init
 
    operator T &() { return m_t; }
 
-   T &get() { return m_t; }
-
    T m_t;
 };
 

@@ -44,15 +44,17 @@ namespace std{
 
 #include <boost/preprocessor/facilities/empty.hpp>
 
+#include "test_decl.hpp"
+
 #if defined(A_IMPORT)
-    #define DLL_DECL BOOST_SYMBOL_IMPORT
+    #define DLL_DECL IMPORT_DECL
 #elif defined(A_EXPORT)
-    #define DLL_DECL BOOST_SYMBOL_EXPORT
+    #define DLL_DECL EXPORT_DECL
 #else
-    #define DLL_DECL
+    #define DLL_DECL(x)
 #endif
 
-class DLL_DECL A
+class DLL_DECL(BOOST_PP_EMPTY()) A
 {
 private:
     friend class boost::serialization::access;

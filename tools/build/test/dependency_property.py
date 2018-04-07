@@ -10,6 +10,7 @@
 # targets ended up being in the same location.
 
 import BoostBuild
+import string
 
 
 t = BoostBuild.Tester()
@@ -30,10 +31,6 @@ void foo() {}
 """)
 
 t.run_build_system(["--no-error-backtrace"], status=1)
-output = t.stdout()
-t.fail_test(
-    "Tried to build the target twice" not in output and
-    "Duplicate name of actual target" not in output
-)
+t.fail_test(string.find(t.stdout(), "Tried to build the target twice") == -1)
 
 t.cleanup()

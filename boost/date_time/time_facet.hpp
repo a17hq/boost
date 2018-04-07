@@ -1131,10 +1131,9 @@ namespace date_time {
                     if(sec == -1){
                        return check_special_value(sitr, stream_end, t, c);
                     }
-                    if (*itr == 'S' || sitr == stream_end)
+                    if (*itr == 'S')
                       break;
-                    // %s is the same as %S%f so we drop through into %f if we are
-                    // not at the end of the stream
+                    // %s is the same as %S%f so we drop through into %f
                   }
                 case 'f':
                   {

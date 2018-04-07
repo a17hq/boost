@@ -3,8 +3,8 @@
 // See http://www.boost.org for updates, documentation, and revision history.
 //-----------------------------------------------------------------------------
 //
-// Copyright (c) 2002 Eric Friedman, Itay Maman
-// Copyright (c) 2016 Antony Polukhin
+// Copyright (c) 2002
+// Eric Friedman, Itay Maman
 //
 // Portions Copyright (C) 2002 David Abrahams
 //
@@ -15,11 +15,12 @@
 #ifndef BOOST_VARIANT_RECURSIVE_WRAPPER_FWD_HPP
 #define BOOST_VARIANT_RECURSIVE_WRAPPER_FWD_HPP
 
-#include <boost/mpl/bool.hpp>
-#include <boost/mpl/aux_/config/ctps.hpp>
-#include <boost/mpl/aux_/lambda_support.hpp>
-#include <boost/type_traits/integral_constant.hpp>
-#include <boost/type_traits/is_constructible.hpp>
+#include "boost/mpl/aux_/config/ctps.hpp"
+
+#include "boost/mpl/aux_/lambda_support.hpp"
+
+// should be the last #include
+#include "boost/type_traits/detail/bool_trait_def.hpp"
 
 namespace boost {
 
@@ -41,35 +42,10 @@ namespace boost {
 //
 template <typename T> class recursive_wrapper;
 
-
-///////////////////////////////////////////////////////////////////////////////
-// metafunction is_constructible partial specializations.
-//
-// recursive_wrapper<T> is constructible only from T and recursive_wrapper<T>.
-//
-template <class T>          struct is_constructible<recursive_wrapper<T>, T>                            : boost::true_type{};
-template <class T>          struct is_constructible<recursive_wrapper<T>, const T>                      : boost::true_type{};
-template <class T>          struct is_constructible<recursive_wrapper<T>, T&>                           : boost::true_type{};
-template <class T>          struct is_constructible<recursive_wrapper<T>, const T&>                     : boost::true_type{};
-template <class T>          struct is_constructible<recursive_wrapper<T>, recursive_wrapper<T> >        : boost::true_type{};
-template <class T>          struct is_constructible<recursive_wrapper<T>, const recursive_wrapper<T> >  : boost::true_type{};
-template <class T>          struct is_constructible<recursive_wrapper<T>, recursive_wrapper<T>& >       : boost::true_type{};
-template <class T>          struct is_constructible<recursive_wrapper<T>, const recursive_wrapper<T>& > : boost::true_type{};
-
-template <class T, class U> struct is_constructible<recursive_wrapper<T>, U >                           : boost::false_type{};
-template <class T, class U> struct is_constructible<recursive_wrapper<T>, const U >                     : boost::false_type{};
-template <class T, class U> struct is_constructible<recursive_wrapper<T>, U& >                          : boost::false_type{};
-template <class T, class U> struct is_constructible<recursive_wrapper<T>, const U& >                    : boost::false_type{};
-template <class T, class U> struct is_constructible<recursive_wrapper<T>, recursive_wrapper<U> >        : boost::false_type{};
-template <class T, class U> struct is_constructible<recursive_wrapper<T>, const recursive_wrapper<U> >  : boost::false_type{};
-template <class T, class U> struct is_constructible<recursive_wrapper<T>, recursive_wrapper<U>& >       : boost::false_type{};
-template <class T, class U> struct is_constructible<recursive_wrapper<T>, const recursive_wrapper<U>& > : boost::false_type{};
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // metafunction is_recursive_wrapper (modeled on code by David Abrahams)
 //
-// True if specified type matches recursive_wrapper<T>.
+// True iff specified type matches recursive_wrapper<T>.
 //
 
 namespace detail {
@@ -90,12 +66,11 @@ struct is_recursive_wrapper_impl< recursive_wrapper<T> >
 
 } // namespace detail
 
-template< typename T > struct is_recursive_wrapper
-    : public ::boost::integral_constant<bool,(::boost::detail::is_recursive_wrapper_impl<T>::value)>
-{
-public:
-    BOOST_MPL_AUX_LAMBDA_SUPPORT(1,is_recursive_wrapper,(T))
-};
+BOOST_TT_AUX_BOOL_TRAIT_DEF1(
+      is_recursive_wrapper
+    , T
+    , (::boost::detail::is_recursive_wrapper_impl<T>::value)
+    )
 
 ///////////////////////////////////////////////////////////////////////////////
 // metafunction unwrap_recursive
@@ -122,5 +97,7 @@ struct unwrap_recursive< recursive_wrapper<T> >
 
 
 } // namespace boost
+
+#include "boost/type_traits/detail/bool_trait_undef.hpp"
 
 #endif // BOOST_VARIANT_RECURSIVE_WRAPPER_FWD_HPP

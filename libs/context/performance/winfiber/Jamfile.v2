@@ -55,7 +55,7 @@ alias sources
 
 explicit sources ;
 
-exe performance
+exe performance_winfiber
    : sources
-     performance.cpp
+     performance_winfiber.cpp
    ;

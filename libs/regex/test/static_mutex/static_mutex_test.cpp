@@ -17,17 +17,16 @@
   */
 
 #include <iostream>
-#include <iomanip>
 #include <boost/regex/pending/static_mutex.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/timer.hpp>
 
 //
 // we cannot use the regular Boost.Test in here: it is not thread safe
-// and calls to BOOST_CHECK will eventually crash on some compilers 
+// and calls to BOOST_TEST will eventually crash on some compilers 
 // (Borland certainly) due to race conditions inside the Boost.Test lib.
 //
-#define BOOST_CHECK(pred) if(!(pred)) failed_test(__FILE__, __LINE__, BOOST_STRINGIZE(pred));
+#define BOOST_TEST(pred) if(!(pred)) failed_test(__FILE__, __LINE__, BOOST_STRINGIZE(pred));
 
 int total_failures = 0;
 void failed_test(const char* file, int line, const char* pred)
@@ -63,11 +62,11 @@ bool t1()
    static int data = 10000;
 
    boost::static_mutex::scoped_lock guard(mut);
-   BOOST_CHECK(++has_lock == 1);
-   BOOST_CHECK(guard.locked());
-   BOOST_CHECK(guard);
+   BOOST_TEST(++has_lock == 1);
+   BOOST_TEST(guard.locked());
+   BOOST_TEST(guard);
    bool result = (--data > 0) ? true : false;
-   BOOST_CHECK(--has_lock == 0);
+   BOOST_TEST(--has_lock == 0);
    return result;
 }
 
@@ -78,17 +77,17 @@ bool t2()
    static int data = 10000;
 
    boost::static_mutex::scoped_lock guard(mut, false);
-   BOOST_CHECK(0 == guard.locked());
-   BOOST_CHECK(!guard);
+   BOOST_TEST(0 == guard.locked());
+   BOOST_TEST(!guard);
    guard.lock();
-   BOOST_CHECK(++has_lock == 1);
-   BOOST_CHECK(guard.locked());
-   BOOST_CHECK(guard);
+   BOOST_TEST(++has_lock == 1);
+   BOOST_TEST(guard.locked());
+   BOOST_TEST(guard);
    bool result = (--data > 0) ? true : false;
-   BOOST_CHECK(--has_lock == 0);
+   BOOST_TEST(--has_lock == 0);
    guard.unlock();
-   BOOST_CHECK(0 == guard.locked());
-   BOOST_CHECK(!guard);
+   BOOST_TEST(0 == guard.locked());
+   BOOST_TEST(!guard);
    return result;
 }
 
@@ -99,11 +98,11 @@ bool t3()
    static int data = 10000;
 
    boost::static_mutex::scoped_lock guard(mut);
-   BOOST_CHECK(++has_lock == 1);
-   BOOST_CHECK(guard.locked());
-   BOOST_CHECK(guard);
+   BOOST_TEST(++has_lock == 1);
+   BOOST_TEST(guard.locked());
+   BOOST_TEST(guard);
    bool result = (--data > 0) ? true : false;
-   BOOST_CHECK(--has_lock == 0);
+   BOOST_TEST(--has_lock == 0);
    return result;
 }
 

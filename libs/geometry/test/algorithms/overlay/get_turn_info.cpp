@@ -183,8 +183,11 @@ void test_both(std::string const& caseid,
 
     //return;
 
-    std::string reversed(expected.rbegin(), expected.rend());
-    
+    std::string reverse;
+    for (int i = expected.size() - 1; i >= 0; i--)
+    {
+        reverse += expected[i];
+    }
     if (ip_x2 >= 0 && ip_y2 >= 0)
     {
         std::swap(ip_x, ip_x2);
@@ -194,7 +197,7 @@ void test_both(std::string const& caseid,
     test_with_point<P, double>(caseid + "_r",
             qi_x, qi_y, qj_x, qj_y, qk_x, qk_y, // q
             pi_x, pi_y, pj_x, pj_y, pk_x, pk_y, // p
-            method, ip_x, ip_y, reversed, ip_x2, ip_y2);
+            method, ip_x, ip_y, reverse, ip_x2, ip_y2);
 }
 
 

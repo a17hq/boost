@@ -25,12 +25,12 @@ namespace container {
 namespace container_detail {
 
 template <typename T>
-BOOST_CONTAINER_FORCEINLINE T* addressof(T& obj)
+inline T* addressof(T& obj)
 {
    return static_cast<T*>(
       static_cast<void*>(
          const_cast<char*>(
-            &reinterpret_cast<const volatile char&>(obj)
+            &reinterpret_cast<const char&>(obj)
    )));
 }
 

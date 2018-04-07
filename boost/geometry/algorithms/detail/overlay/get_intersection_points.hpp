@@ -12,9 +12,6 @@
 
 #include <cstddef>
 
-#include <boost/mpl/if.hpp>
-#include <boost/range.hpp>
-
 #include <boost/geometry/algorithms/convert.hpp>
 #include <boost/geometry/algorithms/detail/overlay/get_turns.hpp>
 
@@ -49,7 +46,7 @@ struct get_turn_without_info
                 RobustPolicy const& robust_policy,
                 OutputIterator out)
     {
-        typedef intersection_strategies
+        typedef strategy_intersection
             <
                 typename cs_tag<typename TurnInfo::point_type>::type,
                 Point1,
@@ -109,7 +106,7 @@ inline void get_intersection_points(Geometry1 const& geometry1,
             RobustPolicy const& robust_policy,
             Turns& turns)
 {
-    concepts::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2 const>();
+    concept::check_concepts_and_equal_dimensions<Geometry1 const, Geometry2 const>();
 
     typedef detail::get_intersection_points::get_turn_without_info
                         <

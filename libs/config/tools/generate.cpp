@@ -13,7 +13,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <boost/detail/lightweight_main.hpp>
+#include <boost/test/included/prg_exec_monitor.hpp>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -208,13 +208,20 @@ void write_build_check_jamfile()
       "# Boost Software License, Version 1.0. (See accompanying file \n"
       "# LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)\n\n"
       "import modules ;\nimport path ; \n\n"
-      "\n"
-      "rule run-simple ( requirements * : target-name )\n"
+      "actions simple_run_action\n"
       "{\n"
-      "   obj $(target-name)_obj : test_case.cpp : $(requirements) ;\n"
+      "      $(>) > $(<)\n"
+      "}\n"
+      "\n"
+      "rule run-simple ( sources + : args * : input-files * : requirements * : target-name )\n"
+      "{\n"
+      "   obj $(target-name)_obj : $(sources) : $(requirements) ;\n"
       "   explicit $(target-name)_obj ;\n"
-      "   unit-test $(target-name) : $(target-name)_obj : $(requirements) ;\n"
-      "   explicit $(target-name) ;\n"
+      "   exe $(target-name)_exe : $(target-name)_obj : $(requirements) ;\n"
+      "   explicit $(target-name)_exe ;\n"
+      "   #testing.capture-output $(target-name)_output : $(target-name) : $(requirements) <name>$(target-name) ;\n"
+      "   make $(target-name).output : $(target-name)_exe : @simple_run_action ;\n"
+      "   explicit $(target-name).output ;\n"
       "}\n\n"
       ;
    ofs << build_config_jamfile.str() << std::endl;
@@ -294,7 +301,9 @@ void process_ipp_file(const fs::path& file, bool positive_test)
    // Generate data for the build-checks Jamfile:
    static const boost::regex feature_regex("boost_(?:no|has)_(.*)");
    std::string feature_name = boost::regex_replace(namespace_name, feature_regex, "\\1");
-   build_config_jamfile << "run-simple <define>TEST_" << macro_name << " : " << feature_name << " ;\n";
+   build_config_jamfile << "run-simple test_case.cpp : : : <define>TEST_" << macro_name << " : " << feature_name << " ;\n";
+   build_config_jamfile << "alias " << feature_name << " : " << feature_name << ".output ;\n";
+   build_config_jamfile << "explicit " << feature_name << " ;\n";
 }
 
 int cpp_main(int argc, char* argv[])

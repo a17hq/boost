@@ -23,7 +23,7 @@ namespace exception
     class hash;
     class equal_to;
     template <class T> class allocator;
-    object generate(object const*, random_generator);
+    object generate(object const*);
 
     struct true_type
     {
@@ -101,9 +101,9 @@ namespace exception
                 (x1.tag1_ == x2.tag1_ && x1.tag2_ < x2.tag2_);
         }
 
-        friend object generate(object const*, random_generator g) {
+        friend object generate(object const*) {
             int* x = 0;
-            return object(::test::generate(x, g), ::test::generate(x, g));
+            return object(::test::generate(x), ::test::generate(x));
         }
 
         friend std::ostream& operator<<(std::ostream& out, object const& o)
@@ -146,18 +146,14 @@ namespace exception
                 UNORDERED_EPOINT("Mock hash function.");
             }
 
-            int result;
             switch(tag_) {
             case 1:
-                result = x.tag1_;
-                break;
+                return x.tag1_;
             case 2:
-                result = x.tag2_;
-                break;
+                return x.tag2_;
             default:
-                result = x.tag1_ + x.tag2_; 
+                return x.tag1_ + x.tag2_; 
             }
-            return static_cast<std::size_t>(result);
         }
 
         friend bool operator==(hash const& x1, hash const& x2) {
@@ -318,7 +314,7 @@ namespace exception
             //return pointer(static_cast<T*>(::operator new(n * sizeof(T))));
         }
 
-        pointer allocate(size_type n, void const*)
+        pointer allocate(size_type n, void const* u)
         {
             T* ptr = 0;
             UNORDERED_SCOPE(allocator::allocate(size_type, const_pointer)) {
@@ -498,7 +494,7 @@ namespace exception
             //return pointer(static_cast<T*>(::operator new(n * sizeof(T))));
         }
 
-        pointer allocate(size_type n, void const*)
+        pointer allocate(size_type n, void const* u)
         {
             T* ptr = 0;
             UNORDERED_SCOPE(allocator2::allocate(size_type, const_pointer)) {
@@ -592,9 +588,8 @@ namespace exception
 #if defined(BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP)
 namespace test
 {
-    test::exception::object generate(test::exception::object const* x,
-        random_generator g) {
-        return test::exception::generate(x, g);
+    test::exception::object generate(test::exception::object const* x) {
+        return test::exception::generate(x);
     }
 }
 #endif

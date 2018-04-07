@@ -28,9 +28,9 @@ void
 packed_archive_send(MPI_Comm comm, int dest, int tag,
                     const packed_oarchive& ar)
 {
-  std::size_t size = ar.size();
+  const void* size = &ar.size();
   BOOST_MPI_CHECK_RESULT(MPI_Send,
-                         (static_cast<void*>(&size), 1, 
+                         (const_cast<void*>(size), 1, 
                           get_mpi_datatype<std::size_t>(ar.size()), 
                           dest, tag, comm));
   BOOST_MPI_CHECK_RESULT(MPI_Send,

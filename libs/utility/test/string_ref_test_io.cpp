@@ -75,6 +75,7 @@ struct context
 BOOST_AUTO_TEST_CASE_TEMPLATE(string_ref_output, CharT, char_types)
 {
     typedef CharT char_type;
+    typedef std::basic_string< char_type > string_type;
     typedef std::basic_ostringstream< char_type > ostream_type;
     typedef boost::basic_string_ref< char_type > string_ref_type;
 
@@ -89,6 +90,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(string_ref_output, CharT, char_types)
 BOOST_AUTO_TEST_CASE_TEMPLATE(padding, CharT, char_types)
 {
     typedef CharT char_type;
+    typedef std::basic_string< char_type > string_type;
     typedef std::basic_ostringstream< char_type > ostream_type;
     typedef boost::basic_string_ref< char_type > string_ref_type;
 
@@ -132,6 +134,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(padding, CharT, char_types)
 BOOST_AUTO_TEST_CASE_TEMPLATE(padding_fill, CharT, char_types)
 {
     typedef CharT char_type;
+    typedef std::basic_string< char_type > string_type;
     typedef std::basic_ostringstream< char_type > ostream_type;
     typedef boost::basic_string_ref< char_type > string_ref_type;
 
@@ -150,6 +153,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(padding_fill, CharT, char_types)
 BOOST_AUTO_TEST_CASE_TEMPLATE(alignment, CharT, char_types)
 {
     typedef CharT char_type;
+    typedef std::basic_string< char_type > string_type;
     typedef std::basic_ostringstream< char_type > ostream_type;
     typedef boost::basic_string_ref< char_type > string_ref_type;
 

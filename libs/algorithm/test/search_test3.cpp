@@ -34,8 +34,8 @@ typedef std::vector<std::string> vec;
                         needle.begin (), needle.end ());    \
         if ( res != exp ) {                                 \
             std::cout << "On run # " << i << " expected "   \
-                << exp.first - haystack.begin () << " got "       \
-                << res.first - haystack.begin () << std::endl;    \
+                << exp - haystack.begin () << " got "       \
+                << res - haystack.begin () << std::endl;    \
             throw std::runtime_error                        \
                 ( "Unexpected result from " #call );        \
             }                                               \
@@ -52,8 +52,8 @@ typedef std::vector<std::string> vec;
         res = s_o ( haystack.begin (), haystack.end ());    \
         if ( res != exp ) {                                 \
             std::cout << "On run # " << i << " expected "   \
-            << exp.first - haystack.begin () << " got "           \
-            << res.first - haystack.begin () << std::endl;        \
+            << exp - haystack.begin () << " got "           \
+            << res - haystack.begin () << std::endl;        \
             throw std::runtime_error                        \
             ( "Unexpected result from " #obj " object" );   \
             }                                               \
@@ -90,23 +90,17 @@ namespace {
         std::clock_t sTime;
         unsigned long stdDiff;
         
-        std::pair<vec::const_iterator, vec::const_iterator> res;
-        std::pair<vec::const_iterator, vec::const_iterator> exp;        // the expected result
-        vec::const_iterator exp_start;
+        vec::const_iterator res;
+        vec::const_iterator exp;        // the expected result
         
         if ( expected >= 0 )
-            exp_start = haystack.begin () + expected;
+            exp = haystack.begin () + expected;
         else if ( expected == -1 )
-            exp_start = haystack.end ();      // we didn't find it1
+            exp = haystack.end ();      // we didn't find it1
         else if ( expected == -2 )
-            exp_start = std::search ( haystack.begin (), haystack.end (), needle.begin (), needle.end ());
+            exp = std::search ( haystack.begin (), haystack.end (), needle.begin (), needle.end ());
         else    
             throw std::logic_error ( "Expected must be -2, -1, or >= 0" );
-
-		if ( expected == -1 )
-			exp = std::make_pair(haystack.end(), haystack.end());
-		else
-			exp = std::make_pair(exp_start, exp_start + needle.size());
 
         std::cout << "Pattern is " << needle.size ()   << " entries long" << std::endl;
         std::cout << "Corpus  is " << haystack.size () << " entries long" << std::endl;
@@ -114,9 +108,9 @@ namespace {
     //  First, the std library search
         sTime = std::clock ();
         for ( i = 0; i < NUM_TRIES; ++i ) {
-            vec::const_iterator s_res = std::search ( haystack.begin (), haystack.end (), needle.begin (), needle.end ());
-            if ( s_res != exp.first ) {
-                std::cout << "On run # " << i << " expected " << exp.first - haystack.begin () << " got " << s_res - haystack.begin () << std::endl;
+            res = std::search ( haystack.begin (), haystack.end (), needle.begin (), needle.end ());
+            if ( res != exp ) {
+                std::cout << "On run # " << i << " expected " << exp - haystack.begin () << " got " << res - haystack.begin () << std::endl;
                 throw std::runtime_error ( "Unexpected result from std::search" );
                 }
             }

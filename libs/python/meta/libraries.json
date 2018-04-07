@@ -9,6 +9,7 @@
         "Inter-language"
     ],
     "maintainers": [
-	"Stefan Seefeld <stefan -at- seefeld.name>"
+        "Ralf Grosse-Kunstleve <rwgrosse-kunstleve -at- lbl.gov>",
+        "Ravi Rajagopal <lists_ravi -at- lavabit.com>"
     ]
 }

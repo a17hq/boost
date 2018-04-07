@@ -9,8 +9,6 @@
 // Build a dll which contains the serialization for a class A
 // used in testing distribution of serialization code in DLLS
 
-#include <boost/config.hpp>
-
 #include <boost/serialization/nvp.hpp>
 
 #define DERIVED2_EXPORT
@@ -28,11 +26,11 @@ void derived2::serialize(
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
-template BOOST_SYMBOL_EXPORT void derived2::serialize(
+template EXPORT_DECL(void) derived2::serialize(
     boost::archive::text_oarchive & ar,
     const unsigned int version
 );
-template BOOST_SYMBOL_EXPORT void derived2::serialize(
+template EXPORT_DECL(void) derived2::serialize(
     boost::archive::text_iarchive & ar,
     const unsigned int version
 );
@@ -40,11 +38,11 @@ template BOOST_SYMBOL_EXPORT void derived2::serialize(
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/archive/polymorphic_iarchive.hpp>
 
-template BOOST_SYMBOL_EXPORT void derived2::serialize(
+template EXPORT_DECL(void) derived2::serialize(
     boost::archive::polymorphic_oarchive & ar,
     const unsigned int version
 );
-template BOOST_SYMBOL_EXPORT void derived2::serialize(
+template EXPORT_DECL(void) derived2::serialize(
     boost::archive::polymorphic_iarchive & ar,
     const unsigned int version
 );

@@ -15,7 +15,6 @@
 int main()
 {
     boost::reference_wrapper<int const> r( 1 ); // this should produce an ERROR
-    (void)r;
 }
 
 #else

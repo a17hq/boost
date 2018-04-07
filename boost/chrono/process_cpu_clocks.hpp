@@ -193,7 +193,7 @@ namespace boost { namespace chrono {
                 typedef std::istreambuf_iterator<CharT, Traits> in_iterator;
                 in_iterator i(is);
                 in_iterator e;
-                if (i == e || *i++ != '{')  // mandatory '{'
+                if (i == e || *i != '{')  // mandatory '{'
                 {
                     is.setstate(is.failbit | is.eofbit);
                     return;
@@ -244,8 +244,7 @@ namespace chrono
         const duration<process_times<Rep2>, Period2>& rhs)
   {
       return boost::chrono::detail::duration_eq<
-          duration<Rep1, Period1>, duration<Rep2, Period2>
-        >()(duration<Rep1, Period1>(lhs.count().real), duration<Rep2, Period2>(rhs.count().real));
+          duration<process_times<Rep1>, Period1>, duration<process_times<Rep2>, Period2> >()(lhs, rhs);
   }
 
   template <class Rep1, class Period1, class Rep2, class Period2>
@@ -286,8 +285,7 @@ namespace chrono
   operator< (const duration<Rep1, Period1>& lhs,
         const duration<process_times<Rep2>, Period2>& rhs)
   {
-      return boost::chrono::detail::duration_lt<
-        duration<Rep1, Period1>, duration<Rep2, Period2> >()(lhs, duration<Rep2, Period2>(rhs.count().real));
+    return rhs < lhs;
   }
 
   template <class Rep1, class Period1, class Rep2, class Period2>
@@ -297,8 +295,7 @@ namespace chrono
         const duration<process_times<Rep2>, Period2>& rhs)
   {
     return boost::chrono::detail::duration_lt<
-        duration<Rep1, Period1>, duration<Rep2, Period2>
-      >()(duration<Rep1, Period1>(lhs.count().real), duration<Rep2, Period2>(rhs.count().real));
+      duration<Rep1, Period1>, duration<Rep2, Period2> >()(lhs, rhs);
   }
 
 
@@ -415,7 +412,7 @@ namespace chrono
       {
         static const CharT
             u[] =
-                { 'p', 'r', 'o', 'c', 'e', 's', 's', '_', 's', 'y', 's', 't', 'e', 'm', '_', 'c', 'l', 'o', 'c', 'k' };
+                { 'p', 'r', 'o', 'c', 'e', 's', 's', '_', 's', 'y', 's', 't', 't', 'e', 'm', '_', 'c', 'l', 'o', 'c', 'k' };
         static const std::basic_string<CharT> str(u, u + sizeof(u)
             / sizeof(u[0]));
         return str;

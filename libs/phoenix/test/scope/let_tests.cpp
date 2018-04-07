@@ -18,7 +18,6 @@
 #include <boost/phoenix/function.hpp>
 #include <boost/phoenix/fusion.hpp>
 #include <boost/phoenix/scope.hpp>
-#include <boost/phoenix/object/construct.hpp>
 
 #include <typeinfo>
 
@@ -173,15 +172,6 @@ main()
         int i = 1;
         int& j = let(_a = arg1)[_a](i);
         BOOST_TEST(&i == &j);
-    }
-
-    {
-        // show that a let with a void result can compile
-        using boost::phoenix::construct;
-
-        let(_a = 1)[             // need at least one expression here
-            construct<void>()    // produce a void result
-            ]();
     }
 
     {

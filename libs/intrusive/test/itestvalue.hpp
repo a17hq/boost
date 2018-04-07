@@ -16,10 +16,7 @@
 #include <iostream>
 #include <boost/intrusive/options.hpp>
 #include <boost/functional/hash.hpp>
-#include <boost/intrusive/pointer_traits.hpp>
 #include "nonhook_node.hpp"
-#include "int_holder.hpp"
-#include <boost/intrusive/detail/get_value_traits.hpp>
 #include <boost/container/vector.hpp>
 
 namespace boost{
@@ -30,7 +27,7 @@ struct testvalue_filler
    void *dummy_[3];
 };
 
-template<class Hooks>
+template<class Hooks, bool ConstantTimeSize>
 struct testvalue
    :  testvalue_filler
    ,  Hooks::base_hook_type
@@ -39,18 +36,19 @@ struct testvalue
    typename Hooks::member_hook_type        node_;
    typename Hooks::auto_member_hook_type   auto_node_;
    typename Hooks::nonhook_node_member_type nhn_member_;
+   int value_;
 
-   int_holder value_;
+   static const bool constant_time_size = ConstantTimeSize;
 
    testvalue()
    {}
 
-   explicit testvalue(int i)
+   testvalue(int i)
       :  value_(i)
    {}
 
    testvalue (const testvalue& src)
-      :  value_(src.value_)
+      :  value_ (src.value_)
    {}
 
    // testvalue is used in boost::container::vector and thus prev and next
@@ -84,20 +82,11 @@ struct testvalue
       nhn_member_.is_linked();
    }
 
-   const int_holder &get_int_holder() const
-   {  return value_; }
-
-   int int_value() const
-   {  return value_.int_value();  }
-
    ~testvalue()
    {}
 
    bool operator< (const testvalue &other) const
    {  return value_ < other.value_;  }
-
-   bool operator> (const testvalue &other) const
-   {  return value_ > other.value_;  }
 
    bool operator==(const testvalue &other) const
    {  return value_ == other.value_;  }
@@ -106,179 +95,109 @@ struct testvalue
    {  return value_ != other.value_;  }
 
    friend bool operator< (int other1, const testvalue &other2)
-   {  return other1 < other2.value_.int_;  }
-
-   friend bool operator> (int other1, const testvalue &other2)
-   {  return other1 > other2.value_.int_;  }
+   {  return other1 < other2.value_;  }
 
    friend bool operator< (const testvalue &other1, int other2)
-   {  return other1.value_.int_ < other2;  }
-
-   friend bool operator> (const testvalue &other1, int other2)
-   {  return other1.value_.int_ > other2;  }
+   {  return other1.value_ < other2;  }
 
    friend bool operator== (int other1, const testvalue &other2)
-   {  return other1 == other2.value_.int_;  }
+   {  return other1 == other2.value_;  }
 
    friend bool operator== (const testvalue &other1, int other2)
-   {  return other1.value_.int_ == other2;  }
+   {  return other1.value_ == other2;  }
 
    friend bool operator!= (int other1, const testvalue &other2)
-   {  return other1 != other2.value_.int_;  }
+   {  return other1 != other2.value_;  }
 
    friend bool operator!= (const testvalue &other1, int other2)
-   {  return other1.value_.int_ != other2;  }
-
-   friend std::size_t hash_value(const testvalue&t)
-   {
-      boost::hash<int> hasher;
-      return hasher((&t)->int_value());
-   }
+   {  return other1.value_ != other2;  }
 };
 
-template<class T>
-std::size_t priority_hash(const T &t)
-{  return boost::hash<int>()((&t)->int_value()); }
-
-std::size_t priority_hash(int i)
-{  return boost::hash<int>()(i); }
-
-template <class T, class U>
-bool priority_order(const T& t1, const U& t2)
-{
-   std::size_t hash1 = (priority_hash)(t1);
-   boost::hash_combine(hash1, -hash1);
-   std::size_t hash2 = (priority_hash)(t2);
-   boost::hash_combine(hash2, -hash2);
-   return hash1 < hash2;
-}
-
-template < typename Node_Algorithms, class Hooks>
-void swap_nodes(testvalue<Hooks>& lhs, testvalue<Hooks>& rhs)
+template < typename Node_Algorithms, class Hooks, bool ConstantTimeSize >
+void swap_nodes(testvalue< Hooks, ConstantTimeSize >& lhs, testvalue< Hooks, ConstantTimeSize >& rhs)
 {
     lhs.swap_nodes(rhs);
 }
 
-template<class Hooks>
+template < typename Value_Type >
+std::size_t hash_value(const Value_Type& t)
+{
+   boost::hash<int> hasher;
+   return hasher((&t)->value_);
+}
+
+template < typename Value_Type >
+bool priority_order(const Value_Type& t1, const Value_Type& t2)
+{
+   std::size_t hash1 = hash_value(t1);
+   boost::hash_combine(hash1, &t1);
+   std::size_t hash2 = hash_value(t2);
+   boost::hash_combine(hash2, &t2);
+   return hash1 < hash2;
+}
+
+template<class Hooks, bool constant_time_size>
 std::ostream& operator<<
-   (std::ostream& s, const testvalue<Hooks>& t)
-{  return s << t.value_.int_value();   }
+   (std::ostream& s, const testvalue<Hooks, constant_time_size>& t)
+{  return s << t.value_;   }
 
 struct even_odd
 {
-   template < typename key_type_1, typename key_type_2 >
+   template < typename value_type_1, typename value_type_2 >
    bool operator()
-      (const key_type_1& v1
-      ,const key_type_2& v2) const
+      (const value_type_1& v1
+      ,const value_type_2& v2) const
    {
-      if (((&v1)->int_value() & 1) == ((&v2)->int_value() & 1))
-         return (&v1)->int_value() < (&v2)->int_value();
+      if (((&v1)->value_ & 1) == ((&v2)->value_ & 1))
+         return (&v1)->value_ < (&v2)->value_;
       else
-         return (&v2)->int_value() & 1;
+         return (&v2)->value_ & 1;
    }
 };
 
 struct is_even
 {
-   template <typename key_type>
+   template <typename value_type>
    bool operator()
-      (const key_type& v1) const
-   {  return ((&v1)->int_value() & 1) == 0;  }
+      (const value_type& v1) const
+   {  return ((&v1)->value_ & 1) == 0;  }
 };
 
 struct is_odd
 {
-   template <typename key_type>
+   template <typename value_type>
    bool operator()
-      (const key_type& v1) const
-   {  return ((&v1)->int_value() & 1) != 0;  }
+      (const value_type& v1) const
+   {  return ((&v1)->value_ & 1) != 0;  }
 };
 
 template <typename>
-struct ValueContainer;
+struct Value_Container;
 
-template < class Hooks>
-struct ValueContainer< testvalue<Hooks> >
+template < class Hooks, bool ConstantTimeSize >
+struct Value_Container< testvalue< Hooks, ConstantTimeSize > >
 {
-    typedef boost::container::vector< testvalue<Hooks> > type;
+    typedef boost::container::vector< testvalue< Hooks, ConstantTimeSize > > type;
 };
 
-template < typename Pointer >
-class heap_node_holder
+template < typename T >
+class pointer_holder
 {
-   typedef typename pointer_traits<Pointer>::element_type element_type;
-   typedef Pointer pointer;
-   typedef typename pointer_rebind<pointer, const element_type>::type const_pointer;
-
    public:
-   heap_node_holder()
-      : m_ptr(pointer_traits<Pointer>::pointer_to(*new element_type))
+   pointer_holder() : _ptr(new T())
    {}
 
-   ~heap_node_holder()
-   { delete &*m_ptr;   }
+   ~pointer_holder()
+   { delete _ptr;   }
 
-   const_pointer get_node() const
-   { return m_ptr; }
-
-   pointer get_node()
-   { return m_ptr; }
+   const T* get_node() const { return _ptr; }
+   T* get_node() { return _ptr; }
 
    private:
-   pointer m_ptr;
+   T* const _ptr;
 };
 
-template<class Hooks>
-struct testvalue_traits
-   : public Hooks
-{
-   typedef testvalue< Hooks > value_type;
-
-   //base
-   typedef typename detail::get_base_value_traits
-         < value_type
-         , typename Hooks::base_hook_type
-         >::type base_value_traits;
-   //auto-base
-   typedef typename detail::get_base_value_traits
-         < value_type
-         , typename Hooks::auto_base_hook_type
-         >::type auto_base_value_traits;
-   //member
-   typedef typename detail::get_member_value_traits
-         < member_hook
-            < value_type
-            , typename Hooks::member_hook_type
-            , &value_type::node_
-            >
-         >::type member_value_traits;
-   //auto-member
-   typedef typename detail::get_member_value_traits
-         < member_hook
-            < value_type
-            , typename Hooks::auto_member_hook_type
-            , &value_type::auto_node_
-            >
-         >::type auto_member_value_traits;
-   //nonmember
-   typedef nonhook_node_member_value_traits
-         < value_type
-         , typename Hooks::nonhook_node_member_type
-         , &value_type::nhn_member_
-         , safe_link
-         > nonhook_value_traits;
-};
-
-}  //namespace intrusive{
 }  //namespace boost{
-
-bool priority_order(int t1, int t2)
-{
-   std::size_t hash1 = boost::hash<int>()(t1);
-   boost::hash_combine(hash1, &t1);
-   std::size_t hash2 = boost::hash<int>()(t2);
-   boost::hash_combine(hash2, &t2);
-   return hash1 < hash2;
-}
+}  //namespace intrusive{
 
 #endif

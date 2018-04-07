@@ -49,7 +49,6 @@ void test()
    int* j = p.release();
    BOOST_TEST(p.get() == 0);
    BOOST_TEST(i == j);
-   p.reset(j);
    }
    //Unbounded array unique_ptr
    {
@@ -58,7 +57,6 @@ void test()
    int* j = p.release();
    BOOST_TEST(p.get() == 0);
    BOOST_TEST(i == j);
-   p.reset(j);
    }
    //Bounded array unique_ptr
    {
@@ -67,7 +65,6 @@ void test()
    int* j = p.release();
    BOOST_TEST(p.get() == 0);
    BOOST_TEST(i == j);
-   p.reset(j);
    }
 }
 

@@ -6,7 +6,6 @@
 
 // Message Passing Interface 1.1 -- Section 4.4. Broadcast
 
-#include <boost/mpi/config.hpp>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/skeleton_and_content.hpp>
 #include <boost/mpi/detail/point_to_point.hpp>
@@ -123,11 +122,7 @@ template<>
 void broadcast<const content>(const communicator& comm, const content& c,
                               int root)
 {
-#if defined(BOOST_MPI_BCAST_BOTTOM_WORKS_FINE)
-  BOOST_MPI_CHECK_RESULT(MPI_Bcast,
-                         (MPI_BOTTOM, 1, c.get_mpi_datatype(),
-                          root, comm));
-#else
+#ifdef LAM_MPI
   if (comm.size() < 2)
     return;
 
@@ -147,6 +142,10 @@ void broadcast<const content>(const communicator& comm, const content& c,
                             root, environment::collectives_tag(),
                             comm, MPI_STATUS_IGNORE));
   }
+#else
+  BOOST_MPI_CHECK_RESULT(MPI_Bcast,
+                         (MPI_BOTTOM, 1, c.get_mpi_datatype(),
+                          root, comm));
 #endif
 }
 

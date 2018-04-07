@@ -14,8 +14,7 @@
 
 #include <boost/detail/winapi/time.hpp>
 #include <boost/detail/winapi/timers.hpp>
-#include <boost/detail/winapi/get_last_error.hpp>
-#include <boost/assert.hpp>
+#include <boost/detail/winapi/GetLastError.hpp>
 
 namespace boost
 {

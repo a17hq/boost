@@ -54,12 +54,7 @@ inline void load_set_collection(Archive & ar, Container &s)
         detail::stack_construct<Archive, type> t(ar, item_version);
         // borland fails silently w/o full namespace
         ar >> boost::serialization::make_nvp("item", t.reference());
-        typename Container::iterator result =
-            #ifdef BOOST_NO_CXX11_HDR_UNORDERED_SET
-                s.insert(hint, t.reference());
-            #else
-                s.emplace_hint(hint, t.reference());
-            #endif
+        typename Container::iterator result = s.insert(hint, t.reference());
         ar.reset_object_address(& (* result), & t.reference());
         hint = result;
     }

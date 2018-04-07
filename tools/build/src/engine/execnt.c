@@ -37,7 +37,6 @@
  */
 
 #include "jam.h"
-#include "output.h"
 #ifdef USE_EXECNT
 #include "execcmd.h"
 
@@ -291,12 +290,12 @@ void exec_cmd
 
     if ( DEBUG_EXECCMD )
         if ( is_raw_cmd )
-            out_printf( "Executing raw command directly\n" );
+            printf( "Executing raw command directly\n" );
         else
         {
-            out_printf( "Executing using a command file and the shell: " );
+            printf( "Executing using a command file and the shell: " );
             list_print( shell );
-            out_printf( "\n" );
+            printf( "\n" );
         }
 
     /* If we are running a raw command directly - trim its leading whitespaces
@@ -481,7 +480,7 @@ static void invoke_cmd( char const * const command, int const slot )
     si.hStdInput = GetStdHandle( STD_INPUT_HANDLE );
 
     if ( DEBUG_EXECCMD )
-        out_printf( "Command string for CreateProcessA(): '%s'\n", command );
+        printf( "Command string for CreateProcessA(): '%s'\n", command );
 
     /* Run the command by creating a sub-process for it. */
     if ( !CreateProcessA(
@@ -1290,7 +1289,7 @@ static char const * prepare_command_file( string const * command, int slot )
     FILE * const f = open_command_file( slot );
     if ( !f )
     {
-        err_printf( "failed to write command file!\n" );
+        printf( "failed to write command file!\n" );
         exit( EXITBAD );
     }
     fputs( command->value, f );
@@ -1309,7 +1308,7 @@ static int get_free_cmdtab_slot()
     for ( slot = 0; slot < MAXJOBS; ++slot )
         if ( !cmdtab[ slot ].pi.hProcess )
             return slot;
-    err_printf( "no slots for child!\n" );
+    printf( "no slots for child!\n" );
     exit( EXITBAD );
 }
 

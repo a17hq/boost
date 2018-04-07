@@ -58,6 +58,8 @@ void numeric_extra_tests(typename
 template <class T>
 void numeric_test(T*)
 {
+    typedef boost::hash_detail::limits<T> limits;
+
     compile_time_tests((T*) 0);
 
     BOOST_HASH_TEST_NAMESPACE::hash<T> x1;

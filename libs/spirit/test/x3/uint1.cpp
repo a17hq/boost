@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2015 Joel de Guzman
+    Copyright (c) 2001-2012 Joel de Guzman
     Copyright (c) 2001-2011 Hartmut Kaiser
     Copyright (c) 2011      Bryce Lelbach
 
@@ -7,7 +7,6 @@
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 #include "uint.hpp"
-#include <boost/spirit/home/x3.hpp>
 
 int
 main()
@@ -127,22 +126,22 @@ main()
         BOOST_TEST(test_attr("014567", uint4, u, false) && u == 145);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    //  action tests
-    ///////////////////////////////////////////////////////////////////////////
-    {
-        using boost::spirit::x3::_attr;
-        using boost::spirit::x3::uint_;
-        using boost::spirit::x3::ascii::space;
-        int n;
+    // $$$ Not yet implemented $$$
+    //~ ///////////////////////////////////////////////////////////////////////////
+    //~ //  action tests
+    //~ ///////////////////////////////////////////////////////////////////////////
+    //~ {
+        //~ using boost::phoenix::ref;
+        //~ using boost::spirit::x3::_1;
+        //~ using boost::spirit::x3::uint_;
+        //~ using boost::spirit::x3::ascii::space;
+        //~ int n;
 
-        auto f = [&](auto& ctx){ n = _attr(ctx); };
-
-        BOOST_TEST(test("123", uint_[f]));
-        BOOST_TEST(n == 123);
-        BOOST_TEST(test("   456", uint_[f], space));
-        BOOST_TEST(n == 456);
-    }
+        //~ BOOST_TEST(test("123", uint_[ref(n) = _1]));
+        //~ BOOST_TEST(n == 123);
+        //~ BOOST_TEST(test("   456", uint_[ref(n) = _1], space));
+        //~ BOOST_TEST(n == 456);
+    //~ }
 
     ///////////////////////////////////////////////////////////////////////////
     // Check overflow is parse error

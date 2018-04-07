@@ -23,9 +23,11 @@
 #include <boost/geometry/core/tags.hpp>
 #include <boost/geometry/geometries/concepts/point_concept.hpp>
 
+#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
 #include <boost/config.hpp>
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 #include <initializer_list>
+#endif
 #endif
 
 namespace boost { namespace geometry
@@ -43,8 +45,6 @@ namespace model
 \tparam Allocator \tparam_allocator
 \details Multipoint can be used to group points belonging to each other,
         e.g. a constellation, or the result set of an intersection
-
-\qbk{[include reference/geometries/multi_point.qbk]}
 \qbk{before.synopsis,
 [heading Model of]
 [link geometry.reference.concepts.concept_multi_point MultiPoint Concept]
@@ -58,7 +58,7 @@ template
 >
 class multi_point : public Container<Point, Allocator<Point> >
 {
-    BOOST_CONCEPT_ASSERT( (concepts::Point<Point>) );
+    BOOST_CONCEPT_ASSERT( (concept::Point<Point>) );
 
     typedef Container<Point, Allocator<Point> > base_type;
 
@@ -74,6 +74,7 @@ public :
         : base_type(begin, end)
     {}
 
+#ifdef BOOST_GEOMETRY_EXPERIMENTAL_ENABLE_INITIALIZER_LIST
 #ifndef BOOST_NO_CXX11_HDR_INITIALIZER_LIST
 
     /// \constructor_initializer_list{multi_point}
@@ -94,6 +95,7 @@ public :
 //    }
 //#endif
 
+#endif
 #endif
 };
 

@@ -14,6 +14,7 @@
     #pragma once
 #endif
 
+#include <boost/iterator.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/container/allocator_traits.hpp>
 #include <boost/move/move.hpp>
@@ -195,7 +196,7 @@ public:
 */
 template <class Buff, class Traits>
 struct iterator :
-    public std::iterator<
+    public boost::iterator<
     std::random_access_iterator_tag,
     typename Traits::value_type,
     typename Traits::difference_type,
@@ -208,7 +209,7 @@ struct iterator :
 // Helper types
 
     //! Base iterator.
-    typedef std::iterator<
+    typedef boost::iterator<
         std::random_access_iterator_tag,
         typename Traits::value_type,
         typename Traits::difference_type,

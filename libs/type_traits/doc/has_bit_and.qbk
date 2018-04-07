@@ -44,7 +44,9 @@ __examples
 
 [*See also:] [link boost_typetraits.category.value_traits.operators Operator Type Traits]
 
-[has_binary_operator_compat]
+[*Limitation:]
+
+* Requires a compiler with working SFINAE.
 
 [*Known issues:]
 

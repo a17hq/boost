@@ -66,8 +66,7 @@ toolset.inherit-flags darwin : gcc
      <architecture>x86/<instruction-set>
      <architecture>power/<address-model>32
      <architecture>power/<address-model>64
-     <architecture>power/<instruction-set> 
-     <inlining>full  ;
+     <architecture>power/<instruction-set>  ;
 
 # Options:
 #
@@ -150,12 +149,6 @@ rule init ( version ? : command * : options * : requirement * )
     # - GCC on Darwin with -pedantic, suppress unsupported long long warning
     flags darwin.compile OPTIONS $(condition)/<warnings>all : -Wno-long-long ;
 
-    # - GCC on El Capitan (10.11) does not suport -finline-functions
-    if "10.11.0" <= $(.host-osx-version)
-    {
-        flags darwin.compile OPTIONS $(condition)/<inlining>full : -Wno-inline ;
-    }
-
     # - Set the link flags common with the GCC toolset.
     gcc.init-link-flags darwin darwin $(condition) ;
 
@@ -223,10 +216,6 @@ local rule init-sdk ( condition * : root ? : version + : version-feature ? )
     {
         switch $(version[1])
         {
-            case appletv* :
-            {
-                return $(version[1])-$(version[2-]:J=.) ;
-            }
             case iphone* :
             {
                 return $(version[1])-$(version[2-]:J=.) ;
@@ -269,30 +258,6 @@ local rule init-sdk ( condition * : root ? : version + : version-feature ? )
         # Then device variation options.
         switch $(version[1])
         {
-            case appletvsim* :
-            {
-                local N = $(version[2]) ;
-                if ! $(version[3]) { N += 00 ; }
-                else if [ regex.match (..) : $(version[3]) ] { N += $(version[3]) ; }
-                else { N += 0$(version[3]) ; }
-                if ! $(version[4]) { N += 00 ; }
-                else if [ regex.match (..) : $(version[4]) ] { N += $(version[4]) ; }
-                else { N += 0$(version[4]) ; }
-                N = $(N:J=) ;
-                flags darwin.compile OPTIONS <macosx-version-min>$(version-feature)
-                    : -D__IPHONE_OS_VERSION_MIN_REQUIRED=$(N) ;
-                flags darwin.link OPTIONS <macosx-version-min>$(version-feature)
-                    : -D__IPHONE_OS_VERSION_MIN_REQUIRED=$(N) ;
-            }
-
-            case appletv* :
-            {
-                flags darwin.compile OPTIONS <macosx-version-min>$(version-feature)
-                    : -mtvos-version-min=$(version[2-]:J=.) ;
-                flags darwin.link OPTIONS <macosx-version-min>$(version-feature)
-                    : -mtvos-version-min=$(version[2-]:J=.) ;
-            }
-
             case iphonesim* :
             {
                 local N = $(version[2]) ;
@@ -308,7 +273,7 @@ local rule init-sdk ( condition * : root ? : version + : version-feature ? )
                 flags darwin.link OPTIONS <macosx-version-min>$(version-feature)
                     : -D__IPHONE_OS_VERSION_MIN_REQUIRED=$(N) ;
             }
-
+            
             case iphone* :
             {
                 flags darwin.compile OPTIONS <macosx-version-min>$(version-feature)
@@ -368,7 +333,7 @@ local rule init-available-sdk-versions ( condition * : root ? )
 {
     root ?= /Developer ;
     local sdks-root = $(root)/SDKs ;
-    local sdks = [ GLOB $(sdks-root) : MacOSX*.sdk AppleTVOS*.sdk AppleTVSimulator*.sdk iPhoneOS*.sdk iPhoneSimulator*.sdk ] ;
+    local sdks = [ GLOB $(sdks-root) : MacOSX*.sdk iPhoneOS*.sdk iPhoneSimulator*.sdk ] ;
     local result ;
     for local sdk in $(sdks)
     {
@@ -382,14 +347,6 @@ local rule init-available-sdk-versions ( condition * : root ? )
                 case macosx :
                 {
                     sdk-version = mac $(sdk-version) ;
-                }
-                case appletvos :
-                {
-                    sdk-version = appletv $(sdk-version) ;
-                }
-                case appletvsimulator :
-                {
-                    sdk-version = appletvsim $(sdk-version) ;
                 }
                 case iphoneos :
                 {

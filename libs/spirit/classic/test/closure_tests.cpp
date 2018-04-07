@@ -9,6 +9,7 @@
 #include <iostream>
 #include <boost/detail/lightweight_test.hpp>
 
+using namespace std;
 
 #include <boost/spirit/include/classic_core.hpp>
 #include <boost/spirit/include/classic_closure.hpp>

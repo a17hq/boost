@@ -15,6 +15,8 @@ OBSOLETE
 #include <boost/geometry/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 
+#include <boost/geometry/multi/multi.hpp>
+
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/io/svg/write_svg_multi.hpp>
 

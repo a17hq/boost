@@ -7,9 +7,6 @@
 
 using namespace boost::multiprecision;
 
-int main()
-{
-   mpfr_float a;
-}
+mpfr_float a;
 
 

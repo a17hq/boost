@@ -8,7 +8,6 @@
 // and comments, don't change any of the special comment mark-ups!
 
 #include <iostream>
-#include <boost/format.hpp>
 using std::cout; using std::endl; using std::cerr;
 
 //[policy_eg_9

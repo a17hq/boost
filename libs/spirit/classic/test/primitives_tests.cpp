@@ -9,6 +9,7 @@
 =============================================================================*/
 #include <iostream>
 
+using namespace std;
 #include <boost/spirit/include/classic_core.hpp>
 #include <boost/detail/lightweight_test.hpp>
 #include "impl/string_length.hpp"
@@ -129,7 +130,7 @@ main()
 {
     primitives_tests();
     if (boost::report_errors() == 0)
-        std::cout << "Tests concluded successfully\n";
+        cout << "Tests concluded successfully\n";
     return boost::report_errors();
 }
 

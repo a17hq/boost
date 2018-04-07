@@ -13,7 +13,6 @@
 #include <boost/container/vector.hpp>
 #include <boost/container/stable_vector.hpp>
 #include <boost/container/detail/iterator.hpp>
-#include "../../intrusive/test/iterator_test.hpp"
 
 #include <vector>
 #include <list>
@@ -33,10 +32,8 @@ template <typename T, size_t N>
 void test_ctor_ndc()
 {
    static_vector<T, N> s;
-   BOOST_STATIC_ASSERT((static_vector<T, N>::static_capacity) == N);
    BOOST_TEST_EQ(s.size() , 0u);
    BOOST_TEST(s.capacity() == N);
-   BOOST_TEST(s.max_size() == N);
    BOOST_TEST_THROWS( s.at(0u), std::out_of_range );
 }
 
@@ -44,10 +41,8 @@ template <typename T, size_t N>
 void test_ctor_nc(size_t n)
 {
    static_vector<T, N> s(n);
-   BOOST_STATIC_ASSERT((static_vector<T, N>::static_capacity) == N);
    BOOST_TEST(s.size() == n);
    BOOST_TEST(s.capacity() == N);
-   BOOST_TEST(s.max_size() == N);
    BOOST_TEST_THROWS( s.at(n), std::out_of_range );
    if ( 1 < n )
    {
@@ -66,7 +61,6 @@ template <typename T, size_t N>
 void test_ctor_nd(size_t n, T const& v)
 {
    static_vector<T, N> s(n, v);
-   BOOST_STATIC_ASSERT((static_vector<T, N>::static_capacity) == N);
    BOOST_TEST(s.size() == n);
    BOOST_TEST(s.capacity() == N);
    BOOST_TEST_THROWS( s.at(n), std::out_of_range );
@@ -816,15 +810,6 @@ int main(int, char* [])
    BOOST_TEST(default_init_test() == true);
 
    test_support_for_initializer_list();
-
-   ////////////////////////////////////
-   //    Iterator testing
-   ////////////////////////////////////
-   {
-      typedef boost::container::static_vector<int, 3> cont_int;
-      cont_int a; a.push_back(0); a.push_back(1); a.push_back(2);
-      boost::intrusive::test::test_iterator_random< cont_int >(a);
-   }
 
    return boost::report_errors();
 }

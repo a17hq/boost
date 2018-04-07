@@ -41,7 +41,6 @@
 #include "search.h"
 #include "timestamp.h"
 #include "variable.h"
-#include "output.h"
 
 typedef struct hcachedata HCACHEDATA ;
 
@@ -219,7 +218,7 @@ void hcache_init()
         record_type = read_netstring( f );
         if ( !record_type )
         {
-            err_printf( "invalid %s\n", hcachename );
+            fprintf( stderr, "invalid %s\n", hcachename );
             goto cleanup;
         }
         if ( !strcmp( object_str( record_type ), CACHE_RECORD_END ) )
@@ -229,7 +228,7 @@ void hcache_init()
         }
         if ( strcmp( object_str( record_type ), CACHE_RECORD_HEADER ) )
         {
-            err_printf( "invalid %s with record separator <%s>\n",
+            fprintf( stderr, "invalid %s with record separator <%s>\n",
                 hcachename, record_type ? object_str( record_type ) : "<null>" );
             goto cleanup;
         }
@@ -243,7 +242,7 @@ void hcache_init()
         if ( !cachedata.boundname || !time_secs_str || !time_nsecs_str ||
             !age_str || !includes_count_str )
         {
-            err_printf( "invalid %s\n", hcachename );
+            fprintf( stderr, "invalid %s\n", hcachename );
             goto cleanup;
         }
 
@@ -257,7 +256,7 @@ void hcache_init()
             OBJECT * const s = read_netstring( f );
             if ( !s )
             {
-                err_printf( "invalid %s\n", hcachename );
+                fprintf( stderr, "invalid %s\n", hcachename );
                 list_free( l );
                 goto cleanup;
             }
@@ -268,7 +267,7 @@ void hcache_init()
         hdrscan_count_str = read_netstring( f );
         if ( !hdrscan_count_str )
         {
-            err_printf( "invalid %s\n", hcachename );
+            fprintf( stderr, "invalid %s\n", hcachename );
             goto cleanup;
         }
 
@@ -278,7 +277,7 @@ void hcache_init()
             OBJECT * const s = read_netstring( f );
             if ( !s )
             {
-                err_printf( "invalid %s\n", hcachename );
+                fprintf( stderr, "invalid %s\n", hcachename );
                 list_free( l );
                 goto cleanup;
             }
@@ -298,7 +297,7 @@ void hcache_init()
         }
         else
         {
-            err_printf( "can not insert header cache item, bailing on %s"
+            fprintf( stderr, "can not insert header cache item, bailing on %s"
                 "\n", hcachename );
             goto cleanup;
         }
@@ -333,7 +332,7 @@ cleanup:
     }
 
     if ( DEBUG_HEADER )
-        out_printf( "hcache read from file %s\n", hcachename );
+        printf( "hcache read from file %s\n", hcachename );
 
 bail:
     if ( version )
@@ -407,7 +406,7 @@ void hcache_done()
     write_netstring( f, CACHE_RECORD_END );
 
     if ( DEBUG_HEADER )
-        out_printf( "hcache written to %s.   %d dependencies, %.0f%% hit rate\n",
+        printf( "hcache written to %s.   %d dependencies, %.0f%% hit rate\n",
             hcachename, header_count, queries ? 100.0 * hits / queries : 0 );
 
     fclose ( f );
@@ -457,13 +456,13 @@ LIST * hcache( TARGET * t, int rec, regexp * re[], LIST * hdrscan )
             {
                 if ( DEBUG_HEADER )
                 {
-                    out_printf( "HDRSCAN out of date in cache for %s\n",
+                    printf( "HDRSCAN out of date in cache for %s\n",
                         object_str( t->boundname ) );
-                    out_printf(" real  : ");
+                    printf(" real  : ");
                     list_print( hdrscan );
-                    out_printf( "\n cached: " );
+                    printf( "\n cached: " );
                     list_print( c->hdrscan );
-                    out_printf( "\n" );
+                    printf( "\n" );
                 }
 
                 list_free( c->includes );
@@ -474,7 +473,7 @@ LIST * hcache( TARGET * t, int rec, regexp * re[], LIST * hdrscan )
             else
             {
                 if ( DEBUG_HEADER )
-                    out_printf( "using header cache for %s\n", object_str(
+                    printf( "using header cache for %s\n", object_str(
                         t->boundname ) );
                 c->age = 0;
                 ++hits;
@@ -484,7 +483,7 @@ LIST * hcache( TARGET * t, int rec, regexp * re[], LIST * hdrscan )
         else
         {
             if ( DEBUG_HEADER )
-                out_printf ("header cache out of date for %s\n", object_str(
+                printf ("header cache out of date for %s\n", object_str(
                     t->boundname ) );
             list_free( c->includes );
             list_free( c->hdrscan );

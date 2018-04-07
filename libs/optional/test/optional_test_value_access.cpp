@@ -175,7 +175,7 @@ void test_const_move()
 }
 
 
-#if (!defined BOOST_NO_CXX11_REF_QUALIFIERS) && (!defined BOOST_OPTIONAL_DETAIL_NO_RVALUE_REFERENCES)
+#ifndef BOOST_NO_CXX11_REF_QUALIFIERS
 struct MoveOnly
 {
     explicit MoveOnly(int){}

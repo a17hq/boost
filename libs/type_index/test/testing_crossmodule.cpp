@@ -1,14 +1,17 @@
 //
-// Copyright Antony Polukhin, 2012-2015.
+// Copyright Antony Polukhin, 2012-2013.
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+#include <boost/test/minimal.hpp>
+
 #include <boost/type_index.hpp>
 #include "test_lib.hpp"
 
-#include <boost/core/lightweight_test.hpp>
+#define BOOST_CHECK_EQUAL(x, y) BOOST_CHECK(x == y)
+#define BOOST_CHECK_NE(x, y) BOOST_CHECK(x != y)
 
 namespace user_defined_namespace {
     class user_defined{};
@@ -19,10 +22,10 @@ void comparing_types_between_modules()
     boost::typeindex::type_index t_const_int = boost::typeindex::type_id_with_cvr<const int>();
     boost::typeindex::type_index t_int = boost::typeindex::type_id<int>();
 
-    BOOST_TEST_EQ(t_int, test_lib::get_integer());
-    BOOST_TEST_EQ(t_const_int, test_lib::get_const_integer());
-    BOOST_TEST_NE(t_const_int, test_lib::get_integer());
-    BOOST_TEST_NE(t_int, test_lib::get_const_integer());
+    BOOST_CHECK_EQUAL(t_int, test_lib::get_integer());
+    BOOST_CHECK_EQUAL(t_const_int, test_lib::get_const_integer());
+    BOOST_CHECK_NE(t_const_int, test_lib::get_integer());
+    BOOST_CHECK_NE(t_int, test_lib::get_const_integer());
 
 
     boost::typeindex::type_index t_const_userdef 
@@ -30,16 +33,16 @@ void comparing_types_between_modules()
     boost::typeindex::type_index t_userdef 
         = boost::typeindex::type_id<user_defined_namespace::user_defined>();
 
-    BOOST_TEST_EQ(t_userdef, test_lib::get_user_defined_class());
-    BOOST_TEST_EQ(t_const_userdef, test_lib::get_const_user_defined_class());
-    BOOST_TEST_NE(t_const_userdef, test_lib::get_user_defined_class());
-    BOOST_TEST_NE(t_userdef, test_lib::get_const_user_defined_class());
+    BOOST_CHECK_EQUAL(t_userdef, test_lib::get_user_defined_class());
+    BOOST_CHECK_EQUAL(t_const_userdef, test_lib::get_const_user_defined_class());
+    BOOST_CHECK_NE(t_const_userdef, test_lib::get_user_defined_class());
+    BOOST_CHECK_NE(t_userdef, test_lib::get_const_user_defined_class());
 
 
-    BOOST_TEST_NE(t_userdef, test_lib::get_integer());
-    BOOST_TEST_NE(t_const_userdef, test_lib::get_integer());
-    BOOST_TEST_NE(t_int, test_lib::get_user_defined_class());
-    BOOST_TEST_NE(t_const_int, test_lib::get_const_user_defined_class());
+    BOOST_CHECK_NE(t_userdef, test_lib::get_integer());
+    BOOST_CHECK_NE(t_const_userdef, test_lib::get_integer());
+    BOOST_CHECK_NE(t_int, test_lib::get_user_defined_class());
+    BOOST_CHECK_NE(t_const_int, test_lib::get_const_user_defined_class());
 
     #ifndef BOOST_HAS_PRAGMA_DETECT_MISMATCH
         test_lib::accept_typeindex(t_int);
@@ -47,9 +50,9 @@ void comparing_types_between_modules()
 }
 
 
-int main() {
+int test_main(int , char* []) {
     comparing_types_between_modules();
 
-    return boost::report_errors();
+    return 0;
 }
 

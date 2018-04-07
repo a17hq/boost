@@ -20,11 +20,10 @@
 #include "hash.h"
 
 #include "compile.h"
-#include "output.h"
 
 #include <assert.h>
 
-/* *
+/* */
 #define HASH_DEBUG_PROFILE 1
 /* */
 
@@ -366,7 +365,7 @@ void hashstats_add( struct hashstats * stats, struct hash * hp )
 
 void hashstats_print( struct hashstats * stats, char const * name )
 {
-    out_printf( "%s table: %d+%d+%d (%dK+%luK+%luK) items+table+hash, %f density\n",
+    printf( "%s table: %d+%d+%d (%dK+%luK+%luK) items+table+hash, %f density\n",
         name,
         stats->count,
         stats->num_items,

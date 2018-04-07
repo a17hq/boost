@@ -55,10 +55,6 @@ private:
     //! A pointer to the log record implementation
     public_data* m_impl;
 
-private:
-    //  A private constructor, accessible from core
-    BOOST_CONSTEXPR explicit record(public_data* impl) BOOST_NOEXCEPT : m_impl(impl) {}
-
 #endif // BOOST_LOG_DOXYGEN_PASS
 
 public:
@@ -67,7 +63,7 @@ public:
      *
      * \post <tt>!*this == true</tt>
      */
-    BOOST_CONSTEXPR record() BOOST_NOEXCEPT : m_impl(NULL) {}
+    record() : m_impl(NULL) {}
 
     /*!
      * Move constructor. Source record contents unspecified after the operation.

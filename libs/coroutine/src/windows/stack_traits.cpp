@@ -19,7 +19,7 @@ extern "C" {
 #include <stdexcept>
 
 #include <boost/assert.hpp>
-#include <boost/coroutine/detail/config.hpp>
+#include <boost/context/detail/config.hpp>
 #include <boost/thread.hpp>
 
 #include <boost/coroutine/stack_context.hpp>
@@ -42,7 +42,8 @@ extern "C" {
 #  include BOOST_ABI_PREFIX
 #endif
 
-namespace {
+namespace boost {
+namespace coroutines {
 
 void system_info_( SYSTEM_INFO * si)
 { ::GetSystemInfo( si); }
@@ -64,11 +65,6 @@ std::size_t page_count( std::size_t stacksize)
         std::floor(
             static_cast< float >( stacksize) / pagesize() ) );
 }
-
-}
-
-namespace boost {
-namespace coroutines {
 
 // Windows seams not to provide a limit for the stacksize
 // libcoco uses 32k+4k bytes as minimum

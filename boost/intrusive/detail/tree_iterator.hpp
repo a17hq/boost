@@ -22,7 +22,6 @@
 #endif
 
 #include <boost/intrusive/detail/config_begin.hpp>
-#include <boost/intrusive/detail/workaround.hpp>
 #include <boost/intrusive/detail/std_fwd.hpp>
 #include <boost/intrusive/detail/iiterator.hpp>
 #include <boost/intrusive/detail/bstree_algorithms_base.hpp>
@@ -41,11 +40,13 @@ namespace intrusive {
 template<class ValueTraits, bool IsConst>
 class tree_iterator
 {
-   private:
+   protected:
    typedef iiterator< ValueTraits, IsConst
                     , std::bidirectional_iterator_tag>   types_t;
-   typedef typename types_t::value_traits                value_traits;
+
+   typedef ValueTraits                                   value_traits;
    typedef typename types_t::node_traits                 node_traits;
+
    typedef typename types_t::node                        node;
    typedef typename types_t::node_ptr                    node_ptr;
    typedef typename types_t::const_value_traits_ptr      const_value_traits_ptr;
@@ -57,27 +58,27 @@ class tree_iterator
    typedef void (tree_iterator::*unspecified_bool_type)() const;
 
    public:
-   typedef typename types_t::iterator_type::difference_type    difference_type;
-   typedef typename types_t::iterator_type::value_type         value_type;
-   typedef typename types_t::iterator_type::pointer            pointer;
-   typedef typename types_t::iterator_type::reference          reference;
-   typedef typename types_t::iterator_type::iterator_category  iterator_category;
+   typedef typename types_t::iterator_traits::difference_type    difference_type;
+   typedef typename types_t::iterator_traits::value_type         value_type;
+   typedef typename types_t::iterator_traits::pointer            pointer;
+   typedef typename types_t::iterator_traits::reference          reference;
+   typedef typename types_t::iterator_traits::iterator_category  iterator_category;
 
-   BOOST_INTRUSIVE_FORCEINLINE tree_iterator()
+   tree_iterator()
    {}
 
-   BOOST_INTRUSIVE_FORCEINLINE explicit tree_iterator(const node_ptr & nodeptr, const const_value_traits_ptr &traits_ptr)
+   explicit tree_iterator(const node_ptr & nodeptr, const const_value_traits_ptr &traits_ptr)
       : members_(nodeptr, traits_ptr)
    {}
 
-   BOOST_INTRUSIVE_FORCEINLINE tree_iterator(tree_iterator<value_traits, false> const& other)
+   tree_iterator(tree_iterator<value_traits, false> const& other)
       :  members_(other.pointed_node(), other.get_value_traits())
    {}
 
-   BOOST_INTRUSIVE_FORCEINLINE const node_ptr &pointed_node() const
+   const node_ptr &pointed_node() const
    { return members_.nodeptr_; }
 
-   BOOST_INTRUSIVE_FORCEINLINE tree_iterator &operator=(const node_ptr &nodeptr)
+   tree_iterator &operator=(const node_ptr &nodeptr)
    {  members_.nodeptr_ = nodeptr;  return static_cast<tree_iterator&>(*this);  }
 
    public:
@@ -107,43 +108,34 @@ class tree_iterator
       return result;
    }
 
-   BOOST_INTRUSIVE_FORCEINLINE tree_iterator&  go_left()
-   {
-      members_.nodeptr_ = node_traits::get_left(members_.nodeptr_);
-      return static_cast<tree_iterator&> (*this);
-   }
+   void go_left()
+   { members_.nodeptr_ = node_traits::get_left(members_.nodeptr_); }
 
-   BOOST_INTRUSIVE_FORCEINLINE tree_iterator&  go_right()
-   {
-      members_.nodeptr_ = node_traits::get_right(members_.nodeptr_);
-      return static_cast<tree_iterator&> (*this);
-   }
+   void go_right()
+   { members_.nodeptr_ = node_traits::get_right(members_.nodeptr_); }
 
-   BOOST_INTRUSIVE_FORCEINLINE tree_iterator&  go_parent()
-   {
-      members_.nodeptr_ = node_traits::get_parent(members_.nodeptr_);
-      return static_cast<tree_iterator&> (*this);
-   }
+   void go_parent()
+   { members_.nodeptr_ = node_traits::get_parent(members_.nodeptr_); }
 
-   BOOST_INTRUSIVE_FORCEINLINE operator unspecified_bool_type() const
+   operator unspecified_bool_type() const
    {  return members_.nodeptr_ ? &tree_iterator::unspecified_bool_type_func : 0;   }
 
-   BOOST_INTRUSIVE_FORCEINLINE bool operator! () const
+   bool operator! () const
    {  return !members_.nodeptr_;   }
 
-   BOOST_INTRUSIVE_FORCEINLINE friend bool operator== (const tree_iterator& l, const tree_iterator& r)
+   friend bool operator== (const tree_iterator& l, const tree_iterator& r)
    { return l.pointed_node() == r.pointed_node(); }
 
-   BOOST_INTRUSIVE_FORCEINLINE friend bool operator!= (const tree_iterator& l, const tree_iterator& r)
+   friend bool operator!= (const tree_iterator& l, const tree_iterator& r)
    {  return !(l == r);   }
 
-   BOOST_INTRUSIVE_FORCEINLINE reference operator*() const
+   reference operator*() const
    {  return *operator->();   }
 
-   BOOST_INTRUSIVE_FORCEINLINE pointer operator->() const
+   pointer operator->() const
    { return this->operator_arrow(detail::bool_<stateful_value_traits>()); }
 
-   BOOST_INTRUSIVE_FORCEINLINE const_value_traits_ptr get_value_traits() const
+   const_value_traits_ptr get_value_traits() const
    {  return members_.get_ptr();  }
 
    tree_iterator end_iterator_from_it() const
@@ -155,10 +147,10 @@ class tree_iterator
    {  return tree_iterator<value_traits, false>(this->pointed_node(), this->get_value_traits());   }
 
    private:
-   BOOST_INTRUSIVE_FORCEINLINE pointer operator_arrow(detail::false_) const
+   pointer operator_arrow(detail::false_) const
    { return ValueTraits::to_value_ptr(members_.nodeptr_); }
 
-   BOOST_INTRUSIVE_FORCEINLINE pointer operator_arrow(detail::true_) const
+   pointer operator_arrow(detail::true_) const
    { return this->get_value_traits()->to_value_ptr(members_.nodeptr_); }
 
    iiterator_members<node_ptr, const_value_traits_ptr, stateful_value_traits> members_;

@@ -13,7 +13,6 @@
 #include <boost/interprocess/detail/type_traits.hpp>
 #include <boost/intrusive/pointer_traits.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/core/lightweight_test.hpp>
 
 using namespace boost::interprocess;
 
@@ -28,7 +27,7 @@ class VirtualDerived
    : public virtual Base
 {};
 
-void test_types_and_conversions()
+bool test_types_and_conversions()
 {
    typedef offset_ptr<int>                pint_t;
    typedef offset_ptr<const int>          pcint_t;
@@ -46,26 +45,16 @@ void test_types_and_conversions()
    BOOST_STATIC_ASSERT((ipcdetail::is_same<pcvint_t::value_type, int>::value));
    int dummy_int = 9;
 
-   {  pint_t pint(&dummy_int);
-      pcint_t  pcint(pint);
-      BOOST_TEST(pcint.get() == &dummy_int);
-   }
-   {  pint_t pint(&dummy_int);
-      pvint_t  pvint(pint);
-      BOOST_TEST(pvint.get() == &dummy_int);
-   }
-   {  pint_t pint(&dummy_int);
-      pcvint_t  pcvint(pint);
-      BOOST_TEST(pcvint.get() == &dummy_int);
-   }
-   {  pcint_t pcint(&dummy_int);
-      pcvint_t  pcvint(pcint);
-      BOOST_TEST(pcvint.get() == &dummy_int);
-   }
-   {  pvint_t pvint(&dummy_int);
-      pcvint_t  pcvint(pvint);
-      BOOST_TEST(pcvint.get() == &dummy_int);
-   }
+   {  pint_t pint(&dummy_int);   pcint_t  pcint(pint);
+      if(pcint.get()  != &dummy_int)   return false;  }
+   {  pint_t pint(&dummy_int);   pvint_t  pvint(pint);
+      if(pvint.get()  != &dummy_int)   return false;  }
+   {  pint_t pint(&dummy_int);   pcvint_t  pcvint(pint);
+      if(pcvint.get()  != &dummy_int)  return false;  }
+   {  pcint_t pcint(&dummy_int); pcvint_t  pcvint(pcint);
+         if(pcvint.get()  != &dummy_int)  return false;  }
+   {  pvint_t pvint(&dummy_int); pcvint_t  pcvint(pvint);
+      if(pcvint.get()  != &dummy_int)  return false;  }
 
    pint_t   pint(0);
    pcint_t  pcint(0);
@@ -77,71 +66,89 @@ void test_types_and_conversions()
    pvint    = &dummy_int;
    pcvint   = &dummy_int;
 
-   {  pcint  = pint;
-      BOOST_TEST(pcint.get() == &dummy_int);
-   }
-   {  pvint  = pint;
-      BOOST_TEST(pvint.get() == &dummy_int);
-   }
-   {  pcvint = pint;
-      BOOST_TEST(pcvint.get() == &dummy_int);
-   }
-   {  pcvint = pcint;
-      BOOST_TEST(pcvint.get() == &dummy_int);
-   }
-   {  pcvint = pvint;
-      BOOST_TEST(pcvint.get() == &dummy_int);
-   }
+   {   pcint  = pint;   if(pcint.get() != &dummy_int)   return false;  }
+   {   pvint  = pint;   if(pvint.get() != &dummy_int)   return false;  }
+   {   pcvint = pint;   if(pcvint.get() != &dummy_int)  return false;  }
+   {   pcvint = pcint;  if(pcvint.get() != &dummy_int)  return false;  }
+   {   pcvint = pvint;  if(pcvint.get() != &dummy_int)  return false;  }
 
-   BOOST_TEST(pint);
+   if(!pint)
+      return false;
 
    pint = 0;
-   BOOST_TEST(!pint);
+   if(pint)
+      return false;
 
-   BOOST_TEST(pint == 0);
+   if(pint != 0)
+      return false;
 
-   BOOST_TEST(0 == pint);
+   if(0 != pint)
+      return false;
 
    pint = &dummy_int;
-   BOOST_TEST(0 != pint);
+   if(0 == pint)
+      return false;
+
+   if(pint == 0)
+      return false;
 
    pcint = &dummy_int;
 
-   BOOST_TEST( (pcint - pint) == 0);
-   BOOST_TEST( (pint - pcint) == 0);
+   if( (pcint - pint) != 0)
+      return false;
+
+   if( (pint - pcint) != 0)
+      return false;
+
+   return true;
 }
 
 template<class BasePtr, class DerivedPtr>
-void test_base_derived_impl()
+bool test_base_derived_impl()
 {
    typename DerivedPtr::element_type d;
    DerivedPtr pderi(&d);
 
    BasePtr pbase(pderi);
    pbase = pderi;
-   BOOST_TEST(pbase == pderi);
-   BOOST_TEST(!(pbase != pderi));
-   BOOST_TEST((pbase - pderi) == 0);
-   BOOST_TEST(!(pbase < pderi));
-   BOOST_TEST(!(pbase > pderi));
-   BOOST_TEST(pbase <= pderi);
-   BOOST_TEST((pbase >= pderi));
+   if(pbase != pderi)
+      return false;
+   if(!(pbase == pderi))
+      return false;
+   if((pbase - pderi) != 0)
+      return false;
+   if(pbase < pderi)
+      return false;
+   if(pbase > pderi)
+      return false;
+   if(!(pbase <= pderi))
+      return false;
+   if(!(pbase >= pderi))
+      return false;
+
+   return true;
 }
 
-void test_base_derived()
+bool test_base_derived()
 {
    typedef offset_ptr<Base>               pbase_t;
    typedef offset_ptr<const Base>         pcbas_t;
    typedef offset_ptr<Derived>            pderi_t;
    typedef offset_ptr<VirtualDerived>     pvder_t;
 
-   test_base_derived_impl<pbase_t, pderi_t>();
-   test_base_derived_impl<pbase_t, pvder_t>();
-   test_base_derived_impl<pcbas_t, pderi_t>();
-   test_base_derived_impl<pcbas_t, pvder_t>();
+   if(!test_base_derived_impl<pbase_t, pderi_t>())
+      return false;
+   if(!test_base_derived_impl<pbase_t, pvder_t>())
+      return false;
+   if(!test_base_derived_impl<pcbas_t, pderi_t>())
+      return false;
+   if(!test_base_derived_impl<pcbas_t, pvder_t>())
+      return false;
+
+   return true;
 }
 
-void test_arithmetic()
+bool test_arithmetic()
 {
    typedef offset_ptr<int> pint_t;
    const int NumValues = 5;
@@ -149,64 +156,74 @@ void test_arithmetic()
 
    //Initialize p
    pint_t p = values;
-   BOOST_TEST(p.get() == values);
+   if(p.get() != values)
+      return false;
 
    //Initialize p + NumValues
    pint_t pe = &values[NumValues];
-   BOOST_TEST(pe != p);
-   BOOST_TEST(pe.get() == &values[NumValues]);
+   if(pe == p)
+      return false;
+   if(pe.get() != &values[NumValues])
+      return false;
 
    //ptr - ptr
-   BOOST_TEST((pe - p) == NumValues);
-
+   if((pe - p) != NumValues)
+      return false;
    //ptr - integer
-   BOOST_TEST((pe - NumValues) == p);
-
+   if((pe - NumValues) != p)
+      return false;
    //ptr + integer
-   BOOST_TEST((p + NumValues) == pe);
-
+   if((p + NumValues) != pe)
+      return false;
    //integer + ptr
-   BOOST_TEST((NumValues + p) == pe);
-
+   if((NumValues + p) != pe)
+      return false;
    //indexing
-   BOOST_TEST(pint_t(&p[NumValues]) == pe);
-   BOOST_TEST(pint_t(&pe[-NumValues]) == p);
+   if(pint_t(&p[NumValues])   != pe)
+      return false;
+   if(pint_t(&pe[-NumValues]) != p)
+      return false;
 
    //ptr -= integer
    pint_t p0 = pe;
    p0-= NumValues;
-   BOOST_TEST(p == p0);
-
+   if(p != p0)
+      return false;
    //ptr += integer
    pint_t penew = p0;
    penew += NumValues;
-   BOOST_TEST(penew == pe);
+   if(penew != pe)
+      return false;
 
    //++ptr
    penew = p0;
    for(int j = 0; j != NumValues; ++j, ++penew);
-   BOOST_TEST(penew == pe);
-
+   if(penew != pe)
+      return false;
    //--ptr
    p0 = pe;
    for(int j = 0; j != NumValues; ++j, --p0);
-   BOOST_TEST(p == p0);
-
+   if(p != p0)
+      return false;
    //ptr++
    penew = p0;
    for(int j = 0; j != NumValues; ++j){
       pint_t p_new_copy = penew;
-      BOOST_TEST(p_new_copy == penew++);
+      if(p_new_copy != penew++)
+         return false;
    }
    //ptr--
    p0 = pe;
    for(int j = 0; j != NumValues; ++j){
       pint_t p0_copy = p0;
-      BOOST_TEST(p0_copy == p0--);
+      if(p0_copy != p0--)
+         return false;
    }
+
+   return true;
 }
 
-void test_comparison()
+bool test_comparison()
 {
    typedef offset_ptr<int> pint_t;
    const int NumValues = 5;
@@ -214,21 +231,31 @@ void test_comparison()
 
    //Initialize p
    pint_t p = values;
-   BOOST_TEST(p.get() == values);
+   if(p.get() != values)
+      return false;
 
    //Initialize p + NumValues
    pint_t pe = &values[NumValues];
-   BOOST_TEST(pe != p);
-
-   BOOST_TEST(pe.get() == &values[NumValues]);
+   if(pe == p)
+      return false;
+   if(pe.get() != &values[NumValues])
+      return false;
 
    //operators
-   BOOST_TEST(p != pe);
-   BOOST_TEST(p == p);
-   BOOST_TEST((p < pe));
-   BOOST_TEST((p <= pe));
-   BOOST_TEST((pe > p));
-   BOOST_TEST((pe >= p));
+   if(p == pe)
+      return false;
+   if(p != p)
+      return false;
+   if(!(p < pe))
+      return false;
+   if(!(p <= pe))
+      return false;
+   if(!(pe > p))
+      return false;
+   if(!(pe >= p))
+      return false;
+
+   return true;
 }
 
 bool test_pointer_traits()
@@ -247,49 +274,19 @@ bool test_pointer_traits()
    return true;
 }
 
-struct node 
-{
-   offset_ptr<node> next;
-};
-
-void test_pointer_plus_bits()
-{
-   BOOST_STATIC_ASSERT((boost::intrusive::max_pointer_plus_bits< offset_ptr<void>, boost::move_detail::alignment_of<node>::value >::value >= 1U));
-   typedef boost::intrusive::pointer_plus_bits< offset_ptr<node>, 1u > ptr_plus_bits;
-
-   node n, n2;
-   offset_ptr<node> pnode(&n);
-
-   BOOST_TEST(ptr_plus_bits::get_pointer(pnode) == &n);
-   BOOST_TEST(0 == ptr_plus_bits::get_bits(pnode));
-   ptr_plus_bits::set_bits(pnode, 1u);
-   BOOST_TEST(1 == ptr_plus_bits::get_bits(pnode));
-   BOOST_TEST(ptr_plus_bits::get_pointer(pnode) == &n);
-
-   ptr_plus_bits::set_pointer(pnode, &n2);
-   BOOST_TEST(ptr_plus_bits::get_pointer(pnode) == &n2);
-   BOOST_TEST(1 == ptr_plus_bits::get_bits(pnode));
-   ptr_plus_bits::set_bits(pnode, 0u);
-   BOOST_TEST(0 == ptr_plus_bits::get_bits(pnode));
-   BOOST_TEST(ptr_plus_bits::get_pointer(pnode) == &n2);
-
-   ptr_plus_bits::set_pointer(pnode, offset_ptr<node>());
-   BOOST_TEST(ptr_plus_bits::get_pointer(pnode) ==0);
-   BOOST_TEST(0 == ptr_plus_bits::get_bits(pnode));
-   ptr_plus_bits::set_bits(pnode, 1u);
-   BOOST_TEST(1 == ptr_plus_bits::get_bits(pnode));
-   BOOST_TEST(ptr_plus_bits::get_pointer(pnode) == 0);
-}
-
 int main()
 {
-   test_types_and_conversions();
-   test_base_derived();
-   test_arithmetic();
-   test_comparison();
-   test_pointer_traits();
-   test_pointer_plus_bits();
-   return ::boost::report_errors();
+   if(!test_types_and_conversions())
+      return 1;
+   if(!test_base_derived())
+      return 1;
+   if(!test_arithmetic())
+      return 1;
+   if(!test_comparison())
+      return 1;
+   if(!test_pointer_traits())
+      return 1;
+   return 0;
 }
 
 #include <boost/interprocess/detail/config_end.hpp>

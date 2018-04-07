@@ -10,6 +10,7 @@
 
 //[case_insensitive_functions
     struct iequal_to
+        : std::binary_function<std::string, std::string, bool>
     {
         bool operator()(std::string const& x,
             std::string const& y) const
@@ -19,6 +20,7 @@
     };
 
     struct ihash
+        : std::unary_function<std::string, std::size_t>
     {
         std::size_t operator()(std::string const& x) const
         {

@@ -17,8 +17,6 @@
 #include <boost/intrusive/pointer_traits.hpp>
 #include <boost/detail/lightweight_test.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/intrusive/detail/to_raw_pointer.hpp>
-#include <boost/intrusive/detail/parent_from_member.hpp>
 
 
 namespace boost{
@@ -29,7 +27,7 @@ namespace intrusive{
 template < typename NodeTraits, template <typename> class Node_Algorithms >
 struct nonhook_node_member : public NodeTraits::node
 {
-   typedef NodeTraits                                                node_traits;
+   typedef NodeTraits                                               node_traits;
    typedef typename node_traits::node                                node;
    typedef typename node_traits::node_ptr                            node_ptr;
    typedef typename node_traits::const_node_ptr                      const_node_ptr;
@@ -43,12 +41,13 @@ struct nonhook_node_member : public NodeTraits::node
    nonhook_node_member(const nonhook_node_member& rhs)
    {
       BOOST_TEST(!rhs.is_linked());
-      node_algorithms::init(pointer_traits<node_ptr>::pointer_to(static_cast< node& >(*this)));
+      *this = rhs;
    }
 
    nonhook_node_member& operator = (const nonhook_node_member& rhs)
    {
       BOOST_TEST(!this->is_linked() && !rhs.is_linked());
+      static_cast< node& >(*this) = rhs;
       return *this;
    }
 

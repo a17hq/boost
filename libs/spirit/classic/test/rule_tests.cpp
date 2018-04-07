@@ -9,6 +9,7 @@
 #include <iostream>
 #include <boost/detail/lightweight_test.hpp>
 
+using namespace std;
 
 //#define BOOST_SPIRIT_DEBUG
 #define BOOST_SPIRIT_RULE_SCANNERTYPE_LIMIT 3
@@ -29,7 +30,7 @@ aliasing_tests()
     rule<>  b = ch_p('b');
     rule<>  c = ch_p('c');
 
-    std::cout << "sizeof(rule<>): " << sizeof(rule<>) << std::endl;
+    cout << "sizeof(rule<>): " << sizeof(rule<>) << endl;
 
     BOOST_SPIRIT_DEBUG_RULE(a);
     BOOST_SPIRIT_DEBUG_RULE(b);
@@ -217,7 +218,7 @@ stored_rule_dynamic_tests()
     start = start.copy() | c;
     start = *(start.copy());
 
-    std::cout << "sizeof(stored_rule<>): " << sizeof(stored_rule<>) << std::endl;
+    cout << "sizeof(stored_rule<>): " << sizeof(stored_rule<>) << endl;
 
     BOOST_SPIRIT_DEBUG_RULE(start);
 

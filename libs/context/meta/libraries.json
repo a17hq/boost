@@ -4,7 +4,7 @@
     "authors": [
         "Oliver Kowalke"
     ],
-    "description": "(C++11) Context switching library.",
+    "description": "Context switching library.",
     "category": [
         "Concurrent",
         "System"

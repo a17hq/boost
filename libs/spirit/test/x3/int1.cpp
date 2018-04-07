@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2015 Joel de Guzman
+    Copyright (c) 2001-2013 Joel de Guzman
     Copyright (c) 2001-2011 Hartmut Kaiser
     Copyright (c) 2011      Bryce Lelbach
 
@@ -7,7 +7,6 @@
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 #include "int.hpp"
-#include <boost/spirit/home/x3.hpp>
 #include <boost/fusion/include/vector.hpp>
 #include <boost/fusion/include/at.hpp>
 
@@ -138,24 +137,24 @@ main()
         BOOST_TEST(test("-1234567890123456789", any_int));
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    //  action tests
-    ///////////////////////////////////////////////////////////////////////////
-    {
-        using boost::spirit::x3::_attr;
-        using boost::spirit::x3::ascii::space;
-        using boost::spirit::x3::int_;
-        int n, m;
+    // $$$ Not yet implemented $$$
+    //~ ///////////////////////////////////////////////////////////////////////////
+    //~ //  action tests
+    //~ ///////////////////////////////////////////////////////////////////////////
+    //~ {
+        //~ using boost::phoenix::ref;
+        //~ using boost::spirit::x3::_1;
+        //~ using boost::spirit::x3::ascii::space;
+        //~ using boost::spirit::x3::int_;
+        //~ int n, m;
 
-        auto f = [&](auto& ctx){ n = _attr(ctx); };
-
-        BOOST_TEST(test("123", int_[f]));
-        BOOST_TEST(n == 123);
-        BOOST_TEST(test_attr("789", int_[f], m));
-        BOOST_TEST(n == 789 && m == 789);
-        BOOST_TEST(test("   456", int_[f], space));
-        BOOST_TEST(n == 456);
-    }
+        //~ BOOST_TEST(test("123", int_[ref(n) = _1]));
+        //~ BOOST_TEST(n == 123);
+        //~ BOOST_TEST(test_attr("789", int_[ref(n) = _1], m));
+        //~ BOOST_TEST(n == 789 && m == 789);
+        //~ BOOST_TEST(test("   456", int_[ref(n) = _1], space));
+        //~ BOOST_TEST(n == 456);
+    //~ }
 
     ///////////////////////////////////////////////////////////////////////////
     //  custom int tests

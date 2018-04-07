@@ -19,7 +19,6 @@
 #include <boost/format/exceptions.hpp>
 #include <boost/throw_exception.hpp>
 #include <boost/assert.hpp>
-#include <boost/config.hpp>
 
 
 namespace boost {
@@ -51,7 +50,7 @@ namespace detail {
 # else
         (void) fac;     // remove "unused parameter" warning
         using namespace std;
-        return isdigit(c) != 0; 
+        return isdigit(c); 
 #endif 
     }
  
@@ -268,7 +267,6 @@ namespace detail {
         switch ( wrap_narrow(fac, *start, 0) ) {
         case 'X':
             fpar->fmtstate_.flags_ |= std::ios_base::uppercase;
-            BOOST_FALLTHROUGH;
         case 'p': // pointer => set hex.
         case 'x':
             fpar->fmtstate_.flags_ &= ~std::ios_base::basefield;
@@ -282,7 +280,6 @@ namespace detail {
 
         case 'E':
             fpar->fmtstate_.flags_ |=  std::ios_base::uppercase;
-            BOOST_FALLTHROUGH;
         case 'e':
             fpar->fmtstate_.flags_ &= ~std::ios_base::floatfield;
             fpar->fmtstate_.flags_ |=  std::ios_base::scientific;
@@ -294,7 +291,6 @@ namespace detail {
         case 'f':
             fpar->fmtstate_.flags_ &= ~std::ios_base::floatfield;
             fpar->fmtstate_.flags_ |=  std::ios_base::fixed;
-            BOOST_FALLTHROUGH;
         case 'u':
         case 'd':
         case 'i':

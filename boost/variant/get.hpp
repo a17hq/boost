@@ -15,23 +15,19 @@
 
 #include <exception>
 
-#include <boost/config.hpp>
-#include <boost/detail/workaround.hpp>
-#include <boost/static_assert.hpp>
-#include <boost/throw_exception.hpp>
-#include <boost/utility/addressof.hpp>
-#include <boost/variant/variant_fwd.hpp>
-#include <boost/variant/detail/element_index.hpp>
+#include "boost/config.hpp"
+#include "boost/detail/workaround.hpp"
+#include "boost/static_assert.hpp"
+#include "boost/throw_exception.hpp"
+#include "boost/utility/addressof.hpp"
+#include "boost/variant/variant_fwd.hpp"
+#include "boost/variant/detail/element_index.hpp"
 
-#include <boost/type_traits/add_reference.hpp>
-#include <boost/type_traits/add_pointer.hpp>
+#include "boost/type_traits/add_reference.hpp"
+#include "boost/type_traits/add_pointer.hpp"
 
 namespace boost {
 
-#if defined(BOOST_CLANG)
-#   pragma clang diagnostic push
-#   pragma clang diagnostic ignored "-Wweak-vtables"
-#endif
 //////////////////////////////////////////////////////////////////////////
 // class bad_get
 //
@@ -49,10 +45,6 @@ public: // std::exception implementation
     }
 
 };
-#if defined(BOOST_CLANG)
-#   pragma clang diagnostic pop
-#endif
-
 
 //////////////////////////////////////////////////////////////////////////
 // function template get<T>
@@ -147,7 +139,7 @@ relaxed_get(
     )
 {
     typedef typename add_pointer<U>::type U_ptr;
-    U_ptr result = relaxed_get<U>(boost::addressof(operand));
+    U_ptr result = relaxed_get<U>(&operand);
 
     if (!result)
         boost::throw_exception(bad_get());
@@ -163,7 +155,7 @@ relaxed_get(
     )
 {
     typedef typename add_pointer<const U>::type U_ptr;
-    U_ptr result = relaxed_get<const U>(boost::addressof(operand));
+    U_ptr result = relaxed_get<const U>(&operand);
 
     if (!result)
         boost::throw_exception(bad_get());

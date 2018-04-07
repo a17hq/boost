@@ -49,8 +49,6 @@ UNORDERED_AUTO_TEST(stable_insert_test1) {
     x.insert(insert_stable::member(1,2));
     x.insert(insert_stable::member(1,3));
 
-    BOOST_TEST(x.count(insert_stable::member(1,4)) == 3);
-
     boost::unordered_multiset<insert_stable::member>::const_iterator
         it = x.begin(), end = x.end();
     BOOST_TEST(it != end);
@@ -68,11 +66,10 @@ UNORDERED_AUTO_TEST(stable_insert_test2) {
         boost::unordered_multimap<insert_stable::member, int>::const_iterator
         iterator;
 
-    iterator it = x.emplace(insert_stable::member(1,1), 1);
-    it = x.emplace(insert_stable::member(1,2), 2);
-    it = x.emplace(insert_stable::member(1,3), 3);
-
-    BOOST_TEST(x.count(insert_stable::member(1,4)) == 3);
+    iterator it
+        = x.insert(x.end(), std::make_pair(insert_stable::member(1,1), 1));
+    it = x.insert(it, std::make_pair(insert_stable::member(1,2), 2));
+    it = x.insert(it, std::make_pair(insert_stable::member(1,3), 3));
 
     it = x.begin();
     iterator end = x.end();

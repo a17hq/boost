@@ -1,16 +1,15 @@
 /*
-(c) 2014 Glen Joseph Fernandes
-<glenjofe -at- gmail.com>
+ (c) 2014 Glen Joseph Fernandes
+ glenjofe at gmail dot com
 
-Distributed under the Boost Software
-License, Version 1.0.
-http://boost.org/LICENSE_1_0.txt
+ Distributed under the Boost Software
+ License, Version 1.0.
+ http://boost.org/LICENSE_1_0.txt
 */
+#include <boost/config.hpp>
 #include <boost/align/alignment_of.hpp>
 #include <boost/core/lightweight_test.hpp>
-#include <boost/config.hpp>
-
-#define OFFSET(t, m) ((std::size_t)(&((t*)0)->m))
+#include <cstddef>
 
 template<class T>
 struct remove_reference {
@@ -71,28 +70,25 @@ struct remove_cv {
 };
 
 template<class T>
-struct alignof_helper {
-    char value;
+struct padding {
+    char offset;
     typename remove_cv<typename remove_all_extents<typename
         remove_reference<T>::type>::type>::type object;
 };
 
 template<class T>
-std::size_t result()
+std::size_t offset()
 {
-    return boost::alignment::alignment_of<T>::value;
-}
-
-template<class T>
-std::size_t expect()
-{
-    return OFFSET(alignof_helper<T>, object);
+    static padding<T> p = padding<T>();
+    return (char*)&p.object - &p.offset;
 }
 
 template<class T>
 void test_type()
 {
-    BOOST_TEST_EQ(result<T>(), expect<T>());
+    std::size_t result = boost::alignment::
+        alignment_of<T>::value;
+    BOOST_TEST_EQ(result, offset<T>());
 }
 
 template<class T>
@@ -206,11 +202,11 @@ void test_pointer()
 void test_member_pointer()
 {
     test<int X::*>();
-    test<int(X::*)()>();
+    test<int (X::*)()>();
 }
 
 enum E {
-    V = 1
+    v = 1
 };
 
 void test_enum()

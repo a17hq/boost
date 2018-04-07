@@ -1,5 +1,5 @@
 
-//  (C) Copyright Kohei Takahashi 2014,2016
+//  (C) Copyright Kohei Takahashi 2014
 
 //  Use, modification and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file
@@ -17,15 +17,6 @@ namespace boost_no_cxx14_constexpr
 namespace detail
 {
     template <class> struct void_ { typedef void type; };
-
-    struct non_tmpl
-    {
-        constexpr int foo() const { return 1; }
-        constexpr int foo()       { return 0; }
-    };
-
-    template <typename T>
-    struct tmpl : non_tmpl { };
 }
 
 // Test relaxed constexpr with dependent type; for more details, see comment of
@@ -36,17 +27,6 @@ constexpr typename detail::void_<T>::type decrement(T &value)
     --value;
 }
 
-constexpr int non_cv_member(detail::non_tmpl x)
-{
-    return x.foo();
-}
-
-template <typename T>
-constexpr int non_cv_member(detail::tmpl<T> x)
-{
-    return x.foo();
-}
-
 constexpr int zero()
 {
     int ret = 1;
@@ -54,18 +34,9 @@ constexpr int zero()
     return ret;
 }
 
-template <int v> struct compile_time_value
-{
-    static constexpr int value = v;
-};
-
 int test()
 {
-    return compile_time_value<
-        zero()
-      + non_cv_member(detail::non_tmpl())
-      + non_cv_member(detail::tmpl<int>())
-    >::value;
+    return zero();
 }
 
 }

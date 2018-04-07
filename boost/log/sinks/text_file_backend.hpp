@@ -27,7 +27,6 @@
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/log/keywords/max_size.hpp>
-#include <boost/log/keywords/max_files.hpp>
 #include <boost/log/keywords/min_free_space.hpp>
 #include <boost/log/keywords/target.hpp>
 #include <boost/log/keywords/file_name.hpp>
@@ -35,7 +34,6 @@
 #include <boost/log/keywords/auto_flush.hpp>
 #include <boost/log/keywords/rotation_size.hpp>
 #include <boost/log/keywords/time_based_rotation.hpp>
-#include <boost/log/keywords/enable_final_rotation.hpp>
 #include <boost/log/detail/config.hpp>
 #include <boost/log/detail/light_function.hpp>
 #include <boost/log/detail/parameter_tools.hpp>
@@ -131,8 +129,7 @@ namespace aux {
     BOOST_LOG_API shared_ptr< collector > make_collector(
         filesystem::path const& target_dir,
         uintmax_t max_size,
-        uintmax_t min_free_space,
-        uintmax_t max_files = (std::numeric_limits< uintmax_t >::max)()
+        uintmax_t min_free_space
     );
     template< typename ArgsT >
     inline shared_ptr< collector > make_collector(ArgsT const& args)
@@ -140,8 +137,7 @@ namespace aux {
         return aux::make_collector(
             filesystem::path(args[keywords::target]),
             args[keywords::max_size | (std::numeric_limits< uintmax_t >::max)()],
-            args[keywords::min_free_space | static_cast< uintmax_t >(0)],
-            args[keywords::max_files | (std::numeric_limits< uintmax_t >::max)()]);
+            args[keywords::min_free_space | static_cast< uintmax_t >(0)]);
     }
 
 } // namespace aux
@@ -162,11 +158,6 @@ template< typename T1, typename T2, typename T3 >
 inline shared_ptr< collector > make_collector(T1 const& a1, T2 const& a2, T3 const& a3)
 {
     return aux::make_collector((a1, a2, a3));
-}
-template< typename T1, typename T2, typename T3, typename T4 >
-inline shared_ptr< collector > make_collector(T1 const& a1, T2 const& a2, T3 const& a3, T4 const& a4)
-{
-    return aux::make_collector((a1, a2, a3, a4));
 }
 
 #else
@@ -199,9 +190,6 @@ inline shared_ptr< collector > make_collector(T1 const& a1, T2 const& a2, T3 con
  *                         the collector tries to maintain. If the threshold is exceeded, the oldest
  *                         file(s) is deleted to free space. The threshold is not maintained, if not
  *                         specified.
- * \li \c max_files - Specifies the maximum number of log files stored.  If the number of files exceeds
- *                    this threshold, the oldest file(s) is deleted to free space.  The threshhold is
- *                    not maintained if not specified.
  *
  * \return The file collector.
  */
@@ -388,8 +376,6 @@ public:
      *                        any size.
      * \li \c time_based_rotation - Specifies the predicate for time-based file rotation.
      *                              No time-based file rotations will be performed, if not specified.
-     * \li \c enable_final_rotation - Specifies a flag, whether or not perform log file rotation on
-     *                                sink backend destruction. By default, is \c true.
      * \li \c auto_flush - Specifies a flag, whether or not to automatically flush the file after each
      *                     written log record. By default, is \c false.
      *
@@ -475,26 +461,9 @@ public:
     BOOST_LOG_API void set_time_based_rotation(time_based_rotation_predicate const& predicate);
 
     /*!
-     * The method allows to enable or disable log file rotation on sink destruction.
-     *
-     * By default the sink backend will rotate the log file, if it's been written to, on
-     * destruction.
-     *
-     * \param enable The flag indicates whether the final rotation should be performed.
+     * Sets the flag to automatically flush buffers of all attached streams after each log record
      */
-    BOOST_LOG_API void enable_final_rotation(bool enable);
-
-    /*!
-     * Sets the flag to automatically flush write buffers of the file being written after each log record.
-     *
-     * \param enable The flag indicates whether the automatic buffer flush should be performed.
-     */
-    BOOST_LOG_API void auto_flush(bool enable = true);
-
-    /*!
-     * \return The name of the currently open log file. If no file is open, returns an empty path.
-     */
-    BOOST_LOG_API filesystem::path get_current_file_name() const;
+    BOOST_LOG_API void auto_flush(bool f = true);
 
     /*!
      * Performs scanning of the target directory for log files that may have been left from
@@ -544,8 +513,7 @@ private:
             args[keywords::open_mode | (std::ios_base::trunc | std::ios_base::out)],
             args[keywords::rotation_size | (std::numeric_limits< uintmax_t >::max)()],
             args[keywords::time_based_rotation | time_based_rotation_predicate()],
-            args[keywords::auto_flush | false],
-            args[keywords::enable_final_rotation | true]);
+            args[keywords::auto_flush | false]);
     }
     //! Constructor implementation
     BOOST_LOG_API void construct(
@@ -553,8 +521,7 @@ private:
         std::ios_base::openmode mode,
         uintmax_t rotation_size,
         time_based_rotation_predicate const& time_based_rotation,
-        bool auto_flush,
-        bool enable_final_rotation);
+        bool auto_flush);
 
     //! The method sets file name mask
     BOOST_LOG_API void set_file_name_pattern_internal(filesystem::path const& pattern);

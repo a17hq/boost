@@ -13,9 +13,8 @@
  *         at http://www.boost.org/doc/libs/release/libs/log/doc/html/index.html.
  */
 
-#include <boost/log/detail/config.hpp>
+#include <memory>
 #include <locale>
-#include <utility>
 #include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/detail/singleton.hpp>
 #include <boost/log/attributes/attribute_value_impl.hpp>
@@ -23,7 +22,6 @@
 #if !defined(BOOST_LOG_NO_THREADS)
 #include <boost/thread/tss.hpp>
 #endif
-#include "unique_ptr.hpp"
 #include <boost/log/detail/header.hpp>
 
 namespace boost {
@@ -34,7 +32,6 @@ BOOST_LOG_OPEN_NAMESPACE
 template< typename CharT >
 BOOST_LOG_API void basic_record_ostream< CharT >::init_stream()
 {
-    base_type::init_stream();
     base_type::imbue(std::locale());
     if (m_record)
     {
@@ -59,7 +56,7 @@ BOOST_LOG_API void basic_record_ostream< CharT >::detach_from_record() BOOST_NOE
     {
         base_type::detach();
         m_record = NULL;
-        base_type::exceptions(base_type::goodbit);
+        base_type::exceptions(stream_type::goodbit);
     }
 }
 
@@ -75,7 +72,7 @@ class stream_compound_pool :
 #if !defined(BOOST_LOG_NO_THREADS)
         thread_specific_ptr< stream_compound_pool< CharT > >
 #else
-        log::aux::unique_ptr< stream_compound_pool< CharT > >
+        std::auto_ptr< stream_compound_pool< CharT > >
 #endif
     >
 {
@@ -86,7 +83,7 @@ class stream_compound_pool :
     typedef thread_specific_ptr< this_type > tls_ptr_type;
 #else
     //! Thread-specific pointer type
-    typedef log::aux::unique_ptr< this_type > tls_ptr_type;
+    typedef std::auto_ptr< this_type > tls_ptr_type;
 #endif
     //! Singleton base type
     typedef log::aux::lazy_singleton<
@@ -117,7 +114,7 @@ public:
         this_type* p = ptr.get();
         if (!p)
         {
-            log::aux::unique_ptr< this_type > pNew(new this_type());
+            std::auto_ptr< this_type > pNew(new this_type());
             ptr.reset(pNew.get());
             p = pNew.release();
         }

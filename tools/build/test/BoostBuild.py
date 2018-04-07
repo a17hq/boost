@@ -253,8 +253,6 @@ class Tester(TestCmd.TestCmd):
                 elif os.uname()[0] == "Darwin":
                     if os.uname()[4] == "i386":
                         jam_build_dir = "bin.macosxx86"
-                    elif os.uname()[4] == "x86_64":
-                        jam_build_dir = "bin.macosxx86_64"
                     else:
                         jam_build_dir = "bin.macosxppc"
                 elif os.uname()[0] == "AIX":
@@ -452,12 +450,7 @@ class Tester(TestCmd.TestCmd):
             if ignore_toolset_requirements:
                 kw["program"].append("--ignore-toolset-requirements")
             if "--python" in sys.argv:
-                # -z disables Python optimization mode.
-                # this enables type checking (all assert
-                # and if __debug__ statements).
-                kw["program"].extend(["--python", "-z"])
-            if "--stacktrace" in sys.argv:
-                kw["program"].append("--stacktrace")
+                kw["program"].append("--python")
             kw["chdir"] = subdir
             self.last_program_invocation = kw["program"]
             build_time_start = time.time()

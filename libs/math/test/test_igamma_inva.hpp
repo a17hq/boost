@@ -115,13 +115,10 @@ void do_test_gamma_2(const T& data, const char* type_name, const char* test_name
 template <class Real, class T>
 void do_test_gamma_inva(const T& data, const char* type_name, const char* test_name)
 {
-#if !(defined(ERROR_REPORTING_MODE) && !defined(GAMMAP_INVA_FUNCTION_TO_TEST))
    typedef Real                   value_type;
 
    typedef value_type (*pg)(value_type, value_type);
-#ifdef GAMMAP_INVA_FUNCTION_TO_TEST
-   pg funcp = GAMMAP_INVA_FUNCTION_TO_TEST;
-#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
    pg funcp = boost::math::gamma_p_inva<value_type, value_type>;
 #else
    pg funcp = boost::math::gamma_p_inva;
@@ -139,13 +136,11 @@ void do_test_gamma_inva(const T& data, const char* type_name, const char* test_n
       data,
       bind_func<Real>(funcp, 0, 1),
       extract_result<Real>(2));
-   handle_test_result(result, data[result.worst()], result.worst(), type_name, "gamma_p_inva", test_name);
+   handle_test_result(result, data[result.worst()], result.worst(), type_name, "boost::math::gamma_p_inva", test_name);
    //
    // test gamma_q_inva(T, T) against data:
    //
-#ifdef GAMMAQ_INVA_FUNCTION_TO_TEST
-   funcp = GAMMAQ_INVA_FUNCTION_TO_TEST;
-#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
    funcp = boost::math::gamma_q_inva<value_type, value_type>;
 #else
    funcp = boost::math::gamma_q_inva;
@@ -154,14 +149,13 @@ void do_test_gamma_inva(const T& data, const char* type_name, const char* test_n
       data,
       bind_func<Real>(funcp, 0, 1),
       extract_result<Real>(3));
-   handle_test_result(result, data[result.worst()], result.worst(), type_name, "gamma_q_inva", test_name);
-#endif
+   handle_test_result(result, data[result.worst()], result.worst(), type_name, "boost::math::gamma_q_inva", test_name);
 }
 
 template <class T>
 void test_gamma(T, const char* name)
 {
-#if !defined(TEST_UDT) && !defined(ERROR_REPORTING_MODE)
+#ifndef TEST_UDT
    //
    // The actual test data is rather verbose, so it's in a separate file
    //

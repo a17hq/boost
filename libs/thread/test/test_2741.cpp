@@ -35,7 +35,6 @@ BOOST_AUTO_TEST_CASE(test_native_handle)
   boost::thread_attributes attrs;
 
   boost::thread_attributes::native_handle_type* h = attrs.native_handle();
-  (void)(h); // unused
 #if defined(BOOST_THREAD_PLATFORM_WIN32)
   // ... window version
 #elif defined(BOOST_THREAD_PLATFORM_PTHREAD)
@@ -75,5 +74,4 @@ BOOST_AUTO_TEST_CASE(test_creation_with_attrs)
 {
   timed_test(&do_test_creation_with_attrs, 1);
 }
-
 

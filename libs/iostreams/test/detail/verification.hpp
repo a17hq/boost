@@ -27,9 +27,6 @@
 #include <boost/iostreams/detail/config/wide_streams.hpp>
 #include "./constants.hpp"
 
-// Must come last.
-#include <boost/iostreams/detail/config/disable_warnings.hpp>
-
 // Code generation bugs cause tests to fail with global optimization.
 #if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
 # pragma optimize("g", off)
@@ -311,8 +308,6 @@ bool test_output_seekable(std::ostream& io)
 }
 
 } } } // End namespaces test, iostreams, boost.
-
-#include <boost/iostreams/detail/config/enable_warnings.hpp>
 
 #if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
 # pragma optimize("", on)

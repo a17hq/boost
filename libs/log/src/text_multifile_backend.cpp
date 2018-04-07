@@ -13,7 +13,6 @@
  *         at http://www.boost.org/doc/libs/release/libs/log/doc/html/index.html.
  */
 
-#include <boost/log/detail/config.hpp>
 #include <ios>
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/fstream.hpp>

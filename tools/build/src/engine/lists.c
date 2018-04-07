@@ -10,7 +10,6 @@
 
 #include "jam.h"
 #include "lists.h"
-#include "output.h"
 
 #include <assert.h>
 
@@ -115,7 +114,7 @@ LIST * list_push_back( LIST * head, OBJECT * value )
     unsigned int i;
 
     if ( DEBUG_LISTS )
-        out_printf( "list > %s <\n", object_str( value ) );
+        printf( "list > %s <\n", object_str( value ) );
 
     /* If the size is a power of 2, reallocate. */
     if ( size == 0 )
@@ -319,10 +318,10 @@ void list_print( LIST * l )
     LISTITER iter = list_begin( l ), end = list_end( l );
     if ( iter != end )
     {
-        out_printf( "%s", object_str( list_item( iter ) ) );
+        printf( "%s", object_str( list_item( iter ) ) );
         iter = list_next( iter );
         for ( ; iter != end; iter = list_next( iter ) )
-            out_printf( " %s", object_str( list_item( iter ) ) );
+            printf( " %s", object_str( list_item( iter ) ) );
     }
 }
 
@@ -435,7 +434,7 @@ void lol_print( LOL * lol )
     for ( i = 0; i < lol->count; ++i )
     {
         if ( i )
-            out_printf( " : " );
+            printf( " : " );
         list_print( lol->list[ i ] );
     }
 }

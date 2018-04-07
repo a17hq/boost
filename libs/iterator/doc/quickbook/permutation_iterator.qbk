@@ -189,7 +189,7 @@ following operations.
 
   permutation_iterator& operator++();
 
-[*Effects: ] `++m_order`[br]
+[*Effects: ] `++m_order`\n
 [*Returns: ] `*this`
 
 

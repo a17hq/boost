@@ -49,7 +49,6 @@
 #include "rules.h"
 #include "search.h"
 #include "variable.h"
-#include "output.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -246,19 +245,19 @@ int make1( LIST * targets )
 
     /* Talk about it. */
     if ( counts->failed )
-        out_printf( "...failed updating %d target%s...\n", counts->failed,
+        printf( "...failed updating %d target%s...\n", counts->failed,
             counts->failed > 1 ? "s" : "" );
     if ( DEBUG_MAKE && counts->skipped )
-        out_printf( "...skipped %d target%s...\n", counts->skipped,
+        printf( "...skipped %d target%s...\n", counts->skipped,
             counts->skipped > 1 ? "s" : "" );
     if ( DEBUG_MAKE && counts->made )
-        out_printf( "...updated %d target%s...\n", counts->made,
+        printf( "...updated %d target%s...\n", counts->made,
             counts->made > 1 ? "s" : "" );
 
     /* If we were interrupted, exit now that all child processes
        have finished. */
     if ( intr )
-        exit( EXITBAD );
+        exit( 1 );
 
     {
         LISTITER iter, end;
@@ -426,11 +425,11 @@ static void make1b( state * const pState )
         if ( ( t->flags & ( T_FLAG_RMOLD | T_FLAG_NOTFILE ) ) == T_FLAG_RMOLD )
         {
             if ( !unlink( object_str( t->boundname ) ) )
-                out_printf( "...removing outdated %s\n", object_str( t->boundname )
+                printf( "...removing outdated %s\n", object_str( t->boundname )
                     );
         }
         else
-            out_printf( "...skipped %s for lack of %s...\n", object_str( t->name ),
+            printf( "...skipped %s for lack of %s...\n", object_str( t->name ),
                 failed_name );
     }
 
@@ -448,7 +447,7 @@ static void make1b( state * const pState )
 
         case T_FATE_ISTMP:
             if ( DEBUG_MAKE )
-                out_printf( "...using %s...\n", object_str( t->name ) );
+                printf( "...using %s...\n", object_str( t->name ) );
             break;
 
         case T_FATE_TOUCHED:
@@ -465,7 +464,7 @@ static void make1b( state * const pState )
             {
                 ++counts->total;
                 if ( DEBUG_MAKE && !( counts->total % 100 ) )
-                    out_printf( "...on %dth target...\n", counts->total );
+                    printf( "...on %dth target...\n", counts->total );
 
                 t->cmds = (char *)make1cmds( t );
                 /* Update the target's "progress" so MAKE1C processing counts it
@@ -477,7 +476,7 @@ static void make1b( state * const pState )
 
         /* All valid fates should have been accounted for by now. */
         default:
-            err_printf( "ERROR: %s has bad fate %d", object_str( t->name ),
+            printf( "ERROR: %s has bad fate %d", object_str( t->name ),
                 t->fate );
             abort();
         }
@@ -493,7 +492,7 @@ static void make1b( state * const pState )
     else if ( DEBUG_EXECCMD )
     {
         CMD * cmd = ( CMD * )t->cmds;
-        out_printf( "Delaying %s %s: %d targets not ready\n", object_str( cmd->rule->name ), object_str( t->boundname ), cmd->asynccnt );
+        printf( "Delaying %s %s: %d targets not ready\n", object_str( cmd->rule->name ), object_str( t->boundname ), cmd->asynccnt );
     }
 }
 
@@ -689,7 +688,7 @@ static void call_timing_rule( TARGET * target, timing_info const * const time )
 
     if ( !list_empty( timing_rule ) )
     {
-        /* rule timing-rule ( args * : target : start end user system clock ) */
+        /* rule timing-rule ( args * : target : start end user system ) */
 
         /* Prepare the argument list. */
         FRAME frame[ 1 ];
@@ -703,14 +702,12 @@ static void call_timing_rule( TARGET * target, timing_info const * const time )
         /* target :: the name of the target */
         lol_add( frame->args, list_new( object_copy( target->name ) ) );
 
-        /* start end user system clock :: info about the action command */
-        lol_add( frame->args, list_push_back( list_push_back( list_push_back( list_push_back( list_new(
+        /* start end user system :: info about the action command */
+        lol_add( frame->args, list_push_back( list_push_back( list_push_back( list_new(
             outf_time( &time->start ) ),
             outf_time( &time->end ) ),
             outf_double( time->user ) ),
-            outf_double( time->system ) ),
-            outf_double( timestamp_delta_seconds(&time->start, &time->end) ) )
-            );
+            outf_double( time->system ) ) );
 
         /* Call the rule. */
         evaluate_rule( bindrule( rulename , root_module() ), rulename, frame );
@@ -856,9 +853,7 @@ static void make1c_closure
     {
         call_timing_rule( t, time );
         if ( DEBUG_EXECCMD )
-            out_printf( "%f sec system; %f sec user; %f sec clock\n",
-                time->system, time->user,
-                timestamp_delta_seconds(&time->start, &time->end) );
+            printf( "%f sec system; %f sec user\n", time->system, time->user );
 
         /* Assume -p0 is in effect, i.e. cmd_stdout contains merged output. */
         call_action_rule( t, status_orig, time, cmd->buf->value, cmd_stdout );
@@ -868,11 +863,11 @@ static void make1c_closure
     if ( t->status == EXEC_CMD_FAIL && DEBUG_MAKE )
     {
         if ( !DEBUG_EXEC )
-            out_printf( "%s\n", cmd->buf->value );
+            printf( "%s\n", cmd->buf->value );
 
-        out_printf( "...failed %s ", object_str( cmd->rule->name ) );
+        printf( "...failed %s ", object_str( cmd->rule->name ) );
         list_print( lol_get( (LOL *)&cmd->args, 0 ) );
-        out_printf( "...\n" );
+        printf( "...\n" );
     }
 
     /* On interrupt, set quit so _everything_ fails. Do the same for failed
@@ -899,7 +894,7 @@ static void make1c_closure
             char const * const filename = object_str( list_item( iter ) );
             TARGET const * const t = bindtarget( list_item( iter ) );
             if ( !( t->flags & T_FLAG_PRECIOUS ) && !unlink( filename ) )
-                out_printf( "...removing %s\n", filename );
+                printf( "...removing %s\n", filename );
         }
     }
 
@@ -941,7 +936,7 @@ static void push_cmds( CMDLIST * cmds, int status )
             else if ( DEBUG_EXECCMD )
             {
                 TARGET * first_target = bindtarget( list_front( lol_get( &next_cmd->args, 0 ) ) );
-                out_printf( "Delaying %s %s: %d targets not ready\n", object_str( next_cmd->rule->name ), object_str( first_target->boundname ), next_cmd->asynccnt );
+                printf( "Delaying %s %s: %d targets not ready\n", object_str( next_cmd->rule->name ), object_str( first_target->boundname ), next_cmd->asynccnt );
             }
         }
         else
@@ -1156,12 +1151,12 @@ static CMD * make1cmds( TARGET * t )
                             : "contains a line that is too long";
                     assert( cmd_check_result == EXEC_CHECK_TOO_LONG ||
                         cmd_check_result == EXEC_CHECK_LINE_TOO_LONG );
-                    out_printf( "%s action %s (%d, max %d):\n", object_str(
+                    printf( "%s action %s (%d, max %d):\n", object_str(
                         rule->name ), error_message, cmd_error_length,
                         cmd_error_max_length );
 
                     /* Tell the user what did not fit. */
-                    out_puts( cmd->buf->value );
+                    fputs( cmd->buf->value, stdout );
                     exit( EXITBAD );
                 }
 
@@ -1402,7 +1397,7 @@ static int cmd_sem_lock( TARGET * t )
         if ( iter->target->asynccnt > 0 )
         {
             if ( DEBUG_EXECCMD )
-                out_printf( "SEM: %s is busy, delaying launch of %s\n",
+                printf( "SEM: %s is busy, delaying launch of %s\n",
                     object_str( iter->target->name ), object_str( t->name ) );
             iter->target->parents = targetentry( iter->target->parents, t );
             return 0;
@@ -1413,7 +1408,7 @@ static int cmd_sem_lock( TARGET * t )
     {
         ++iter->target->asynccnt;
         if ( DEBUG_EXECCMD )
-            out_printf( "SEM: %s now used by %s\n", object_str( iter->target->name
+            printf( "SEM: %s now used by %s\n", object_str( iter->target->name
                 ), object_str( t->name ) );
     }
     /* A cmd only needs to be locked around its execution.
@@ -1432,7 +1427,7 @@ static void cmd_sem_unlock( TARGET * t )
     for ( iter = cmd->unlock; iter; iter = iter->next )
     {
         if ( DEBUG_EXECCMD )
-            out_printf( "SEM: %s is now free\n", object_str(
+            printf( "SEM: %s is now free\n", object_str(
                 iter->target->name ) );
         --iter->target->asynccnt;
         assert( iter->target->asynccnt <= 0 );

@@ -40,7 +40,7 @@
 #pragma warning(disable:4355)
 #endif
 
-#define QUICKBOOK_VERSION "Quickbook Version 1.6.2"
+#define QUICKBOOK_VERSION "Quickbook Version 1.6.1"
 
 namespace quickbook
 {
@@ -51,6 +51,7 @@ namespace quickbook
     tm* current_gm_time; // the current UTC time
     bool debug_mode; // for quickbook developers only
     bool self_linked_headers;
+    bool ms_errors = false; // output errors/warnings as if for VS
     std::vector<fs::path> include_path;
     std::vector<std::string> preset_defines;
     fs::path image_location;
@@ -377,7 +378,8 @@ main(int argc, char* argv[])
             return 0;
         }
 
-        quickbook::detail::set_ms_errors(vm.count("ms-errors"));
+        if (vm.count("ms-errors"))
+            quickbook::ms_errors = true;
 
         if (vm.count("no-pretty-print"))
             parse_document_options.pretty_print = false;

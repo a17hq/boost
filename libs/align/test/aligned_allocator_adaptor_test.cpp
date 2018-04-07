@@ -1,19 +1,20 @@
 /*
-(c) 2014 Glen Joseph Fernandes
-<glenjofe -at- gmail.com>
+ (c) 2014 Glen Joseph Fernandes
+ glenjofe at gmail dot com
 
-Distributed under the Boost Software
-License, Version 1.0.
-http://boost.org/LICENSE_1_0.txt
+ Distributed under the Boost Software
+ License, Version 1.0.
+ http://boost.org/LICENSE_1_0.txt
 */
 #include <boost/align/aligned_allocator_adaptor.hpp>
 #include <boost/align/is_aligned.hpp>
 #include <boost/core/lightweight_test.hpp>
 #include <new>
+#include <cstddef>
 #include <cstring>
 
 template<class T>
-class A {
+class Allocator {
 public:
     typedef T value_type;
     typedef T* pointer;
@@ -24,42 +25,56 @@ public:
     typedef std::ptrdiff_t difference_type;
     typedef T& reference;
     typedef const T& const_reference;
+
     template<class U>
     struct rebind {
-        typedef A<U> other;
+        typedef Allocator<U> other;
     };
-    A()
-        : state() { }
-    A(int value)
-        : state(value) { }
-    template<class U>
-    A(const A<U>& other)
-        : state(other.state) { }
-    pointer allocate(size_type size, const_void_pointer = 0) {
-        return static_cast<T*>(::operator new(sizeof(T) * size));
+
+    Allocator()
+        : state() {
     }
+
+    Allocator(int value)
+        : state(value) {
+    }
+
+    template<class U>
+    Allocator(const Allocator<U>& other)
+        : state(other.state) {
+    }
+
+    pointer allocate(size_type size, const_void_pointer = 0) {
+        void* p = ::operator new(sizeof(T) * size);
+        return static_cast<T*>(p);
+    }
+
     void deallocate(pointer ptr, size_type) {
         ::operator delete(ptr);
     }
+
     void construct(pointer ptr, const_reference value) {
-        ::new(static_cast<void*>(ptr)) T(value);
+        void* p = ptr;
+        ::new(p) T(value);
     }
+
     void destroy(pointer ptr) {
         (void)ptr;
         ptr->~T();
     }
+
     int state;
 };
 
 template<class T1, class T2>
-bool operator==(const A<T1>& a, const A<T2>& b)
-{
+bool operator==(const Allocator<T1>& a,
+    const Allocator<T2>& b) {
     return a.state == b.state;
 }
 
 template<class T1, class T2>
-bool operator!=(const A<T1>& a, const A<T2>& b)
-{
+bool operator!=(const Allocator<T1>& a,
+    const Allocator<T2>& b) {
     return !(a == b);
 }
 
@@ -67,27 +82,30 @@ template<std::size_t Alignment>
 void test_allocate()
 {
     {
-        boost::alignment::aligned_allocator_adaptor<A<int>,
+        typename boost::alignment::
+            aligned_allocator_adaptor<Allocator<int>,
             Alignment> a(5);
         int* p = a.allocate(1);
         BOOST_TEST(p != 0);
-        BOOST_TEST(boost::alignment::is_aligned(p, Alignment));
+        BOOST_TEST(boost::alignment::is_aligned(Alignment, p));
         std::memset(p, 0, 1);
         a.deallocate(p, 1);
     }
     {
-        boost::alignment::aligned_allocator_adaptor<A<int>,
+        typename boost::alignment::
+            aligned_allocator_adaptor<Allocator<int>,
             Alignment> a(5);
         int* p1 = a.allocate(1);
         int* p2 = a.allocate(1, p1);
         BOOST_TEST(p2 != 0);
-        BOOST_TEST(boost::alignment::is_aligned(p2, Alignment));
+        BOOST_TEST(boost::alignment::is_aligned(Alignment, p2));
         std::memset(p2, 0, 1);
         a.deallocate(p2, 1);
         a.deallocate(p1, 1);
     }
     {
-        boost::alignment::aligned_allocator_adaptor<A<int>,
+        typename boost::alignment::
+            aligned_allocator_adaptor<Allocator<int>,
             Alignment> a(5);
         int* p = a.allocate(0);
         a.deallocate(p, 0);
@@ -97,7 +115,8 @@ void test_allocate()
 template<std::size_t Alignment>
 void test_construct()
 {
-    boost::alignment::aligned_allocator_adaptor<A<int>,
+    typename boost::alignment::
+        aligned_allocator_adaptor<Allocator<int>,
         Alignment> a(5);
     int* p = a.allocate(1);
     a.construct(p, 1);
@@ -110,15 +129,18 @@ template<std::size_t Alignment>
 void test_constructor()
 {
     {
-        boost::alignment::aligned_allocator_adaptor<A<char>,
+        typename boost::alignment::
+            aligned_allocator_adaptor<Allocator<char>,
             Alignment> a1(5);
-        boost::alignment::aligned_allocator_adaptor<A<int>,
+        typename boost::alignment::
+            aligned_allocator_adaptor<Allocator<int>,
             Alignment> a2(a1);
         BOOST_TEST(a2 == a1);
     }
     {
-        A<int> a1(5);
-        boost::alignment::aligned_allocator_adaptor<A<int>,
+        Allocator<int> a1(5);
+        typename boost::alignment::
+            aligned_allocator_adaptor<Allocator<int>,
             Alignment> a2(a1);
         BOOST_TEST(a2.base() == a1);
     }
@@ -127,10 +149,13 @@ void test_constructor()
 template<std::size_t Alignment>
 void test_rebind()
 {
-    boost::alignment::aligned_allocator_adaptor<A<int>,
+    typename boost::alignment::
+        aligned_allocator_adaptor<Allocator<char>,
         Alignment> a1(5);
-    typename boost::alignment::aligned_allocator_adaptor<A<int>,
-        Alignment>::template rebind<int>::other a2(a1);
+    typename boost::alignment::
+        aligned_allocator_adaptor<Allocator<int>,
+        Alignment>::template
+        rebind<int>::other a2(a1);
     BOOST_TEST(a2 == a1);
 }
 

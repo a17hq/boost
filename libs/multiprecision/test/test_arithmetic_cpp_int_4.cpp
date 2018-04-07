@@ -7,8 +7,6 @@
 #  define _SCL_SECURE_NO_WARNINGS
 #endif
 
-#define TEST_CHECKED_INT
-
 #include <boost/multiprecision/cpp_int.hpp>
 
 #include "test_arithmetic.hpp"

@@ -24,7 +24,6 @@ void thread_proc()
         increment();
         int* p = value.get();
         assert(*p == i+1);
-        (void)(p);
     }
 }
 

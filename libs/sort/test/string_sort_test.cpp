@@ -29,18 +29,8 @@ struct bracket {
   }
 };
 
-struct wbracket {
-  wchar_t operator()(const wstring &x, size_t offset) const {
-    return x[offset];
-  }
-};
-
 struct get_size {
   size_t operator()(const string &x) const{ return x.size(); }
-};
-
-struct wget_size {
-  size_t operator()(const wstring &x) const{ return x.size(); }
 };
 
 static const unsigned input_count = 100000;
@@ -101,9 +91,8 @@ void string_test()
   for (unsigned u = 0; u < input_count; ++u) {
     unsigned length = rand() % max_length;
     string result;
-    for (unsigned v = 0; v < length; ++v) {
+    for (unsigned u = 0; u < length; ++u)
       result.push_back(rand() % 256);
-    }
     base_vec.push_back(result);
   }
   vector<string> sorted_vec = base_vec;
@@ -113,7 +102,6 @@ void string_test()
   string_sort(test_vec.begin(), test_vec.end());
   BOOST_CHECK(test_vec == sorted_vec);
   //Testing boost::sort::spreadsort wrapper
-  test_vec = base_vec;
   boost::sort::spreadsort::spreadsort(test_vec.begin(), test_vec.end());
   BOOST_CHECK(test_vec == sorted_vec);
   //Character functors

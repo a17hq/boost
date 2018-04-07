@@ -30,7 +30,7 @@ where:
 
 [equation sbessel2]
 
-The return type of these functions is computed using the __arg_promotion_rules
+The return type of these functions is computed using the __arg_pomotion_rules
 for the single argument type T.
 
 [optional_policy]
@@ -58,9 +58,8 @@ a simplified version of this implementation
 
 [h4 Accuracy]
 
-[table_sph_bessel]
-
-[table_sph_neumann]
+Other than for some special cases, these functions are computed in terms of
+__cyl_bessel_j and __cyl_neumann: refer to these functions for accuracy data.
 
 [h4 Implementation]
 

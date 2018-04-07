@@ -27,16 +27,16 @@
 
 void p1()
 {
-  //std::cout << BOOST_CONTEXTOF << std::endl;
+  std::cout << BOOST_CONTEXTOF << std::endl;
   boost::this_thread::sleep_for(boost::chrono::milliseconds(30));
-  //std::cout << BOOST_CONTEXTOF << std::endl;
+  std::cout << BOOST_CONTEXTOF << std::endl;
 }
 
 void p2()
 {
-  //std::cout << BOOST_CONTEXTOF << std::endl;
+  std::cout << BOOST_CONTEXTOF << std::endl;
   boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
-  //std::cout << BOOST_CONTEXTOF << std::endl;
+  std::cout << BOOST_CONTEXTOF << std::endl;
 }
 
 int f1()
@@ -54,6 +54,7 @@ int f2(int i)
 
 void submit_some(boost::serial_executor& tp)
 {
+  std::cout << BOOST_CONTEXTOF << std::endl;
   for (int i = 0; i < 3; ++i) {
     std::cout << BOOST_CONTEXTOF << std::endl;
     tp.submit(&p2);
@@ -62,6 +63,7 @@ void submit_some(boost::serial_executor& tp)
     std::cout << BOOST_CONTEXTOF << std::endl;
     tp.submit(&p1);
   }
+  std::cout << BOOST_CONTEXTOF << std::endl;
 
 }
 
@@ -73,11 +75,13 @@ void at_th_entry(boost::basic_thread_pool& )
 
 int test_executor_adaptor()
 {
+  // std::cout << BOOST_CONTEXTOF << std::endl;
   {
     try
     {
 
 #if ! defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
+      // std::cout << BOOST_CONTEXTOF << std::endl;
       {
         boost::basic_thread_pool ea1(4);
         boost::serial_executor ea2(ea1);
@@ -85,6 +89,7 @@ int test_executor_adaptor()
         boost::this_thread::sleep_for(boost::chrono::seconds(10));
       }
 #endif
+      // std::cout << BOOST_CONTEXTOF << std::endl;
     }
     catch (std::exception& ex)
     {
@@ -97,6 +102,7 @@ int test_executor_adaptor()
       return 2;
     }
   }
+  // std::cout << BOOST_CONTEXTOF << std::endl;
   return 0;
 }
 

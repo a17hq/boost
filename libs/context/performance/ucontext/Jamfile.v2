@@ -18,12 +18,9 @@ project boost/context/performance/ucontext
       <library>/boost/chrono//boost_chrono
       <library>/boost/context//boost_context
       <library>/boost/program_options//boost_program_options
-      <linkflags>"-lrt" 
       <link>static
-      <optimization>speed
+      <linkflags>"-lrt" 
       <threading>multi
-      <variant>release
-      <cxxflags>-DBOOST_DISABLE_ASSERTS
     ;
 
 alias sources
@@ -58,7 +55,7 @@ alias sources
 
 explicit sources ;
 
-exe performance
+exe performance_ucontext
    : sources
-     performance.cpp
+     performance_ucontext.cpp
    ;
