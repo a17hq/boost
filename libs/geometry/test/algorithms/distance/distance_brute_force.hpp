@@ -40,6 +40,20 @@ namespace detail { namespace distance_brute_force
 
 struct distance_from_bg
 {
+    template <typename G>
+    struct use_distance_from_bg
+    {
+        typedef typename boost::mpl::or_
+            <
+                boost::is_same<typename tag<G>::type, point_tag>,
+                typename boost::mpl::or_
+                    <
+                        boost::is_same<typename tag<G>::type, segment_tag>,
+                        boost::is_same<typename tag<G>::type, box_tag>
+                    >::type
+            >::type type;
+    };
+
     template <typename Geometry1, typename Geometry2, typename Strategy>
     static inline
     typename distance_result<Geometry1, Geometry2, Strategy>::type
@@ -47,19 +61,8 @@ struct distance_from_bg
           Geometry2 const& geometry2,
           Strategy const& strategy)
     {
-        BOOST_MPL_ASSERT
-            ((typename boost::mpl::or_
-                  <
-                      boost::is_same<typename tag<Geometry1>::type, point_tag>,
-                      boost::is_same<typename tag<Geometry1>::type, segment_tag>
-                  >::type));
-
-        BOOST_MPL_ASSERT
-            ((typename boost::mpl::or_
-                  <
-                      boost::is_same<typename tag<Geometry2>::type, point_tag>,
-                      boost::is_same<typename tag<Geometry2>::type, segment_tag>
-                  >::type));
+        BOOST_MPL_ASSERT((typename use_distance_from_bg<Geometry1>::type));
+        BOOST_MPL_ASSERT((typename use_distance_from_bg<Geometry2>::type));
 
         return geometry::distance(geometry1, geometry2, strategy);
     }
@@ -167,7 +170,7 @@ struct distance_brute_force<Geometry1, Geometry2, Strategy, Tag1, Tag2, true>
 };
 
 
-template 
+template
 <
     typename Point1,
     typename Point2,
@@ -181,7 +184,7 @@ struct distance_brute_force
 {};
 
 
-template 
+template
 <
     typename Point,
     typename Segment,
@@ -195,7 +198,34 @@ struct distance_brute_force
 {};
 
 
-template 
+template
+<
+    typename Point,
+    typename Box,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    Point, Box, Strategy,
+    point_tag, box_tag, false
+> : detail::distance_brute_force::distance_from_bg
+{};
+
+template
+<
+    typename Box1,
+    typename Box2,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    Box1, Box2, Strategy,
+    box_tag, box_tag, false
+> : detail::distance_brute_force::distance_from_bg
+{};
+
+
+template
 <
     typename Segment1,
     typename Segment2,
@@ -209,7 +239,7 @@ struct distance_brute_force
 {};
 
 
-template 
+template
 <
     typename Point,
     typename Linear,
@@ -241,7 +271,7 @@ struct distance_brute_force
 };
 
 
-template 
+template
 <
     typename Point,
     typename MultiPoint,
@@ -269,7 +299,7 @@ struct distance_brute_force
     }
 };
 
-template 
+template
 <
     typename MultiPoint1,
     typename MultiPoint2,
@@ -303,7 +333,7 @@ struct distance_brute_force
 };
 
 
-template 
+template
 <
     typename MultiPoint,
     typename Linear,
@@ -337,7 +367,7 @@ struct distance_brute_force
 };
 
 
-template 
+template
 <
     typename Linear,
     typename MultiPoint,
@@ -367,7 +397,7 @@ struct distance_brute_force
 };
 
 
-template 
+template
 <
     typename MultiPoint,
     typename Segment,
@@ -395,8 +425,41 @@ struct distance_brute_force
     }
 };
 
+template
+<
+    typename MultiPoint,
+    typename Box,
+    typename Strategy
+>
+struct distance_brute_force
+<
+    MultiPoint, Box, Strategy,
+    multi_point_tag, box_tag, false
+>
+{
+    typedef typename distance_result
+        <
+            MultiPoint, Box, Strategy
+        >::type distance_type;
 
-template 
+    static inline distance_type apply(MultiPoint const& mp,
+                                      Box const& box,
+                                      Strategy const& strategy)
+    {
+        return detail::distance_brute_force::one_to_many
+            <
+                distance_brute_force
+                <
+                    Box,
+                    typename boost::range_value<MultiPoint>::type,
+                    Strategy
+                >
+            >::apply(box, boost::begin(mp), boost::end(mp), strategy);
+    }
+};
+
+
+template
 <
     typename Linear,
     typename Segment,
@@ -428,7 +491,7 @@ struct distance_brute_force
 };
 
 
-template 
+template
 <
     typename Linear1,
     typename Linear2,

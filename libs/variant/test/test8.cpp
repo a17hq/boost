@@ -17,7 +17,6 @@
 #include <vector>
 #include <string>
 
-using namespace std;
 using namespace boost;
 
 typedef variant<float, std::string, int, std::vector<std::string> > t_var1;
@@ -64,7 +63,7 @@ void check_fail(Variant& v)
     {
         T& r = relaxed_get<T>(v);
         (void)r; // suppress warning about r not being used
-        BOOST_CHECK(false && &r); // should never reach
+        BOOST_CHECK(false && relaxed_get<T>(&v)); // should never reach
     }
     catch(const boost::bad_get& e)
     {
