@@ -39,7 +39,6 @@ class A
 {
 public:
     virtual void out(std::ostream &) const = 0;
-    virtual ~A() {}
 };
 
 class B: public A

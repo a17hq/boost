@@ -23,9 +23,18 @@
 #endif
 
 #include <cstddef>
-#include <boost/move/detail/type_traits.hpp>
 
-#include <boost/move/detail/std_ns_begin.hpp>
+#if defined(__clang__) && defined(_LIBCPP_VERSION)
+   #define BOOST_MOVE_CLANG_INLINE_STD_NS
+   #pragma GCC diagnostic push
+   #pragma GCC diagnostic ignored "-Wc++11-extensions"
+   #define BOOST_MOVE_STD_NS_BEG _LIBCPP_BEGIN_NAMESPACE_STD
+   #define BOOST_MOVE_STD_NS_END _LIBCPP_END_NAMESPACE_STD
+#else
+   #define BOOST_MOVE_STD_NS_BEG namespace std{
+   #define BOOST_MOVE_STD_NS_END }
+#endif
+
 BOOST_MOVE_STD_NS_BEG
 
 struct input_iterator_tag;
@@ -35,7 +44,11 @@ struct random_access_iterator_tag;
 struct output_iterator_tag;
 
 BOOST_MOVE_STD_NS_END
-#include <boost/move/detail/std_ns_end.hpp>
+
+#ifdef BOOST_MOVE_CLANG_INLINE_STD_NS
+   #pragma GCC diagnostic pop
+   #undef BOOST_MOVE_CLANG_INLINE_STD_NS
+#endif   //BOOST_MOVE_CLANG_INLINE_STD_NS
 
 namespace boost{  namespace movelib{
 
@@ -47,7 +60,6 @@ struct iterator_traits
    typedef typename Iterator::pointer           pointer;
    typedef typename Iterator::reference         reference;
    typedef typename Iterator::iterator_category iterator_category;
-   typedef typename boost::move_detail::make_unsigned<difference_type>::type size_type;
 };
 
 template<class T>
@@ -58,7 +70,6 @@ struct iterator_traits<T*>
    typedef T*                                pointer;
    typedef T&                                reference;
    typedef std::random_access_iterator_tag   iterator_category;
-   typedef typename boost::move_detail::make_unsigned<difference_type>::type size_type;
 };
 
 template<class T>
@@ -69,7 +80,6 @@ struct iterator_traits<const T*>
    typedef const T*                          pointer;
    typedef const T&                          reference;
    typedef std::random_access_iterator_tag   iterator_category;
-   typedef typename boost::move_detail::make_unsigned<difference_type>::type size_type;
 };
 
 }} //namespace boost {  namespace movelib{

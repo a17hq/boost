@@ -18,6 +18,7 @@
 #include "../clock.hpp"
 #include "../cycle.hpp"
 
+bool preserve = false;
 boost::uint64_t jobs = 1000;
 
 struct X
@@ -45,7 +46,7 @@ void fn_x( boost::coroutines2::coroutine< X >::push_type & c)
 duration_type measure_time_void( duration_type overhead)
 {
     boost::coroutines2::segmented_stack stack_alloc;
-    boost::coroutines2::coroutine< void >::pull_type c( stack_alloc, fn_void);
+    boost::coroutines2::coroutine< void >::pull_type c( stack_alloc, fn_void, preserve);
         
     time_point_type start( clock_type::now() );
     for ( std::size_t i = 0; i < jobs; ++i) {
@@ -62,7 +63,7 @@ duration_type measure_time_void( duration_type overhead)
 duration_type measure_time_int( duration_type overhead)
 {
     boost::coroutines2::segmented_stack stack_alloc;
-    boost::coroutines2::coroutine< int >::pull_type c( stack_alloc, fn_int);
+    boost::coroutines2::coroutine< int >::pull_type c( stack_alloc, fn_int, preserve);
         
     time_point_type start( clock_type::now() );
     for ( std::size_t i = 0; i < jobs; ++i) {
@@ -79,7 +80,7 @@ duration_type measure_time_int( duration_type overhead)
 duration_type measure_time_x( duration_type overhead)
 {
     boost::coroutines2::segmented_stack stack_alloc;
-    boost::coroutines2::coroutine< X >::pull_type c( stack_alloc, fn_x);
+    boost::coroutines2::coroutine< X >::pull_type c( stack_alloc, fn_x, preserve);
         
     time_point_type start( clock_type::now() );
     for ( std::size_t i = 0; i < jobs; ++i) {
@@ -97,7 +98,7 @@ duration_type measure_time_x( duration_type overhead)
 cycle_type measure_cycles_void( cycle_type overhead)
 {
     boost::coroutines2::segmented_stack stack_alloc;
-    boost::coroutines2::coroutine< void >::pull_type c( stack_alloc, fn_void);
+    boost::coroutines2::coroutine< void >::pull_type c( stack_alloc, fn_void, preserve);
         
     cycle_type start( cycles() );
     for ( std::size_t i = 0; i < jobs; ++i) {
@@ -114,7 +115,7 @@ cycle_type measure_cycles_void( cycle_type overhead)
 cycle_type measure_cycles_int( cycle_type overhead)
 {
     boost::coroutines2::segmented_stack stack_alloc;
-    boost::coroutines2::coroutine< int >::pull_type c( stack_alloc, fn_int);
+    boost::coroutines2::coroutine< int >::pull_type c( stack_alloc, fn_int, preserve);
         
     cycle_type start( cycles() );
     for ( std::size_t i = 0; i < jobs; ++i) {
@@ -131,7 +132,7 @@ cycle_type measure_cycles_int( cycle_type overhead)
 cycle_type measure_cycles_x( cycle_type overhead)
 {
     boost::coroutines2::segmented_stack stack_alloc;
-    boost::coroutines2::coroutine< X >::pull_type c( stack_alloc, fn_x);
+    boost::coroutines2::coroutine< X >::pull_type c( stack_alloc, fn_x, preserve);
         
     cycle_type start( cycles() );
     for ( std::size_t i = 0; i < jobs; ++i) {
@@ -155,6 +156,7 @@ int main( int argc, char * argv[])
         desc.add_options()
             ("help", "help message")
             ("bind,b", boost::program_options::value< bool >( & bind), "bind thread to CPU")
+            ("fpu,f", boost::program_options::value< bool >( & preserve), "preserve FPU registers")
             ("jobs,j", boost::program_options::value< boost::uint64_t >( & jobs), "jobs to run");
 
         boost::program_options::variables_map vm;

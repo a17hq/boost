@@ -88,6 +88,10 @@ void file_descriptor_test()
     {
         BOOST_CHECK_THROW(
             file_descriptor_source(test1.name(),
+                BOOST_IOS::app),
+            BOOST_IOSTREAMS_FAILURE);
+        BOOST_CHECK_THROW(
+            file_descriptor_source(test1.name(),
                 BOOST_IOS::trunc),
             BOOST_IOSTREAMS_FAILURE);
         BOOST_CHECK_THROW(
@@ -466,11 +470,19 @@ void file_descriptor_test()
             BOOST_IOSTREAMS_FAILURE);
         BOOST_CHECK_THROW(
             file_descriptor(test1.name(),
+                BOOST_IOS::app),
+            BOOST_IOSTREAMS_FAILURE);
+        BOOST_CHECK_THROW(
+            file_descriptor(test1.name(),
                 BOOST_IOS::trunc),
             BOOST_IOSTREAMS_FAILURE);
         BOOST_CHECK_THROW(
             file_descriptor(test1.name(),
                 BOOST_IOS::app | BOOST_IOS::trunc),
+            BOOST_IOSTREAMS_FAILURE);
+        BOOST_CHECK_THROW(
+            file_descriptor(test1.name(),
+                BOOST_IOS::in | BOOST_IOS::app),
             BOOST_IOSTREAMS_FAILURE);
         BOOST_CHECK_THROW(
             file_descriptor(test1.name(),
@@ -483,6 +495,10 @@ void file_descriptor_test()
         BOOST_CHECK_THROW(
             file_descriptor(test1.name(),
                 BOOST_IOS::out | BOOST_IOS::app | BOOST_IOS::trunc),
+            BOOST_IOSTREAMS_FAILURE);
+        BOOST_CHECK_THROW(
+            file_descriptor(test1.name(),
+                BOOST_IOS::in | BOOST_IOS::out | BOOST_IOS::app),
             BOOST_IOSTREAMS_FAILURE);
         BOOST_CHECK_THROW(
             file_descriptor(test1.name(),

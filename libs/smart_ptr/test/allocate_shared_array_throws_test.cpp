@@ -1,63 +1,27 @@
 /*
-Copyright 2012-2015 Glen Joseph Fernandes
-(glenjofe@gmail.com)
-
-Distributed under the Boost Software License, Version 1.0.
-(http://www.boost.org/LICENSE_1_0.txt)
-*/
-#include <boost/core/lightweight_test.hpp>
-#include <boost/smart_ptr/make_shared.hpp>
-
-template<class T = void>
-struct creator {
-    typedef T value_type;
-
-    template<class U>
-    struct rebind {
-        typedef creator<U> other;
-    };
-
-    creator() { }
-
-    template<class U>
-    creator(const creator<U>&) { }
-
-    T* allocate(std::size_t size) {
-        return static_cast<T*>(::operator new(sizeof(T) * size));
-    }
-
-    void deallocate(T* ptr, std::size_t) {
-        ::operator delete(ptr);
-    }
-};
-
-template<class T, class U>
-inline bool
-operator==(const creator<T>&, const creator<U>&)
-{
-    return true;
-}
-
-template<class T, class U>
-inline bool
-operator!=(const creator<T>&, const creator<U>&)
-{
-    return false;
-}
+ * Copyright (c) 2012-2014 Glen Joseph Fernandes 
+ * glenfe at live dot com
+ *
+ * Distributed under the Boost Software License, 
+ * Version 1.0. (See accompanying file LICENSE_1_0.txt 
+ * or copy at http://boost.org/LICENSE_1_0.txt)
+ */
+#include <boost/detail/lightweight_test.hpp>
+#include <boost/smart_ptr/allocate_shared_array.hpp>
 
 class type {
 public:
-    static unsigned instances;
+    static unsigned int instances;
 
-    type() {
+    explicit type() {
         if (instances == 5) {
             throw true;
         }
-        ++instances;
+        instances++;
     }
 
     ~type() {
-        --instances;
+        instances--;
     }
 
 private:
@@ -65,57 +29,72 @@ private:
     type& operator=(const type&);
 };
 
-unsigned type::instances = 0;
+unsigned int type::instances = 0;
 
-int main()
-{
+int main() {
+    BOOST_TEST(type::instances == 0);
     try {
-        boost::allocate_shared<type[]>(creator<type>(), 6);
+        boost::allocate_shared<type[]>(std::allocator<type>(), 6);
         BOOST_ERROR("allocate_shared did not throw");
     } catch (...) {
         BOOST_TEST(type::instances == 0);
     }
+
+    BOOST_TEST(type::instances == 0);
     try {
-        boost::allocate_shared<type[][2]>(creator<type>(), 3);
+        boost::allocate_shared<type[][2]>(std::allocator<type>(), 3);
         BOOST_ERROR("allocate_shared did not throw");
     } catch (...) {
         BOOST_TEST(type::instances == 0);
     }
+
+    BOOST_TEST(type::instances == 0);
     try {
-        boost::allocate_shared<type[6]>(creator<>());
+        boost::allocate_shared<type[6]>(std::allocator<type>());
         BOOST_ERROR("allocate_shared did not throw");
     } catch (...) {
         BOOST_TEST(type::instances == 0);
     }
+
+    BOOST_TEST(type::instances == 0);
     try {
-        boost::allocate_shared<type[3][2]>(creator<>());
+        boost::allocate_shared<type[3][2]>(std::allocator<type>());
         BOOST_ERROR("allocate_shared did not throw");
     } catch (...) {
         BOOST_TEST(type::instances == 0);
     }
+
+    BOOST_TEST(type::instances == 0);
     try {
-        boost::allocate_shared_noinit<type[]>(creator<>(), 6);
+        boost::allocate_shared_noinit<type[]>(std::allocator<type>(), 6);
         BOOST_ERROR("allocate_shared_noinit did not throw");
     } catch (...) {
         BOOST_TEST(type::instances == 0);
     }
+
+    BOOST_TEST(type::instances == 0);
     try {
-        boost::allocate_shared_noinit<type[][2]>(creator<>(), 3);
+        boost::allocate_shared_noinit<type[][2]>(std::allocator<type>(), 3);
         BOOST_ERROR("allocate_shared_noinit did not throw");
     } catch (...) {
         BOOST_TEST(type::instances == 0);
     }
+
+    BOOST_TEST(type::instances == 0);
     try {
-        boost::allocate_shared_noinit<type[6]>(creator<>());
+        boost::allocate_shared_noinit<type[6]>(std::allocator<type>());
         BOOST_ERROR("allocate_shared_noinit did not throw");
     } catch (...) {
         BOOST_TEST(type::instances == 0);
     }
+
+    BOOST_TEST(type::instances == 0);
     try {
-        boost::allocate_shared_noinit<type[3][2]>(creator<>());
+        boost::allocate_shared_noinit<type[3][2]>(std::allocator<type>());
         BOOST_ERROR("allocate_shared_noinit did not throw");
     } catch (...) {
         BOOST_TEST(type::instances == 0);
     }
+
     return boost::report_errors();
 }

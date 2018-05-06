@@ -1,11 +1,11 @@
 // Boost.Convert test and usage example
-// Copyright (c) 2009-2016 Vladimir Batov.
+// Copyright (c) 2009-2014 Vladimir Batov.
 // Use, modification and distribution are subject to the Boost Software License,
 // Version 1.0. See http://www.boost.org/LICENSE_1_0.txt.
 
 #include "./test.hpp"
 
-#if defined(BOOST_CONVERT_IS_NOT_SUPPORTED)
+#ifdef BOOST_CONVERT_INTEL_SFINAE_BROKEN
 int main(int, char const* []) { return 0; }
 #else
 
@@ -17,7 +17,6 @@ int main(int, char const* []) { return 0; }
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost/random/uniform_01.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/utility/string_view.hpp>
 
 //[strtol_basic_deployment_header
 #include <boost/convert.hpp>
@@ -27,7 +26,7 @@ using std::string;
 using std::wstring;
 using boost::convert;
 
-struct boost::cnv::by_default : boost::cnv::strtol {};
+struct boost::cnv::by_default : public boost::cnv::strtol {};
 //]
 
 static
@@ -38,7 +37,6 @@ test_str_to_uint()
     string const         neg_str = "-11";
     string const         std_str = "11";
     char const* const      c_str = "12";
-    boost::string_view     v_str = boost::string_view(c_str, 1);
     unsigned int const      imax = (std::numeric_limits<unsigned int>::max)();
     unsigned long int const lmax = (std::numeric_limits<unsigned long int>::max)();
     std::string const   imax_str = boost::lexical_cast<std::string>(imax);
@@ -50,7 +48,6 @@ test_str_to_uint()
     BOOST_TEST( 0 == convert<unsigned long int>(neg_str).value_or(0));
     BOOST_TEST(11 == convert<unsigned int>(std_str).value());
     BOOST_TEST(12 == convert<unsigned int>(  c_str).value());
-    BOOST_TEST( 1 == convert<unsigned int>(  v_str).value_or(0));
     BOOST_TEST(11 == convert<unsigned long int>(std_str).value());
     BOOST_TEST(12 == convert<unsigned long int>(  c_str).value());
     BOOST_TEST(imax == convert<     unsigned int>(imax_str).value());
@@ -62,15 +59,13 @@ void
 test_str_to_int()
 {
     //[strtol_basic_deployment
-    string const     bad_str = "not an int";
-    string const     std_str = "-11";
-    char const* const  c_str = "-12";
-    boost::string_view v_str = boost::string_view(c_str, 2);
+    string const    bad_str = "not an int";
+    string const    std_str = "-11";
+    char const* const c_str = "-12";
 
     BOOST_TEST( -1 == convert<int>(bad_str).value_or(-1));
     BOOST_TEST(-11 == convert<int>(std_str).value());
     BOOST_TEST(-12 == convert<int>(  c_str).value());
-    BOOST_TEST( -1 == convert<int>(  v_str).value_or(0));
     //]
     wstring const      bad_wstr = L"not an int";
     wstring const      wstd_str = L"-11";
@@ -79,79 +74,6 @@ test_str_to_int()
     BOOST_TEST( -1 == convert<int>(bad_wstr).value_or(-1));
     BOOST_TEST(-11 == convert<int>(wstd_str).value());
     BOOST_TEST(-12 == convert<int>(  wc_str).value());
-}
-
-static
-void
-test_int_to_str()
-{
-    short const      s_int = -123;
-    int const        i_int = -123;
-    long const       l_int = -123;
-    long long const ll_int = -123;
-
-    BOOST_TEST( "-123" == convert< std::string> ( s_int).value());
-    BOOST_TEST( "-123" == convert< std::string> ( i_int).value());
-    BOOST_TEST( "-123" == convert< std::string> ( l_int).value());
-    BOOST_TEST( "-123" == convert< std::string> (ll_int).value());
-
-    BOOST_TEST(L"-123" == convert<std::wstring> ( s_int).value());
-    BOOST_TEST(L"-123" == convert<std::wstring> ( i_int).value());
-    BOOST_TEST(L"-123" == convert<std::wstring> ( l_int).value());
-    BOOST_TEST(L"-123" == convert<std::wstring> (ll_int).value());
-
-    int const            imin = std::numeric_limits<int>::min();
-    int const            imax = std::numeric_limits<int>::max();
-    long int const       lmin = std::numeric_limits<long int>::min();
-    long int const       lmax = std::numeric_limits<long int>::max();
-    long long int const llmin = std::numeric_limits<long long int>::min();
-    long long int const llmax = std::numeric_limits<long long int>::max();
-
-    std::string const  imin_str = boost::lexical_cast<std::string>(imin);
-    std::string const  imax_str = boost::lexical_cast<std::string>(imax);
-    std::string const  lmin_str = boost::lexical_cast<std::string>(lmin);
-    std::string const  lmax_str = boost::lexical_cast<std::string>(lmax);
-    std::string const llmin_str = boost::lexical_cast<std::string>(llmin);
-    std::string const llmax_str = boost::lexical_cast<std::string>(llmax);
-
-    BOOST_TEST( imin_str == convert<std::string>( imin).value());
-    BOOST_TEST( imax_str == convert<std::string>( imax).value());
-    BOOST_TEST( lmin_str == convert<std::string>( lmin).value());
-    BOOST_TEST( lmax_str == convert<std::string>( lmax).value());
-    BOOST_TEST(llmin_str == convert<std::string>(llmin).value());
-    BOOST_TEST(llmax_str == convert<std::string>(llmax).value());
-}
-
-static
-void
-test_uint_to_str()
-{
-    unsigned short const      us_int = 123;
-    unsigned int const        ui_int = 123;
-    unsigned long const       ul_int = 123;
-    unsigned long long const ull_int = 123;
-
-    BOOST_TEST( "123" == convert< std::string> ( us_int).value());
-    BOOST_TEST( "123" == convert< std::string> ( ui_int).value());
-    BOOST_TEST( "123" == convert< std::string> ( ul_int).value());
-    BOOST_TEST( "123" == convert< std::string> (ull_int).value());
-
-    BOOST_TEST(L"123" == convert<std::wstring> ( us_int).value());
-    BOOST_TEST(L"123" == convert<std::wstring> ( ui_int).value());
-    BOOST_TEST(L"123" == convert<std::wstring> ( ul_int).value());
-    BOOST_TEST(L"123" == convert<std::wstring> (ull_int).value());
-
-    unsigned int const            uimax = (std::numeric_limits<unsigned int>::max)();
-    unsigned long int const       ulmax = (std::numeric_limits<unsigned long int>::max)();
-    unsigned long long int const ullmax = (std::numeric_limits<unsigned long long int>::max)();
-
-    std::string const  uimax_str = boost::lexical_cast<std::string>( uimax);
-    std::string const  ulmax_str = boost::lexical_cast<std::string>( ulmax);
-    std::string const ullmax_str = boost::lexical_cast<std::string>(ullmax);
-
-    BOOST_TEST( uimax_str == convert<std::string>( uimax).value());
-    BOOST_TEST( ulmax_str == convert<std::string>( ulmax).value());
-    BOOST_TEST(ullmax_str == convert<std::string>(ullmax).value());
 }
 
 //[strtol_numeric_base_header
@@ -221,22 +143,6 @@ test_base()
 
 static
 void
-test_upper()
-{
-//    boost::cnv::strtol cnv;
-//    char const*    c_lcase =  "abcde";
-//    char const*    c_ucase =  "ABCDE";
-//    wchar_t const* w_lcase = L"abcde";
-//    wchar_t const* w_ucase = L"ABCDE";
-//
-//    BOOST_TEST(c_lcase == convert< string>(c_lcase, cnv(arg::uppercase = false)).value_or(""));
-//    BOOST_TEST(c_ucase == convert< string>(c_lcase, cnv(arg::uppercase =  true)).value_or(""));
-//    BOOST_TEST(w_ucase == convert<wstring>(w_lcase, cnv(arg::uppercase = false)).value_or(""));
-//    BOOST_TEST(w_ucase == convert<wstring>(w_lcase, cnv(arg::uppercase =  true)).value_or(""));
-}
-
-static
-void
 test_skipws()
 {
     //[strtol_skipws
@@ -272,13 +178,11 @@ static
 std::pair<double, int>
 get_random()
 {
-    namespace rdm = boost::random;
-
-    static rdm::mt19937                          gen (::time(0));
-    static rdm::uniform_int_distribution<> precision (0, 6);
-    static rdm::uniform_int_distribution<>  int_part (0, SHRT_MAX);
-    static rdm::uniform_01<double>          fraction; // uniform double in [0,1)
-    static bool                                 sign;
+    static boost::random::mt19937                          gen (::time(0));
+    static boost::random::uniform_int_distribution<> precision (0, 6);
+    static boost::random::uniform_int_distribution<>  int_part (0, SHRT_MAX);
+    static boost::random::uniform_01<double>          fraction; // uniform double in [0,1)
+    static bool                                           sign;
 
     double dbl = (int_part(gen) + fraction(gen)) * ((sign = !sign) ? 1 : -1);
 
@@ -299,16 +203,6 @@ compare(std::pair<double, int> pair)
 
     if (s1 != s2)
         printf("dbl=%.12f(%d).strtol/printf=%s/%s.\n", pair.first, pair.second, s1.c_str(), s2.c_str());
-}
-
-static
-void
-test_str_to_dbl()
-{
-    char const* const c_str = "1.23456";
-
-    BOOST_TEST(1.2  == convert<double>(boost::string_view(c_str, 3)).value_or(0));
-    BOOST_TEST(1.23 == convert<double>(boost::string_view(c_str, 4)).value_or(0));
 }
 
 static
@@ -384,18 +278,14 @@ test_user_type()
 }
 
 int
-main(int, char const* [])
+main(int argc, char const* argv[])
 {
     dbl_to_str_example();
 
     test_str_to_int();
     test_str_to_uint();
-    test_int_to_str();
-    test_uint_to_str();
     test_base();
-    test_upper();
     test_skipws();
-    test_str_to_dbl();
     test_dbl_to_str();
     test_width();
     test_user_string();

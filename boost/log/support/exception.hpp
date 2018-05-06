@@ -15,7 +15,6 @@
 #ifndef BOOST_LOG_SUPPORT_EXCEPTION_HPP_INCLUDED_
 #define BOOST_LOG_SUPPORT_EXCEPTION_HPP_INCLUDED_
 
-#include <string>
 #include <boost/type_index.hpp>
 #include <boost/exception/info.hpp>
 #include <boost/log/detail/config.hpp>
@@ -63,17 +62,6 @@ inline current_scope_info current_scope()
 {
     return current_scope_info(attributes::named_scope::get_scopes());
 }
-
-namespace ipc {
-
-class object_name;
-
-/*!
- * System resource name
- */
-typedef error_info< struct object_name_tag, object_name > object_name_info;
-
-} // namespace ipc
 
 BOOST_LOG_CLOSE_NAMESPACE // namespace log
 

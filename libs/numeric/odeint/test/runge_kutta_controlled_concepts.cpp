@@ -87,7 +87,6 @@ struct perform_controlled_stepper_test
     typedef T vector_space_type;
     void operator()( void ) const
     {
-        using std::abs;
         vector_space_type x;
         x = 2.0;
         ControlledStepper controlled_stepper;
@@ -135,7 +134,6 @@ struct perform_controlled_stepper_test< ControlledStepper , vector_space_type >
 {
     void operator()( void ) const
     {
-        using std::abs;
         vector_space_type x;
         x = 2.0;
         ControlledStepper controlled_stepper;

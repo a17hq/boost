@@ -45,9 +45,9 @@ int main(){
 #ifndef BOOST_NO_STD_ITERATOR_TRAITS
   { 
     res = L"2003-Aug-21";
-    std::wstringstream wss2(L"2003-Aug-21");
+    std::wstringstream wss(L"2003-Aug-21");
     date testdate(not_a_date_time);
-    wss2 >> testdate;
+    wss >> testdate;
     check("date operator>>", to_simple_wstring(testdate) == res);
   }
 #else
@@ -66,9 +66,9 @@ int main(){
   res = L"August";
   check("greg_month as_long_wstring", ws == res);
   /*{ 
-    std::wstringstream wss2(L"August");
+    std::wstringstream wss(L"August");
     greg_month testmonth(not_a_date_time);
-    wss2 >> testmonth;
+    wss >> testmonth;
     check("greg_month operator>>", to_simple_wstring(testmonth) == res);
   }*/
   
@@ -83,9 +83,9 @@ int main(){
   res = L"Thursday";
   check("greg_day_of_week as_long_wstring", ws == res);
   /*{ 
-    std::wstringstream wss2(L"Thu");
+    std::wstringstream wss(L"Thu");
     greg_day_of_week testday(not_a_date_time);
-    wss2 >> testday;
+    wss >> testday;
     check("greg_day_of_week operator>>", to_simple_wstring(testday) == res);
   }*/
   
@@ -100,12 +100,12 @@ int main(){
   ws = to_iso_wstring(dp);
   check("date_period to_iso_string", ws == res);
   { 
-    std::wstringstream wss2(L"[2003-Aug-21/2004-May-27]");
+    std::wstringstream wss(L"[2003-Aug-21/2004-May-27]");
     res = L"[2003-Aug-21/2004-May-26]";
     // following line gives an ambiguous overload of op>>
     //date_period testperiod(date(not_a_date_time),date_duration(not_a_date_time));
     date_period testperiod(date(2003,Aug,21), date(2004,May,27));
-    wss2 >> testperiod;
+    wss >> testperiod;
     check("date_period operator>>", to_simple_wstring(testperiod) == res);
   }
   
@@ -115,9 +115,9 @@ int main(){
   check("date_duration", wss.str() == res);
   wss.str(L"");
   { 
-    std::wstringstream wss2(L"280");
+    std::wstringstream wss(L"280");
     date_duration testduration(not_a_date_time);
-    wss2 >> testduration;
+    wss >> testduration;
     check("date_duration operator>>", testduration.days() == 280);
   }
 

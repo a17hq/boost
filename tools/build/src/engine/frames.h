@@ -25,9 +25,6 @@ struct frame
     OBJECT     * file;
     int          line;
     char const * rulename;
-#ifdef JAM_DEBUGGER
-    void       * function;
-#endif
 };
 
 

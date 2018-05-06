@@ -5,10 +5,6 @@
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2017.
-// Modifications copyright (c) 2017, Oracle and/or its affiliates.
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
-
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
 
@@ -48,17 +44,13 @@
 
 template <typename Geometry>
 static void test_self_intersection_points(std::string const& case_id,
-            std::size_t expected_count,
+            int expected_count,
             Geometry const& geometry,
             bool check_has_intersections,
             double /*precision*/ = 0.001)
 {
     typedef typename bg::point_type<Geometry>::type point_type;
     //typedef typename bg::rescale_policy_type<point_type>::type rescale_policy_type;
-    typedef typename bg::strategy::intersection::services::default_strategy
-        <
-            typename bg::cs_tag<Geometry>::type
-        >::type strategy_type;
     typedef bg::detail::no_rescale_policy rescale_policy_type;
     typedef bg::detail::overlay::turn_info
         <
@@ -71,7 +63,7 @@ static void test_self_intersection_points(std::string const& case_id,
 
     std::vector<turn_info> turns;
 
-    strategy_type strategy;
+
     rescale_policy_type rescale_policy
     ;
            // = bg::get_rescale_policy<rescale_policy_type>(geometry);
@@ -81,7 +73,7 @@ static void test_self_intersection_points(std::string const& case_id,
     bg::self_turns
         <
             bg::detail::overlay::assign_null_policy
-        >(geometry, strategy, rescale_policy, turns, policy);
+        >(geometry, rescale_policy, turns, policy);
 
 
     typedef typename bg::coordinate_type<Geometry>::type ct;
@@ -92,7 +84,7 @@ static void test_self_intersection_points(std::string const& case_id,
         x += bg::get<0>(turn.point);
         y += bg::get<1>(turn.point);
     }
-    std::size_t n = boost::size(turns);
+    int n = boost::size(turns);
     if (n > 0)
     {
         x /= n;

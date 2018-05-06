@@ -13,7 +13,8 @@
 #include "demo_gps.hpp"
 #include "log_archive.hpp"
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[])
+{   
     // make the schedule
     bus_schedule schedule;
 
@@ -64,7 +65,7 @@ int main(int argc, char *argv[]){
 
     // display the complete schedule
     log_archive oa(std::cout);
-    oa << BOOST_SERIALIZATION_NVP(schedule);
+    //oa << BOOST_SERIALIZATION_NVP(schedule);
     oa << schedule;
 
     delete bs0;
@@ -73,4 +74,3 @@ int main(int argc, char *argv[]){
     delete bs3;
     return 0;
 }
-

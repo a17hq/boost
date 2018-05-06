@@ -38,15 +38,15 @@ void hyp0F1(T& result, const T& b, const T& x)
 
    T tol;
    tol = ui_type(1);
-   eval_ldexp(tol, tol, 1 - boost::multiprecision::detail::digits2<number<T, et_on> >::value());
+   eval_ldexp(tol, tol, 1 - boost::multiprecision::detail::digits2<number<T, et_on> >::value);
    eval_multiply(tol, result);
    if(eval_get_sign(tol) < 0)
       tol.negate();
    T term;
 
-   const int series_limit = 
-      boost::multiprecision::detail::digits2<number<T, et_on> >::value() < 100
-      ? 100 : boost::multiprecision::detail::digits2<number<T, et_on> >::value();
+   static const int series_limit = 
+      boost::multiprecision::detail::digits2<number<T, et_on> >::value < 100
+      ? 100 : boost::multiprecision::detail::digits2<number<T, et_on> >::value;
    // Series expansion of hyperg_0f1(; b; x).
    for(n = 2; n < series_limit; ++n)
    {
@@ -91,15 +91,12 @@ void eval_sin(T& result, const T& x)
    case FP_INFINITE:
    case FP_NAN:
       if(std::numeric_limits<number<T, et_on> >::has_quiet_NaN)
-      {
          result = std::numeric_limits<number<T, et_on> >::quiet_NaN().backend();
-         errno = EDOM;
-      }
       else
          BOOST_THROW_EXCEPTION(std::domain_error("Result is undefined or complex and there is no NaN for this number type."));
       return;
    case FP_ZERO:
-      result = x;
+      result = ui_type(0);
       return;
    default: ;
    }
@@ -128,13 +125,7 @@ void eval_sin(T& result, const T& x)
       eval_fmod(t, n_pi, t);
       const bool b_n_pi_is_even = eval_get_sign(t) == 0;
       eval_multiply(n_pi, get_constant_pi<T>());
-      if (n_pi.compare(get_constant_one_over_epsilon<T>()) > 0)
-      {
-         result = ui_type(0);
-         return;
-      }
-      else
-         eval_subtract(xx, n_pi);
+      eval_subtract(xx, n_pi);
 
       BOOST_MATH_INSTRUMENT_CODE(xx.str(0, std::ios_base::scientific));
       BOOST_MATH_INSTRUMENT_CODE(n_pi.str(0, std::ios_base::scientific));
@@ -247,10 +238,7 @@ void eval_cos(T& result, const T& x)
    case FP_INFINITE:
    case FP_NAN:
       if(std::numeric_limits<number<T, et_on> >::has_quiet_NaN)
-      {
          result = std::numeric_limits<number<T, et_on> >::quiet_NaN().backend();
-         errno = EDOM;
-      }
       else
          BOOST_THROW_EXCEPTION(std::domain_error("Result is undefined or complex and there is no NaN for this number type."));
       return;
@@ -282,20 +270,7 @@ void eval_cos(T& result, const T& x)
       BOOST_MATH_INSTRUMENT_CODE(n_pi.str(0, std::ios_base::scientific));
       eval_multiply(t, n_pi, get_constant_pi<T>());
       BOOST_MATH_INSTRUMENT_CODE(t.str(0, std::ios_base::scientific));
-      //
-      // If t is so large that all digits cancel the result of this subtraction
-      // is completely meaningless, just assume the result is zero for now...
-      //
-      // TODO We should of course do much better, see:
-      // "ARGUMENT REDUCTION FOR HUGE ARGUMENTS" K C Ng 1992
-      //
-      if (n_pi.compare(get_constant_one_over_epsilon<T>()) > 0)
-      {
-         result = ui_type(1);
-         return;
-      }
-      else
-         eval_subtract(xx, t);
+      eval_subtract(xx, t);
       BOOST_MATH_INSTRUMENT_CODE(xx.str(0, std::ios_base::scientific));
 
       // Adjust signs if the multiple of pi is not even.
@@ -390,7 +365,7 @@ void hyp2F1(T& result, const T& a, const T& b, const T& c, const T& x)
    eval_add(result, ui_type(1));
 
    T lim;
-   eval_ldexp(lim, result, 1 - boost::multiprecision::detail::digits2<number<T, et_on> >::value());
+   eval_ldexp(lim, result, 1 - boost::multiprecision::detail::digits2<number<T, et_on> >::value);
 
    if(eval_get_sign(lim) < 0)
       lim.negate();
@@ -398,9 +373,9 @@ void hyp2F1(T& result, const T& a, const T& b, const T& c, const T& x)
    ui_type n;
    T term;
 
-   const unsigned series_limit = 
-      boost::multiprecision::detail::digits2<number<T, et_on> >::value() < 100
-      ? 100 : boost::multiprecision::detail::digits2<number<T, et_on> >::value();
+   static const unsigned series_limit = 
+      boost::multiprecision::detail::digits2<number<T, et_on> >::value < 100
+      ? 100 : boost::multiprecision::detail::digits2<number<T, et_on> >::value;
    // Series expansion of hyperg_2f1(a, b; c; x).
    for(n = 2; n < series_limit; ++n)
    {
@@ -447,15 +422,12 @@ void eval_asin(T& result, const T& x)
    case FP_NAN:
    case FP_INFINITE:
       if(std::numeric_limits<number<T, et_on> >::has_quiet_NaN)
-      {
          result = std::numeric_limits<number<T, et_on> >::quiet_NaN().backend();
-         errno = EDOM;
-      }
       else
          BOOST_THROW_EXCEPTION(std::domain_error("Result is undefined or complex and there is no NaN for this number type."));
       return;
    case FP_ZERO:
-      result = x;
+      result = ui_type(0);
       return;
    default: ;
    }
@@ -470,10 +442,7 @@ void eval_asin(T& result, const T& x)
    if(c > 0)
    {
       if(std::numeric_limits<number<T, et_on> >::has_quiet_NaN)
-      {
          result = std::numeric_limits<number<T, et_on> >::quiet_NaN().backend();
-         errno = EDOM;
-      }
       else
          BOOST_THROW_EXCEPTION(std::domain_error("Result is undefined or complex and there is no NaN for this number type."));
       return;
@@ -517,27 +486,18 @@ void eval_asin(T& result, const T& x)
          result.negate();
       return;
    }
-#ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-   typedef typename boost::multiprecision::detail::canonical<long double, T>::type guess_type;
-#else
-   typedef fp_type guess_type;
-#endif
+
    // Get initial estimate using standard math function asin.
-   guess_type dd;
+   double dd;
    eval_convert_to(&dd, xx);
 
-   result = (guess_type)(std::asin(dd));
+   result = fp_type(std::asin(dd));
 
-   // Newton-Raphson iteration, we should double our precision with each iteration, 
-   // in practice this seems to not quite work in all cases... so terminate when we
-   // have at least 2/3 of the digits correct on the assumption that the correction 
-   // we've just added will finish the job...
-
-   boost::intmax_t current_precision = eval_ilogb(result);
-   boost::intmax_t target_precision = current_precision - 1 - (std::numeric_limits<number<T> >::digits * 2) / 3;
+   unsigned current_digits = std::numeric_limits<double>::digits - 5;
+   unsigned target_precision = boost::multiprecision::detail::digits2<number<T, et_on> >::value;
 
    // Newton-Raphson iteration
-   while(current_precision > target_precision)
+   while(current_digits < target_precision)
    {
       T sine, cosine;
       eval_sin(sine, result);
@@ -545,9 +505,18 @@ void eval_asin(T& result, const T& x)
       eval_subtract(sine, xx);
       eval_divide(sine, cosine);
       eval_subtract(result, sine);
-      current_precision = eval_ilogb(sine);
-      if(current_precision <= (std::numeric_limits<typename T::exponent_type>::min)() + 1)
+
+      current_digits *= 2;
+      /*
+      T lim;
+      eval_ldexp(lim, result, 1 - boost::multiprecision::detail::digits2<number<T, et_on> >::value);
+      if(eval_get_sign(s) < 0)
+         s.negate();
+      if(eval_get_sign(lim) < 0)
+         lim.negate();
+      if(lim.compare(s) >= 0)
          break;
+         */
    }
    if(b_neg)
       result.negate();
@@ -564,10 +533,7 @@ inline void eval_acos(T& result, const T& x)
    case FP_NAN:
    case FP_INFINITE:
       if(std::numeric_limits<number<T, et_on> >::has_quiet_NaN)
-      {
          result = std::numeric_limits<number<T, et_on> >::quiet_NaN().backend();
-         errno = EDOM;
-      }
       else
          BOOST_THROW_EXCEPTION(std::domain_error("Result is undefined or complex and there is no NaN for this number type."));
       return;
@@ -583,10 +549,7 @@ inline void eval_acos(T& result, const T& x)
    if(c > 0)
    {
       if(std::numeric_limits<number<T, et_on> >::has_quiet_NaN)
-      {
          result = std::numeric_limits<number<T, et_on> >::quiet_NaN().backend();
-         errno = EDOM;
-      }
       else
          BOOST_THROW_EXCEPTION(std::domain_error("Result is undefined or complex and there is no NaN for this number type."));
       return;
@@ -619,10 +582,9 @@ void eval_atan(T& result, const T& x)
    {
    case FP_NAN:
       result = x;
-      errno = EDOM;
       return;
    case FP_ZERO:
-      result = x;
+      result = ui_type(0);
       return;
    case FP_INFINITE:
       if(eval_get_sign(x) < 0)
@@ -680,16 +642,11 @@ void eval_atan(T& result, const T& x)
    eval_convert_to(&d, xx);
    result = fp_type(std::atan(d));
 
-   // Newton-Raphson iteration, we should double our precision with each iteration, 
-   // in practice this seems to not quite work in all cases... so terminate when we
-   // have at least 2/3 of the digits correct on the assumption that the correction 
-   // we've just added will finish the job...
-
-   boost::intmax_t current_precision = eval_ilogb(result);
-   boost::intmax_t target_precision = current_precision - 1 - (std::numeric_limits<number<T> >::digits * 2) / 3;
+   // Newton-Raphson iteration
+   static const boost::int32_t double_digits10_minus_a_few = std::numeric_limits<double>::digits10 - 3;
 
    T s, c, t;
-   while(current_precision > target_precision)
+   for(boost::int32_t digits = double_digits10_minus_a_few; digits <= std::numeric_limits<number<T, et_on> >::digits10; digits *= 2)
    {
       eval_sin(s, result);
       eval_cos(c, result);
@@ -697,9 +654,6 @@ void eval_atan(T& result, const T& x)
       eval_subtract(t, s);
       eval_multiply(s, t, c);
       eval_add(result, s);
-      current_precision = eval_ilogb(s);
-      if(current_precision <= (std::numeric_limits<typename T::exponent_type>::min)() + 1)
-         break;
    }
    if(b_neg)
       result.negate();
@@ -728,41 +682,24 @@ void eval_atan2(T& result, const T& y, const T& x)
    {
    case FP_NAN:
       result = y;
-      errno = EDOM;
       return;
    case FP_ZERO:
       {
-         if(eval_signbit(x))
-         {
+         int c = eval_get_sign(x);
+         if(c < 0)
             result = get_constant_pi<T>();
-            if(eval_signbit(y))
-               result.negate();
-         }
-         else
-         {
-            result = y; // Note we allow atan2(0,0) to be +-zero, even though it's mathematically undefined
-         }
+         else if(c >= 0)
+            result = ui_type(0); // Note we allow atan2(0,0) to be zero, even though it's mathematically undefined
          return;
       }
    case FP_INFINITE:
       {
          if(eval_fpclassify(x) == FP_INFINITE)
          {
-            if(eval_signbit(x))
-            {
-               // 3Pi/4
-               eval_ldexp(result, get_constant_pi<T>(), -2);
-               eval_subtract(result, get_constant_pi<T>());
-               if(eval_get_sign(y) >= 0)
-                  result.negate();
-            }
+            if(std::numeric_limits<number<T, et_on> >::has_quiet_NaN)
+               result = std::numeric_limits<number<T, et_on> >::quiet_NaN().backend();
             else
-            {
-               // Pi/4
-               eval_ldexp(result, get_constant_pi<T>(), -2);
-               if(eval_get_sign(y) < 0)
-                  result.negate();
-            }
+               BOOST_THROW_EXCEPTION(std::domain_error("Result is undefined or complex and there is no NaN for this number type."));
          }
          else
          {
@@ -778,7 +715,6 @@ void eval_atan2(T& result, const T& y, const T& x)
    {
    case FP_NAN:
       result = x;
-      errno = EDOM;
       return;
    case FP_ZERO:
       {

@@ -494,6 +494,18 @@ class test_main_template
                  , Default_Holder
                  , std::vector< value_type >
                 >::test_all(data);
+      make_and_test_slist < typename detail::get_member_value_traits
+                  < member_hook< value_type
+                               , typename hooks<VoidPointer>::member_hook_type
+                               , &value_type::node_
+                               >
+                  >::type
+                 , constant_time_size
+                 , false
+                 , false
+                 , Default_Holder
+                 , std::vector< value_type >
+                >::test_all(data);
       make_and_test_slist < nonhook_node_member_value_traits< value_type,
                                                      typename hooks<VoidPointer>::nonhook_node_member_type,
                                                      &value_type::nhn_member_,
@@ -507,6 +519,17 @@ class test_main_template
                 >::test_all(data);
 
       //Now linear slists
+      make_and_test_slist < typename detail::get_base_value_traits
+                  < value_type
+                  , typename hooks<VoidPointer>::base_hook_type
+                  >::type
+                 , constant_time_size
+                 , true
+                 , false
+                 , Default_Holder
+                 , std::vector< value_type >
+                >::test_all(data);
+
       make_and_test_slist < typename detail::get_member_value_traits
                   < member_hook< value_type
                                , typename hooks<VoidPointer>::member_hook_type
@@ -531,11 +554,36 @@ class test_main_template
                  , Default_Holder
                  , std::vector< value_type >
                 >::test_all(data);
+      make_and_test_slist < typename detail::get_member_value_traits
+                  < member_hook< value_type
+                               , typename hooks<VoidPointer>::member_hook_type
+                               , &value_type::node_
+                               >
+                  >::type
+                 , constant_time_size
+                 , false
+                 , true
+                 , Default_Holder
+                 , std::vector< value_type >
+                >::test_all(data);
 
       //Now linear slists
       make_and_test_slist < typename detail::get_base_value_traits
                   < value_type
                   , typename hooks<VoidPointer>::base_hook_type
+                  >::type
+                 , constant_time_size
+                 , true
+                 , true
+                 , Default_Holder
+                 , std::vector< value_type >
+                >::test_all(data);
+
+      make_and_test_slist < typename detail::get_member_value_traits
+                  < member_hook< value_type
+                               , typename hooks<VoidPointer>::member_hook_type
+                               , &value_type::node_
+                               >
                   >::type
                  , constant_time_size
                  , true
@@ -560,6 +608,30 @@ class test_main_template<VoidPointer, false, Default_Holder>
 
       make_and_test_slist < typename detail::get_base_value_traits
                   < value_type
+                  , typename hooks<VoidPointer>::base_hook_type
+                  >::type
+                 , false
+                 , false
+                 , false
+                 , Default_Holder
+                 , std::vector< value_type >
+                >::test_all(data);
+
+      make_and_test_slist < typename detail::get_member_value_traits
+                  < member_hook< value_type
+                               , typename hooks<VoidPointer>::member_hook_type
+                               , &value_type::node_
+                               >
+                  >::type
+                 , false
+                 , false
+                 , false
+                 , Default_Holder
+                 , std::vector< value_type >
+                >::test_all(data);
+
+      make_and_test_slist < typename detail::get_base_value_traits
+                  < value_type
                   , typename hooks<VoidPointer>::auto_base_hook_type
                   >::type
                  , false
@@ -569,14 +641,26 @@ class test_main_template<VoidPointer, false, Default_Holder>
                  , std::vector< value_type >
                 >::test_all(data);
 
-      make_and_test_slist < nonhook_node_member_value_traits< value_type,
-                                                     typename hooks<VoidPointer>::nonhook_node_member_type,
-                                                     &value_type::nhn_member_,
-                                                     safe_link
-                                                   >
+      make_and_test_slist < typename detail::get_member_value_traits
+                  < member_hook< value_type
+                               , typename hooks<VoidPointer>::auto_member_hook_type
+                               , &value_type::auto_node_
+                               >
+                  >::type
                  , false
+                 , false
+                 , false
+                 , Default_Holder
+                 , std::vector< value_type >
+                >::test_all(data);
+
+      make_and_test_slist < typename detail::get_base_value_traits
+                  < value_type
+                  , typename hooks<VoidPointer>::base_hook_type
+                  >::type
                  , false
                  , true
+                 , false
                  , Default_Holder
                  , std::vector< value_type >
                 >::test_all(data);
@@ -594,6 +678,31 @@ class test_main_template<VoidPointer, false, Default_Holder>
                  , std::vector< value_type >
                 >::test_all(data);
 
+      //Now cache last
+      make_and_test_slist < typename detail::get_base_value_traits
+                  < value_type
+                  , typename hooks<VoidPointer>::base_hook_type
+                  >::type
+                 , false
+                 , false
+                 , true
+                 , Default_Holder
+                 , std::vector< value_type >
+                >::test_all(data);
+
+      make_and_test_slist < typename detail::get_member_value_traits
+                  < member_hook< value_type
+                               , typename hooks<VoidPointer>::member_hook_type
+                               , &value_type::node_
+                               >
+                  >::type
+                 , false
+                 , false
+                 , true
+                 , Default_Holder
+                 , std::vector< value_type >
+                >::test_all(data);
+
       make_and_test_slist < typename detail::get_base_value_traits
                   < value_type
                   , typename hooks<VoidPointer>::base_hook_type
@@ -605,6 +714,18 @@ class test_main_template<VoidPointer, false, Default_Holder>
                  , std::vector< value_type >
                 >::test_all(data);
 
+      make_and_test_slist < typename detail::get_member_value_traits
+                  < member_hook< value_type
+                               , typename hooks<VoidPointer>::member_hook_type
+                               , &value_type::node_
+                               >
+                  >::type
+                 , false
+                 , true
+                 , true
+                 , Default_Holder
+                 , std::vector< value_type >
+                >::test_all(data);
       return 0;
    }
 };

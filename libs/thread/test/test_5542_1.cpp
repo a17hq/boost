@@ -31,7 +31,7 @@ public:
 
     void processQueue(unsigned N)
     {
-        unsigned ms = N * 1000;
+        float ms = N * 1e3;
         boost::posix_time::milliseconds workTime(ms);
 
 //        std::cout << "Worker: started, will work for "

@@ -88,7 +88,6 @@ struct perform_stepper_test
     typedef T vector_space_type;
     void operator()( void ) const
     {
-        using std::abs;
         vector_space_type x;
         x = 2.0;
         Stepper stepper;

@@ -83,7 +83,7 @@ namespace aux {
         template< typename T >
         void operator() (T const& val) const
         {
-            mapped_type v = { static_cast< IntT >(val) };
+            mapped_type v = { val };
             m_Extracted = v;
         }
 

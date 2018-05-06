@@ -13,14 +13,11 @@
 #define BOOST_TEST_MODULE test_is_valid
 #endif
 
-#include <limits>
 #include <iostream>
 
 #include <boost/test/included/unit_test.hpp>
 
 #include "test_is_valid.hpp"
-
-#include <boost/geometry/core/coordinate_type.hpp>
 
 #include <boost/geometry/algorithms/correct.hpp>
 #include <boost/geometry/algorithms/intersection.hpp>
@@ -716,67 +713,6 @@ inline void test_open_polygons()
                    0.7808688094430304 -0.6246950475544243,\
                    0.7808688094430304 -0.6246950475544243))",
          AllowDuplicates);
-
-
-    // MySQL report on Sep 30, 2015
-    test::apply
-        ("pg077",
-         "POLYGON((72.8714768817168 -167.0048853643874,9274.40641550926 3433.5957427942167,-58.09039811390054 187.50989457746405,-81.09039811390053 179.50989457746405,-207.99999999999997 135.36742435621204,-208 1,-208 0,-208 -276.9111154485375,49.8714768817168 -176.0048853643874))",
-         true);
-
-    test::apply("pg077-simplified",
-                "POLYGON((-200 0,-207.99999999999997 135.36742435621204,-208 1,-208 0,-208 -276.9111154485375))",
-                true);
-
-    test::apply
-        ("pg078",
-         "POLYGON((0 10,-10 0,0 0,10 0))",
-         true);
-
-    test::apply
-        ("pg078spike1",
-         "POLYGON((0 10,-10 0,0 0,-10 0,10 0))",
-         false);
-
-    test::apply
-        ("pg078spike2",
-         "POLYGON((0 10,-10 0,0 0,-8 0,10 0))",
-         false);
-
-    test::apply
-        ("pg078spike3",
-         "POLYGON((0 10,-10 0,0 0,-11 0,10 0))",
-         false);
-
-    test::apply
-        ("pg078reversed",
-         "POLYGON((0 10,10 0,0 0,-10 0))",
-         false);
-
-    test::apply
-        ("pg079",
-         "POLYGON((10 0,0 10,0 0,0 -10))",
-         true);
-
-    test::apply
-        ("pg079spike1",
-         "POLYGON((10 0,0 10,0 0,0 10,0 -10))",
-         false);
-
-    test::apply
-        ("pg079spike2",
-         "POLYGON((10 0,0 10,0 0,0 8,0 -10))",
-         false);
-
-    test::apply
-        ("pg079spike3",
-         "POLYGON((10 0,0 10,0 0,0 11,0 -10))",
-         false);
-
-    test::apply
-        ("pg079reversed",
-         "POLYGON((10 0,0 -10,0 0,0 10))",
-         false);
 }
 
 template <typename Point>
@@ -811,8 +747,6 @@ BOOST_AUTO_TEST_CASE( test_is_valid_polygon )
 template <typename Point, bool AllowDuplicates>
 inline void test_open_multipolygons()
 {
-    // WKT of multipolygons should be defined as ccw, open
-
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
     std::cout << "************************************" << std::endl;
@@ -950,29 +884,6 @@ inline void test_open_multipolygons()
         // polygon contains a spike
         test::apply("mpg20", open_mpgn, false);
     }
-
-    // Interior ring touches exterior ring, which at that same point touches another exterior ring in (1 2)
-    test::apply
-        ("mpg21",
-        "MULTIPOLYGON(((2 3,1 2,1 0,2 0,2 1,4 3),(2 2,1.5 1.5,1 2)),((0 3,0 2,1 2)))",
-         true);
-
-    // Two interior rings touch each other in (10 5)
-    test::apply
-        ("mpg22",
-        "MULTIPOLYGON(((10 5,5 10,0 5,5 0),(10 5,5 4,4 6)),((10 5,10 0,20 0,20 10,10 10),(10 5,18 8,15 3)))",
-         true);
-
-    // Two polygons, one inside interior of other one, touching all at same point (0,0)
-    test::apply
-        ("mpg23",
-        "MULTIPOLYGON(((0 0,10 0,10 10,0 10),(0 0,1 9,9 9,9 1)),((0 0,8 2,8 8,2 8)))",
-         true);
-
-    test::apply
-        ("ticket_12503",
-        "MULTIPOLYGON(((15 20,12 23,15 17,15 20)),((36 25,35 25,34 24,34 23,35 23,36 25)),((15 15,10 13,11 23,12 23,12 25,10 25,7 24,8 6,15 15)),((12 29,11 30,12 30,11 31,13 31,13 34,6 38,6 32,8 31,12 27,12 29)),((9 26,6 31,7 26,7 24,9 26)),((15 48,15 45,18 44,15 48)),((38 39,18 44,26 34,38 39)),((15 45,13 34,15 33,15 45)),((17 32,15 33,15 32,17 32)),((21 31,16 38,18 32,17 32,19 30,21 31)),((15 32,13 31,13 30,15 29,15 32)),((17 29,15 29,15 28,17 29)),((15 28,13 30,12 29,14 27,15 28)),((26 27,28 30,31 27,26 34,21 31,22 29,19 30,18 30,17 29,19 29,19 28,23 28,24 27,25 27,24 26,25 24,30 24,26 27)),((17 26,15 28,15 26,17 26)),((32 26,34 27,31 27,27 27,32 26)),((19 26,17 26,19 25,19 26)),((35 23,33 18,41 15,35 23)),((24 26,24 27,19 26,20 25,23 24,24 26)),((32 13,49 1,48 4,46 5,33 15,32 13)),((33 25,32 26,32 25,31 24,32 23,33 25)),((42 15,43 22,44 22,44 23,43 23,35 23,42 15)),((44 42,38 39,40 39,39 34,34 27,33 25,35 25,38 31,36 25,43 23,44 42)),((48 46,44 23,48 22,48 46)),((15 3,23 2,18 11,15 3)),((30 19,28 20,27 21,25 24,23 24,22 23,26 20,29 17,30 19)),((24 19,21 21,21 20,22 19,24 19)),((31 24,30 24,27 21,31 22,30 19,31 19,34 23,31 23,31 24)),((21 20,20 21,21 18,21 20)),((14 26,12 26,12 25,15 25,15 20,17 17,20 21,21 21,22 23,20 24,19 25,16 25,15 26,14 27,14 26),(17 24,20 22,20 21,17 24)),((23 18,22 19,22 17,23 18)),((28 13,31 10,32 13,30 15,28 13)),((18 17,17 17,16 16,18 17)),((16 16,15 17,15 15,16 16)),((30 17,29 17,29 16,30 15,30 17)),((33 18,31 19,30 17,33 15,33 18)),((42 13,47 7,48 4,48 22,44 22,43 14,42 13)),((42 15,41 15,42 14,43 14,42 15)),((24 2,49 1,27 11,23 13,25 6,27 10,24 2)),((29 16,24 19,23 18,28 13,29 16)),((17 13,16 15,15 15,15 11,17 13)),((20 14,23 13,22 17,20 15,21 17,21 18,18 17,19 15,17 13,18 11,20 14)),((5 3,15 3,15 11,8 5,8 6,5 3)))",
-         true);
 
     // MySQL report 12.06.2015
     {
@@ -1197,142 +1108,14 @@ inline void test_open_multipolygons()
 
 BOOST_AUTO_TEST_CASE( test_is_valid_multipolygon )
 {
-    test_open_multipolygons<point_type, true>();
-    test_open_multipolygons<point_type, false>();
+    bool const allow_duplicates = true;
+    bool const do_not_allow_duplicates = !allow_duplicates;
+
+    test_open_multipolygons<point_type, allow_duplicates>();
+    test_open_multipolygons<point_type, do_not_allow_duplicates>();
 }
 
-
-template <typename CoordinateType, typename Geometry>
-inline void check_one(Geometry const& geometry)
-{
-    bool const is_fp = boost::is_floating_point<CoordinateType>::value;
-
-    bg::validity_failure_type failure;
-    bool validity = bg::is_valid(geometry, failure);
-    if (BOOST_GEOMETRY_CONDITION(is_fp))
-    {
-        BOOST_CHECK(! validity);
-        BOOST_CHECK(failure == bg::failure_invalid_coordinate);
-    }
-    else
-    {
-        BOOST_CHECK(failure == bg::no_failure
-                    || failure != bg::failure_invalid_coordinate);
-    }
-}
-
-template <typename P, typename CoordinateType>
-inline void test_with_invalid_coordinate(CoordinateType invalid_value)
-{
-    typedef bg::model::segment<P> segment_t;
-    typedef bg::model::box<P> box_t;
-    typedef bg::model::linestring<P> linestring_t;
-    typedef bg::model::ring<P> ring_t; // cw, closed
-    typedef bg::model::polygon<P> polygon_t; // cw, closed
-    typedef bg::model::multi_point<P> multi_point_t;
-    typedef bg::model::multi_linestring<linestring_t> multi_linestring_t;
-    typedef bg::model::multi_polygon<polygon_t> multi_polygon_t;
-
-    typedef typename bg::coordinate_type<P>::type coord_t;
-
-    std::string wkt_point = "POINT(1 1)";
-    std::string wkt_segment = "LINESTRING(1 1,10 20)";
-    std::string wkt_box = "BOX(1 1,10 20)";
-    std::string wkt_linestring = "LINESTRING(1 1,2 3,4 -5)";
-    std::string wkt_ring = "POLYGON((1 1,2 2,2 1,1 1))";
-    std::string wkt_polygon = "POLYGON((1 1,1 200,200 200,200 1,1 1),(50 50,50 51,49 50,50 50))";
-    std::string wkt_multipoint = "MULTIPOINT(1 1,2 3,4 -5,-5 2)";
-    std::string wkt_multilinestring =
-        "MULTILINESTRING((1 1,2 3,4 -5),(-4 -2,-8 9))";
-    std::string wkt_multipolygon = "MULTIPOLYGON(((1 1,1 200,200 200,200 1,1 1),(50 50,50 51,49 50,50 50)),((500 500,550 550,550 500,500 500)))";
-
-    {
-        P p;
-        bg::read_wkt(wkt_point, p);
-        BOOST_CHECK(bg::is_valid(p));
-        bg::set<1>(p, invalid_value);
-        check_one<coord_t>(p);
-    }
-    {
-        segment_t s;
-        bg::read_wkt(wkt_segment, s);
-        BOOST_CHECK(bg::is_valid(s));
-        bg::set<1, 1>(s, invalid_value);
-        check_one<coord_t>(s);
-    }
-    {
-        box_t b;
-        bg::read_wkt(wkt_box, b);
-        BOOST_CHECK(bg::is_valid(b));
-        bg::set<1, 0>(b, invalid_value);
-        check_one<coord_t>(b);
-    }
-    {
-        linestring_t ls;
-        bg::read_wkt(wkt_linestring, ls);
-        BOOST_CHECK(bg::is_valid(ls));
-        bg::set<1>(ls[1], invalid_value);
-        check_one<coord_t>(ls);
-    }
-    {
-        ring_t r;
-        bg::read_wkt(wkt_ring, r);
-        BOOST_CHECK(bg::is_valid(r));
-        bg::set<0>(r[1], invalid_value);
-        check_one<coord_t>(r);
-    }
-    {
-        polygon_t pgn;
-        bg::read_wkt(wkt_polygon, pgn);
-        BOOST_CHECK(bg::is_valid(pgn));
-        bg::set<0>(bg::interior_rings(pgn)[0][1], invalid_value);
-        check_one<coord_t>(pgn);
-    }
-    {
-        multi_point_t mp;
-        bg::read_wkt(wkt_multipoint, mp);
-        BOOST_CHECK(bg::is_valid(mp));
-        bg::set<0>(mp[2], invalid_value);
-        check_one<coord_t>(mp);
-    }
-    {
-        multi_linestring_t mls;
-        bg::read_wkt(wkt_multilinestring, mls);
-        BOOST_CHECK(bg::is_valid(mls));
-        bg::set<0>(mls[1][1], invalid_value);
-        check_one<coord_t>(mls);
-    }
-    {
-        multi_polygon_t mpgn;
-        bg::read_wkt(wkt_multipolygon, mpgn);
-        BOOST_CHECK(bg::is_valid(mpgn));
-        bg::set<0>(bg::exterior_ring(mpgn[1])[1], invalid_value);
-        check_one<coord_t>(mpgn);
-    }
-}
-
-template <typename P>
-inline void test_with_invalid_coordinate()
-{
-    typedef typename bg::coordinate_type<P>::type coord_t;
-
-    coord_t const q_nan = std::numeric_limits<coord_t>::quiet_NaN();
-    coord_t const inf = std::numeric_limits<coord_t>::infinity();
-
-    test_with_invalid_coordinate<P, coord_t>(q_nan);
-    test_with_invalid_coordinate<P, coord_t>(inf);
-}
-
-BOOST_AUTO_TEST_CASE( test_geometries_with_invalid_coordinates )
-{
-    typedef point_type fp_point_type;
-    typedef bg::model::point<int, 2, bg::cs::cartesian> int_point_type;
-
-    test_with_invalid_coordinate<fp_point_type>();
-    test_with_invalid_coordinate<int_point_type>();
-}
-
-BOOST_AUTO_TEST_CASE( test_with_NaN_coordinates )
+BOOST_AUTO_TEST_CASE( test_geometry_with_NaN_coordinates )
 {
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
     std::cout << std::endl << std::endl;
@@ -1356,12 +1139,12 @@ BOOST_AUTO_TEST_CASE( test_with_NaN_coordinates )
     test_valid
         <
             tester_allow_spikes, multi_linestring_type
-        >::apply("mls-NaN", mls, false);
+        >::apply("mls-NaN", mls, true);
 
     test_valid
         <
             tester_disallow_spikes, multi_linestring_type
-        >::apply("mls-NaN", mls, false);
+        >::apply("mls-NaN", mls, true);
 }
 
 BOOST_AUTO_TEST_CASE( test_is_valid_variant )

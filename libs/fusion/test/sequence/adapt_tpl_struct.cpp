@@ -45,7 +45,7 @@ namespace ns
         (X)(Y),
         (ns::point)(X)(Y),
         x,
-        (auto, y)
+        (BOOST_FUSION_ADAPT_AUTO, y)
         (int, z)
     )
 
@@ -60,12 +60,12 @@ namespace ns
         (ns::point)(X)(Y),
         (X, x)
         (Y, y)
-        (auto, z)
+        (BOOST_FUSION_ADAPT_AUTO, z)
     )
 
     template<typename M>
     struct s { M m; };
-    BOOST_FUSION_ADAPT_TPL_STRUCT((M), (s)(M), (auto, m))
+    BOOST_FUSION_ADAPT_TPL_STRUCT((M), (s)(M), (BOOST_FUSION_ADAPT_AUTO, m))
 
 #endif
 
@@ -117,9 +117,9 @@ main()
     }
 
     {
-        vector<int, float, int> v1(4, 2.f, 2);
+        vector<int, float, int> v1(4, 2, 2);
         point v2 = {5, 3, 3};
-        vector<long, double, int> v3(5, 4., 4);
+        vector<long, double, int> v3(5, 4, 4);
         BOOST_TEST(v1 < v2);
         BOOST_TEST(v1 <= v2);
         BOOST_TEST(v2 > v1);

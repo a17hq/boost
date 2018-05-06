@@ -11,8 +11,6 @@
 #include <cstddef> // NULL
 #include <fstream>
 
-#include <boost/config.hpp>
-
 #include "test_tools.hpp"
 
 #include <boost/serialization/level.hpp>

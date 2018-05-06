@@ -111,11 +111,9 @@ void test_3d()
 
 }
 
-
 int test_main(int, char* [])
 {
     test_all<bg::model::d2::point_xy<float> >();
-    
     test_all<bg::model::d2::point_xy<double> >();
 
 #ifdef HAVE_TTMATH
@@ -123,6 +121,7 @@ int test_main(int, char* [])
 #endif
 
     test_3d<bg::model::point<double, 3, bg::cs::cartesian> >();
-    
+
+
     return 0;
 }

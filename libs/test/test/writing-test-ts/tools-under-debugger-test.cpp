@@ -17,10 +17,7 @@
 #define BOOST_TEST_MODULE tools under debugger test
 #include <boost/test/unit_test.hpp>
 
-// STL
 #include <exception>
-
-//____________________________________________________________________________//
 
 static int
 foo( int arg )
@@ -31,9 +28,6 @@ foo( int arg )
   return arg * arg;
 }
 
-//____________________________________________________________________________//
-
-#ifndef BOOST_TEST_MACRO_LIMITED_SUPPORT
 BOOST_AUTO_TEST_CASE( test )
 {
     int i = 2;
@@ -43,16 +37,7 @@ BOOST_AUTO_TEST_CASE( test )
 
     BOOST_CHECK_THROW( foo(0), std::runtime_error );
 }
-#endif
 
-BOOST_AUTO_TEST_CASE( test2 )
-{
-    int i = 2;
-    BOOST_CHECK( foo(i)+1 == 5 );
-
-    BOOST_CHECK_MESSAGE( foo(i)+1 == 5, "My message" );
-
-    BOOST_CHECK_THROW( foo(0), std::runtime_error );
-}
+//____________________________________________________________________________//
 
 // EOF

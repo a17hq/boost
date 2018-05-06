@@ -13,24 +13,21 @@
 # pragma warning (disable : 4786) // too long name, harmless warning
 #endif
 
-// STL
-#include <set>
-#include <functional>
-#include <algorithm>
+#include <boost/assert.hpp>
 #include <cstddef> // NULL
 #ifdef BOOST_SERIALIZATION_LOG
 #include <iostream>
 #endif
 
-// BOOST
-#include <boost/config.hpp>
+// STL
+#include <set>
+#include <functional>
+#include <algorithm>
 #include <boost/assert.hpp>
 
+// BOOST
 #define BOOST_SERIALIZATION_SOURCE
 #include <boost/serialization/config.hpp>
-// it marks our code with proper attributes as being exported when
-// we're compiling it while marking it import when just the headers
-// is being included.
 #include <boost/serialization/singleton.hpp>
 #include <boost/serialization/extended_type_info.hpp>
 #include <boost/serialization/void_cast.hpp>
@@ -276,7 +273,6 @@ void_caster::recursive_register(bool includes_virtual_base) const {
 
 BOOST_SERIALIZATION_DECL void
 void_caster::recursive_unregister() const {
-    BOOST_ASSERT(! void_caster_registry::is_destroyed());
     if(void_caster_registry::is_destroyed())
         return;
 

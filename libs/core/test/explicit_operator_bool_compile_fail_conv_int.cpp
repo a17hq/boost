@@ -35,7 +35,6 @@ int main(int, char*[])
 {
     checkable val;
     int n = val;
-    (void)n;
 
     return 0;
 }

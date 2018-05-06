@@ -43,14 +43,10 @@ class reverse_iterator
 
    reverse_iterator()
       : m_current()  //Value initialization to achieve "null iterators" (N3644)
-   {}
+      {}
 
    explicit reverse_iterator(It r)
       : m_current(r)
-   {}
-
-   reverse_iterator(const reverse_iterator& r)
-      : m_current(r.base())
    {}
 
    template<class OtherIt>
@@ -59,9 +55,6 @@ class reverse_iterator
                    )
       : m_current(r.base())
    {}
-
-   reverse_iterator & operator=( const reverse_iterator& r)
-   {  m_current = r.base();   return *this;  }
 
    template<class OtherIt>
    typename boost::intrusive::detail::enable_if_convertible<OtherIt, It, reverse_iterator &>::type
@@ -72,34 +65,20 @@ class reverse_iterator
    {  return m_current;  }
 
    reference operator*() const
-   {
-      It temp(m_current);
-      --temp;
-      reference r = *temp;
-      return r;
-   }
+   {  It temp(m_current);   --temp; return *temp; }
 
    pointer operator->() const
-   {
-      It temp(m_current);
-      --temp;
-      return iterator_arrow_result(temp);
-   }
+   {  It temp(m_current);   --temp; return iterator_arrow_result(temp); }
 
    reference operator[](difference_type off) const
-   {
-      return this->m_current[-off - 1];
-   }
+   {  return this->m_current[-off - 1];  }
 
    reverse_iterator& operator++()
-   {
-      --m_current;
-      return *this;
-   }
+   {  --m_current;   return *this;   }
 
    reverse_iterator operator++(int)
    {
-      reverse_iterator temp((*this));
+      reverse_iterator temp = *this;
       --m_current;
       return temp;
    }
@@ -112,7 +91,7 @@ class reverse_iterator
 
    reverse_iterator operator--(int)
    {
-      reverse_iterator temp((*this));
+      reverse_iterator temp(*this);
       ++m_current;
       return temp;
    }
@@ -138,17 +117,17 @@ class reverse_iterator
    reverse_iterator& operator+=(difference_type off)
    {  m_current -= off; return *this;  }
 
-   reverse_iterator& operator-=(difference_type off)
-   {  m_current += off; return *this;  }
-
    friend reverse_iterator operator+(reverse_iterator l, difference_type off)
-   {  return (l += off);  }
+   {  l.m_current -= off;  return l;  }
 
    friend reverse_iterator operator+(difference_type off, reverse_iterator r)
    {  return (r += off);   }
 
+   reverse_iterator& operator-=(difference_type off)
+   {  m_current += off; return *this;  }
+
    friend reverse_iterator operator-(reverse_iterator l, difference_type off)
-   {  return (l-= off);  }
+   {  l.m_current += off;  return l;  }
 
    friend difference_type operator-(const reverse_iterator& l, const reverse_iterator& r)
    {  return r.m_current - l.m_current;  }

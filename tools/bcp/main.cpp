@@ -16,7 +16,6 @@
 #include "bcp.hpp"
 #include <boost/filesystem/path.hpp>
 #include <boost/version.hpp>
-#include <boost/detail/lightweight_main.hpp>
 
 #ifdef BOOST_NO_STDC_NAMESPACE
 namespace std{

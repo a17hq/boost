@@ -61,10 +61,10 @@ BOOST_ARCHIVE_FORWARD_IMPLEMENTATION(archive::tracking_type)
 BOOST_ARCHIVE_FORWARD_IMPLEMENTATION(archive::class_name_type)
 BOOST_ARCHIVE_FORWARD_IMPLEMENTATION(serialization::collection_size_type)
 
-    void load_override(std::string & s)    
+    void load_override(std::string & s , int)    
     {                            
       serialization::collection_size_type length(s.size());              
-      load_override(length);       
+      load_override(length,0);       
       s.resize(length);
     }
 

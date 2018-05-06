@@ -49,7 +49,6 @@ int main(){
   
   std::ostringstream oss;
 
-  {
   // NOTE: DATE_TIME_XML_SERIALIZE is only used in testing and is
   // defined in the testing Jamfile
 #if defined(DATE_TIME_XML_SERIALIZE)
@@ -81,9 +80,7 @@ int main(){
     check("Error writing to archive: " + s + "\nWritten data: \"" + oss.str() + "\"", false);
     return printTestStats();
   }
-  }
 
-  {
   std::istringstream iss(oss.str());
 #if defined(DATE_TIME_XML_SERIALIZE)
   archive::xml_iarchive ia(iss);
@@ -111,7 +108,6 @@ int main(){
     std::string s(ae.what());
     check("Error readng from archive: " + s + "\nWritten data: \"" + oss.str() + "\"", false);
     return printTestStats();
-  }
   }
 
   check("ptime", pt == pt2);

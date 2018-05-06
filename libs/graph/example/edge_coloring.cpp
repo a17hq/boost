@@ -7,7 +7,6 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //=======================================================================
 
-#include <iostream>
 #include <boost/config.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/edge_coloring.hpp>
@@ -57,7 +56,7 @@ int main(int, char *[])
   Graph G(10);
 
   for (size_t i = 0; i < sizeof(edges)/sizeof(edges[0]); i++)
-    add_edge(edges[i].first, edges[i].second, G);
+    add_edge(edges[i].first, edges[i].second, G).first;
 
   size_t colors = edge_coloring(G, get(edge_bundle, G));
 

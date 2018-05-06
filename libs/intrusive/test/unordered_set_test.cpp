@@ -29,7 +29,6 @@ template < class ValueTraits, bool ConstantTimeSize, bool CacheBegin, bool Compa
 struct rebinder
 {
    typedef unordered_rebinder_common<ValueTraits, DefaultHolder, Map> common_t;
-   typedef typename ValueContainer< typename ValueTraits::value_type >::type value_cont_type;
 
    template < class Option1 =void
             , class Option2 =void
@@ -45,7 +44,6 @@ struct rebinder
          , incremental<Incremental>
          , typename common_t::holder_opt
          , typename common_t::key_of_value_opt
-         , size_type<unsigned short>
          , Option1
          , Option2
          > type;
@@ -54,18 +52,8 @@ struct rebinder
    };
 };
 
-enum HookType
-{
-   Base,
-   Member,
-   NonMember
-};
-
-template<class VoidPointer, bool ConstantTimeSize, bool DefaultHolder, bool Map, HookType Type>
-class test_main_template;
-
-template<class VoidPointer, bool ConstantTimeSize, bool DefaultHolder, bool Map>
-class test_main_template<VoidPointer, ConstantTimeSize, DefaultHolder, Map, Base>
+template<class VoidPointer, bool ConstantTimeSize, bool Map, bool DefaultHolder>
+class test_main_template
 {
    public:
    static void execute()
@@ -85,26 +73,9 @@ class test_main_template<VoidPointer, ConstantTimeSize, DefaultHolder, Map, Base
          , typename testval_traits_t::auto_base_value_traits   //store_hash<true>
          >::type base_hook_t;
       test::test_unordered
-         < //cache_begin, compare_hash, incremental
-           rebinder<base_hook_t, ConstantTimeSize, ConstantTimeSize, !ConstantTimeSize, !!ConstantTimeSize, Map, DefaultHolder>
+         < base_hook_t                       //cache_begin, compare_hash, incremental
+         , rebinder<base_hook_t, ConstantTimeSize, ConstantTimeSize, !ConstantTimeSize, !!ConstantTimeSize, Map, DefaultHolder>
          >::test_all(data);
-   }
-};
-
-template<class VoidPointer, bool ConstantTimeSize, bool DefaultHolder, bool Map>
-class test_main_template<VoidPointer, ConstantTimeSize, DefaultHolder, Map, Member>
-{
-   public:
-   static void execute()
-   {
-      typedef testvalue<unordered_hooks<VoidPointer> > value_type;
-      static const int random_init[6] = { 3, 2, 4, 1, 5, 2 };
-      typedef typename ValueContainer< value_type >::type value_cont_type;
-      value_cont_type data (6);
-      for (int i = 0; i < 6; ++i)
-         data[i].value_ = random_init[i];
-
-      typedef testvalue_traits< unordered_hooks<VoidPointer> > testval_traits_t;
       //member
       typedef typename detail::if_c
          < ConstantTimeSize
@@ -112,31 +83,13 @@ class test_main_template<VoidPointer, ConstantTimeSize, DefaultHolder, Map, Memb
          , typename testval_traits_t::auto_member_value_traits //store_hash<true>, optimize_multikey<true>
          >::type member_hook_t;
       test::test_unordered
-         < //cache_begin, compare_hash, incremental
-           rebinder<member_hook_t, ConstantTimeSize, false, !ConstantTimeSize, false, !ConstantTimeSize, DefaultHolder>
+         < member_hook_t                           //cache_begin, compare_hash, incremental
+         , rebinder<member_hook_t, ConstantTimeSize, false, !ConstantTimeSize, false, !ConstantTimeSize, DefaultHolder>
          >::test_all(data);
-   }
-};
-
-template<class VoidPointer, bool ConstantTimeSize, bool DefaultHolder, bool Map>
-class test_main_template<VoidPointer, ConstantTimeSize, DefaultHolder, Map, NonMember>
-
-{
-   public:
-   static void execute()
-   {
-      typedef testvalue<unordered_hooks<VoidPointer> > value_type;
-      static const int random_init[6] = { 3, 2, 4, 1, 5, 2 };
-      typedef typename ValueContainer< value_type >::type value_cont_type;
-      value_cont_type data (6);
-      for (int i = 0; i < 6; ++i)
-         data[i].value_ = random_init[i];
-
-      typedef testvalue_traits< unordered_hooks<VoidPointer> > testval_traits_t;
       //nonmember
       test::test_unordered
-         < //cache_begin, compare_hash, incremental
-           rebinder<typename testval_traits_t::nonhook_value_traits, ConstantTimeSize, false, false, false, Map, DefaultHolder>
+         < typename testval_traits_t::nonhook_value_traits                  //cache_begin, compare_hash, incremental
+         , rebinder<typename testval_traits_t::nonhook_value_traits, ConstantTimeSize, false, false, false, Map, DefaultHolder>
          >::test_all(data);
    }
 };
@@ -146,16 +99,16 @@ int main()
    //VoidPointer x ConstantTimeSize x Map x DefaultHolder
 
    //void pointer
-   test_main_template<void*, false, false, false, Base>::execute();
-   test_main_template<void*, false,  true, false, Member>::execute();
-   test_main_template<void*,  true, false, false, NonMember>::execute();
-   test_main_template<void*,  true,  true, false, Base>::execute();
+   test_main_template<void*, false, false, false>::execute();
+   test_main_template<void*, false,  true, false>::execute();
+   test_main_template<void*,  true, false, false>::execute();
+   test_main_template<void*,  true,  true, false>::execute();
 
    //smart_ptr
-   test_main_template<smart_ptr<void>, false, false, false, Member>::execute();
-   test_main_template<smart_ptr<void>, false,  true, false, NonMember>::execute();
-   test_main_template<smart_ptr<void>,  true, false, false, Base>::execute();
-   test_main_template<smart_ptr<void>,  true,  true, false, Member>::execute();
+   test_main_template<smart_ptr<void>, false, false, false>::execute();
+   test_main_template<smart_ptr<void>, false,  true, false>::execute();
+   test_main_template<smart_ptr<void>,  true, false, false>::execute();
+   test_main_template<smart_ptr<void>,  true,  true, false>::execute();
 
    ////bounded_ptr (bool ConstantTimeSize, bool Map)
    //test_main_template_bptr< false, false >::execute();

@@ -11,8 +11,6 @@
 #include <boost/config.hpp>
 #include <cstring> // memcpy
 #include <cstddef> // NULL
-#include <exception>
-
 #if defined(BOOST_NO_STDC_NAMESPACE)
 namespace std{ 
     using ::memcpy;
@@ -20,11 +18,10 @@ namespace std{
 #endif
 
 #ifndef BOOST_NO_CWCHAR
-#include <cwchar> // mbstate_t and mbrtowc
+#include <cstdlib> // mbtowc
 #if defined(BOOST_NO_STDC_NAMESPACE)
 namespace std{ 
-    using ::mbstate_t;
-    using ::mbrtowc;
+    using ::mbtowc;
  } // namespace std
 #endif
 #endif // BOOST_NO_CWCHAR
@@ -66,23 +63,22 @@ xml_iarchive_impl<Archive>::load(std::wstring &ws){
     #if BOOST_WORKAROUND(_RWSTD_VER, BOOST_TESTED_AT(20101))
     if(NULL != ws.data())
     #endif
-    ws.resize(0);
-    std::mbstate_t mbs = std::mbstate_t();
+        ws.resize(0);
     const char * start = s.data();
     const char * end = start + s.size();
     while(start < end){
         wchar_t wc;
-        std::size_t count = std::mbrtowc(&wc, start, end - start, &mbs);
-        if(count == static_cast<std::size_t>(-1))
-            boost::serialization::throw_exception(
-                iterators::dataflow_exception(
-                    iterators::dataflow_exception::invalid_conversion
-                )
-            );
-        if(count == static_cast<std::size_t>(-2))
+        int resultx = std::mbtowc(&wc, start, end - start);
+        if(0 < resultx){
+            start += resultx;
+            ws += wc;
             continue;
-        start += count;
-        ws += wc;
+        }
+        boost::serialization::throw_exception(
+            iterators::dataflow_exception(
+                iterators::dataflow_exception::invalid_conversion
+            )
+        );
     }
 }
 #endif // BOOST_NO_STD_WSTRING
@@ -95,28 +91,24 @@ xml_iarchive_impl<Archive>::load(wchar_t * ws){
     bool result = gimpl->parse_string(is, s);
     if(! result)
         boost::serialization::throw_exception(
-            xml_archive_exception(
-                xml_archive_exception::xml_archive_parsing_error
-            )
+            xml_archive_exception(xml_archive_exception::xml_archive_parsing_error)
         );
         
-    std::mbstate_t mbs = std::mbstate_t();
     const char * start = s.data();
     const char * end = start + s.size();
     while(start < end){
         wchar_t wc;
-        std::size_t length = std::mbrtowc(&wc, start, end - start, &mbs);
-        if(static_cast<std::size_t>(-1) == length)
-            boost::serialization::throw_exception(
-                iterators::dataflow_exception(
-                    iterators::dataflow_exception::invalid_conversion
-                )
-            );
-        if(static_cast<std::size_t>(-2) == length)
+        int length = std::mbtowc(&wc, start, end - start);
+        if(0 < length){
+            start += length;
+            *ws++ = wc;
             continue;
-
-        start += length;
-        *ws++ = wc;
+        }
+        boost::serialization::throw_exception(
+            iterators::dataflow_exception(
+                iterators::dataflow_exception::invalid_conversion
+            )
+        );
     }
     *ws = L'\0';
 }
@@ -189,10 +181,12 @@ xml_iarchive_impl<Archive>::xml_iarchive_impl(
 template<class Archive>
 BOOST_ARCHIVE_DECL
 xml_iarchive_impl<Archive>::~xml_iarchive_impl(){
-    if(std::uncaught_exception())
-        return;
     if(0 == (this->get_flags() & no_header)){
-        gimpl->windup(is);
+        BOOST_TRY{
+            gimpl->windup(is);
+        }
+        BOOST_CATCH(...){}
+        BOOST_CATCH_END
     }
 }
 } // namespace archive

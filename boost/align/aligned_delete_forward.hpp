@@ -1,9 +1,10 @@
 /*
-Copyright 2014-2015 Glen Joseph Fernandes
-(glenjofe@gmail.com)
+(c) 2014 Glen Joseph Fernandes
+glenjofe at gmail dot com
 
-Distributed under the Boost Software License, Version 1.0.
-(http://www.boost.org/LICENSE_1_0.txt)
+Distributed under the Boost Software
+License, Version 1.0.
+http://boost.org/LICENSE_1_0.txt
 */
 #ifndef BOOST_ALIGN_ALIGNED_DELETE_FORWARD_HPP
 #define BOOST_ALIGN_ALIGNED_DELETE_FORWARD_HPP
@@ -11,9 +12,9 @@ Distributed under the Boost Software License, Version 1.0.
 namespace boost {
 namespace alignment {
 
-struct aligned_delete;
+class aligned_delete;
 
-} /* alignment */
-} /* boost */
+} /* :alignment */
+} /* :boost */
 
 #endif

@@ -9,6 +9,5 @@
 #// For more information, see http://www.boost.org/libs/ptr_container/
 #//
 
-rst2html.py tutorial.rst |
-    sed 's@compatible-smart-ptr@<a class="reference external" href="compatible_smart_ptr.html"><em>compatible-smart-ptr</em></a>@g' > tutorial.html
+rst2html.py tutorial.rst > tutorial.html
 

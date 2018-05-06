@@ -29,15 +29,17 @@ Output:
 
 namespace bu = boost::units;
 
+static volatile double  zero = 0;
+
 int test_main(int,char *[])
 {
-    BOOST_CONSTEXPR_OR_CONST double inf = std::numeric_limits<double>::infinity(),
-                                    nan = std::numeric_limits<double>::quiet_NaN();
+    double  inf = std::numeric_limits<double>::infinity(),
+            nan = 0.0/zero;
     
     // default constructor
-    BOOST_CONSTEXPR_OR_CONST bu::quantity<bu::energy>   E1(0.0*bu::joules),
-                                                        E2(inf*bu::joules),
-                                                        E3(nan*bu::joules); 
+    const bu::quantity<bu::energy>          E1(0.0*bu::joules),
+                                            E2(inf*bu::joules),
+                                            E3(nan*bu::joules); 
     
     BOOST_CHECK((bu::isfinite)(E1) == true);
     BOOST_CHECK((bu::isfinite)(E2) == false);
@@ -55,8 +57,8 @@ int test_main(int,char *[])
     BOOST_CHECK((bu::isnormal)(E2) == false);
     BOOST_CHECK((bu::isnormal)(E3) == false);
 
-    BOOST_CONSTEXPR_OR_CONST bu::quantity<bu::energy>   E4(-2.5*bu::joules),
-                                                        E5(2.5*bu::joules); 
+    const bu::quantity<bu::energy>          E4(-2.5*bu::joules),
+                                            E5(2.5*bu::joules); 
                                             
     BOOST_CHECK((bu::isgreater)(E4,E5) == false);
     BOOST_CHECK((bu::isgreater)(E5,E4) == true);
@@ -102,10 +104,10 @@ int test_main(int,char *[])
     BOOST_CHECK((bu::fdim)(E4,E5) == 0.0*bu::joules);
     BOOST_CHECK((bu::fdim)(E5,E4) == E5-E4);
     
-    BOOST_CONSTEXPR_OR_CONST bu::quantity<bu::length>   L1(3.0*bu::meters),
-                                                        L2(4.0*bu::meters);
-    BOOST_CONSTEXPR_OR_CONST bu::quantity<bu::area>     A1(4.0*bu::square_meters),
-                                                        A2(L1*L2+A1);
+    const bu::quantity<bu::length>  L1(3.0*bu::meters),
+                                    L2(4.0*bu::meters);
+    const bu::quantity<bu::area>    A1(4.0*bu::square_meters),
+                                    A2(L1*L2+A1);
 
 #if 0
     BOOST_CHECK((bu::fma)(L1,L2,A1) == A2);
@@ -154,7 +156,7 @@ int test_main(int,char *[])
     BOOST_CHECK(ex == 2);
     BOOST_CHECK((bu::ldexp)(E6,ex) == E4);
     
-    BOOST_CONSTEXPR_OR_CONST bu::quantity<bu::dimensionless>   E7(1.0);
+    const bu::quantity<bu::dimensionless>   E7(1.0);
     
     BOOST_CHECK(bu::pow(E7,E7) == 1.0*1.0);
     
@@ -163,7 +165,7 @@ int test_main(int,char *[])
     BOOST_CHECK(std::abs(E8 - std::exp(1.0)) < .000001);
     BOOST_CHECK(bu::log(E8) == E7);
     
-    BOOST_CONSTEXPR_OR_CONST bu::quantity<bu::dimensionless>   E9(100.0);
+    const bu::quantity<bu::dimensionless>   E9(100.0);
     
     BOOST_CHECK(bu::log10(E9) == 2.0);
     

@@ -43,8 +43,8 @@ namespace serialization {
 } // namespace serialization
 namespace archive {
 namespace detail {
-    class basic_iarchive;
-    class basic_iserializer;
+    class BOOST_ARCHIVE_DECL basic_iarchive;
+    class BOOST_ARCHIVE_DECL basic_iarchive;
 }
 
 class polymorphic_iarchive;

@@ -20,7 +20,7 @@ void f()
   try
   {
     std::cout << "Starting sleep in thread" << std::endl;
-    for (;;)
+    while (true)
     {
       boost::this_thread::sleep_for(seconds(60));
     }

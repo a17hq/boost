@@ -31,9 +31,3 @@ boostbook coro
         # Absolute path for images:
         <format>pdf:<xsl:param>img.src.path=$(here)/html/
     ;
-
-###############################################################################
-alias boostdoc ;
-explicit boostdoc ;
-alias boostrelease : coro ;
-explicit boostrelease ;

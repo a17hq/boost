@@ -13,14 +13,14 @@
 #define BOOST_ALGORITHM_EQUAL_HPP
 
 #include <algorithm>    // for std::equal
-#include <iterator>
+#include <functional>   // for std::equal_to
 
 namespace boost { namespace algorithm {
 
 namespace detail {
 
     template <class T1, class T2>
-    struct eq {
+    struct eq : public std::binary_function<T1, T2, bool> {
         bool operator () ( const T1& v1, const T2& v2 ) const { return v1 == v2 ;}
         };
     

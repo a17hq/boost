@@ -5,17 +5,15 @@
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
 
-#include <iostream>
+#include <ios>
 #include <boost/config.hpp>
 #include <boost/array.hpp>
 #include <boost/detail/is_sorted.hpp>
 #include <boost/detail/lightweight_test.hpp>
 
 template<class T>
-struct tracking_less {
+struct tracking_less: std::binary_function <T, T, bool> {
   typedef bool result_type;
-  typedef T first_argument_type;
-  typedef T second_argument_type;
 
   #if defined(__PATHSCALE__)
   tracking_less (void) { }
@@ -29,10 +27,8 @@ struct tracking_less {
 };
 
 template<class T>
-struct tracking_less_equal {
+struct tracking_less_equal: std::binary_function <T, T, bool> {
   typedef bool result_type;
-  typedef T first_argument_type;
-  typedef T second_argument_type;
 
   #if defined(__PATHSCALE__)
   tracking_less_equal (void) { }
@@ -46,10 +42,8 @@ struct tracking_less_equal {
 };
 
 template<class T>
-struct tracking_greater {
+struct tracking_greater: std::binary_function <T, T, bool> {
   typedef bool result_type;
-  typedef T first_argument_type;
-  typedef T second_argument_type;
 
   #if defined(__PATHSCALE__)
   tracking_greater (void) { }
@@ -63,10 +57,8 @@ struct tracking_greater {
 };
 
 template<class T>
-struct tracking_greater_equal {
+struct tracking_greater_equal: std::binary_function <T, T, bool> {
   typedef bool result_type;
-  typedef T first_argument_type;
-  typedef T second_argument_type;
 
   #if defined(__PATHSCALE__)
   tracking_greater_equal (void) { }
@@ -135,3 +127,4 @@ int main (void) {
 
   return report_errors();
 }
+

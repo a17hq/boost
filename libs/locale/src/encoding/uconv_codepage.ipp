@@ -16,8 +16,6 @@
 #include <vector>
 #include <memory>
 
-#include <boost/locale/hold_ptr.hpp>
-
 namespace boost {
 namespace locale {
 namespace conv {
@@ -63,8 +61,8 @@ namespace impl {
         typedef impl_icu::icu_std_converter<char> from_type;
         typedef impl_icu::icu_std_converter<CharType> to_type;
 
-        hold_ptr<from_type> cvt_from_;
-        hold_ptr<to_type> cvt_to_;
+        std::auto_ptr<from_type> cvt_from_;
+        std::auto_ptr<to_type> cvt_to_;
 
     };
   
@@ -107,8 +105,8 @@ namespace impl {
         typedef impl_icu::icu_std_converter<CharType> from_type;
         typedef impl_icu::icu_std_converter<char> to_type;
 
-        hold_ptr<from_type> cvt_from_;
-        hold_ptr<to_type> cvt_to_;
+        std::auto_ptr<from_type> cvt_from_;
+        std::auto_ptr<to_type> cvt_to_;
 
     };
 
@@ -148,8 +146,8 @@ namespace impl {
         typedef impl_icu::icu_std_converter<char> from_type;
         typedef impl_icu::icu_std_converter<char> to_type;
 
-        hold_ptr<from_type> cvt_from_;
-        hold_ptr<to_type> cvt_to_;
+        std::auto_ptr<from_type> cvt_from_;
+        std::auto_ptr<to_type> cvt_to_;
 
     };
 

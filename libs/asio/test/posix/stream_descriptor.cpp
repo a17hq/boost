@@ -2,7 +2,7 @@
 // stream_descriptor.cpp
 // ~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2018 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2015 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -16,7 +16,7 @@
 // Test that header file is self-contained.
 #include <boost/asio/posix/stream_descriptor.hpp>
 
-#include <boost/asio/io_context.hpp>
+#include <boost/asio/io_service.hpp>
 #include "../archetypes/async_result.hpp"
 #include "../unit_test.hpp"
 
@@ -29,10 +29,6 @@
 // ignored.
 
 namespace posix_stream_descriptor_compile {
-
-void wait_handler(const boost::system::error_code&)
-{
-}
 
 void write_some_handler(const boost::system::error_code&, std::size_t)
 {
@@ -50,7 +46,7 @@ void test()
 
   try
   {
-    io_context ioc;
+    io_service ios;
     char mutable_char_buffer[128] = "";
     const char const_char_buffer[128] = "";
     posix::descriptor_base::bytes_readable io_control_command;
@@ -59,30 +55,25 @@ void test()
 
     // basic_stream_descriptor constructors.
 
-    posix::stream_descriptor descriptor1(ioc);
+    posix::stream_descriptor descriptor1(ios);
     int native_descriptor1 = -1;
-    posix::stream_descriptor descriptor2(ioc, native_descriptor1);
+    posix::stream_descriptor descriptor2(ios, native_descriptor1);
 
 #if defined(BOOST_ASIO_HAS_MOVE)
-    posix::stream_descriptor descriptor3(std::move(descriptor2));
+    posix::stream_descriptor descriptor3(std::move(descriptor3));
 #endif // defined(BOOST_ASIO_HAS_MOVE)
 
     // basic_stream_descriptor operators.
 
 #if defined(BOOST_ASIO_HAS_MOVE)
-    descriptor1 = posix::stream_descriptor(ioc);
+    descriptor1 = posix::stream_descriptor(ios);
     descriptor1 = std::move(descriptor2);
 #endif // defined(BOOST_ASIO_HAS_MOVE)
 
     // basic_io_object functions.
 
-#if !defined(BOOST_ASIO_NO_DEPRECATED)
-    io_context& ioc_ref = descriptor1.get_io_context();
-    (void)ioc_ref;
-#endif // !defined(BOOST_ASIO_NO_DEPRECATED)
-
-    posix::stream_descriptor::executor_type ex = descriptor1.get_executor();
-    (void)ex;
+    io_service& ios_ref = descriptor1.get_io_service();
+    (void)ios_ref;
 
     // basic_descriptor functions.
 
@@ -104,13 +95,17 @@ void test()
     descriptor1.close();
     descriptor1.close(ec);
 
-    posix::stream_descriptor::native_handle_type native_descriptor3
-      = descriptor1.native_handle();
+    posix::stream_descriptor::native_type native_descriptor3
+      = descriptor1.native();
     (void)native_descriptor3;
 
     posix::stream_descriptor::native_handle_type native_descriptor4
-      = descriptor1.release();
+      = descriptor1.native_handle();
     (void)native_descriptor4;
+
+    posix::stream_descriptor::native_handle_type native_descriptor5
+      = descriptor1.release();
+    (void)native_descriptor5;
 
     descriptor1.cancel();
     descriptor1.cancel(ec);
@@ -128,13 +123,6 @@ void test()
     descriptor1.native_non_blocking(true);
     descriptor1.native_non_blocking(false, ec);
 
-    descriptor1.wait(posix::descriptor_base::wait_read);
-    descriptor1.wait(posix::descriptor_base::wait_write, ec);
-
-    descriptor1.async_wait(posix::descriptor_base::wait_read, &wait_handler);
-    int i1 = descriptor1.async_wait(posix::descriptor_base::wait_write, lazy);
-    (void)i1;
-
     // basic_stream_descriptor functions.
 
     descriptor1.write_some(buffer(mutable_char_buffer));
@@ -150,12 +138,12 @@ void test()
         write_some_handler);
     descriptor1.async_write_some(null_buffers(),
         write_some_handler);
-    int i2 = descriptor1.async_write_some(buffer(mutable_char_buffer), lazy);
+    int i1 = descriptor1.async_write_some(buffer(mutable_char_buffer), lazy);
+    (void)i1;
+    int i2 = descriptor1.async_write_some(buffer(const_char_buffer), lazy);
     (void)i2;
-    int i3 = descriptor1.async_write_some(buffer(const_char_buffer), lazy);
+    int i3 = descriptor1.async_write_some(null_buffers(), lazy);
     (void)i3;
-    int i4 = descriptor1.async_write_some(null_buffers(), lazy);
-    (void)i4;
 
     descriptor1.read_some(buffer(mutable_char_buffer));
     descriptor1.read_some(buffer(mutable_char_buffer), ec);
@@ -163,10 +151,10 @@ void test()
 
     descriptor1.async_read_some(buffer(mutable_char_buffer), read_some_handler);
     descriptor1.async_read_some(null_buffers(), read_some_handler);
-    int i5 = descriptor1.async_read_some(buffer(mutable_char_buffer), lazy);
+    int i4 = descriptor1.async_read_some(buffer(mutable_char_buffer), lazy);
+    (void)i4;
+    int i5 = descriptor1.async_read_some(null_buffers(), lazy);
     (void)i5;
-    int i6 = descriptor1.async_read_some(null_buffers(), lazy);
-    (void)i6;
   }
   catch (std::exception&)
   {

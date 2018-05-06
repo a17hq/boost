@@ -24,7 +24,6 @@
 #include <cstddef>
 
 #include <boost/static_assert.hpp>
-#include <boost/type_traits/is_pointer.hpp>
 
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -223,8 +222,8 @@ template <typename Geometry, std::size_t Dimension>
 struct radius_access<srs_sphere_tag, Geometry, Dimension, boost::false_type>
     : detail::radius_access<srs_sphere_tag, Geometry, Dimension>
 {
-    //BOOST_STATIC_ASSERT(Dimension == 0);
-    BOOST_STATIC_ASSERT(Dimension < 3);
+    BOOST_STATIC_ASSERT(Dimension == 0);
+    //BOOST_STATIC_ASSERT(Dimension < 3);
 };
 
 template <typename Geometry>
@@ -237,8 +236,8 @@ template <typename Geometry, std::size_t Dimension>
 struct radius_access<srs_spheroid_tag, Geometry, Dimension, boost::false_type>
     : detail::radius_access<srs_spheroid_tag, Geometry, Dimension>
 {
-    //BOOST_STATIC_ASSERT(Dimension == 0 || Dimension == 2);
-    BOOST_STATIC_ASSERT(Dimension < 3);
+    BOOST_STATIC_ASSERT(Dimension == 0 || Dimension == 2);
+    //BOOST_STATIC_ASSERT(Dimension < 3);
 };
 
 } // namespace core_dispatch

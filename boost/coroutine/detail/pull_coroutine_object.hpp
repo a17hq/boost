@@ -78,7 +78,8 @@ public:
         ctx_t( palloc, this),
         base_t( & this->caller,
                 & this->callee,
-                stack_unwind == attrs.do_unwind),
+                stack_unwind == attrs.do_unwind,
+                fpu_preserved == attrs.preserve_fpu),
         fn_( fn),
         stack_ctx_( palloc.sctx),
         stack_alloc_( stack_alloc)
@@ -91,7 +92,8 @@ public:
         ctx_t( palloc, this),
         base_t( & this->caller,
                 & this->callee,
-                stack_unwind == attrs.do_unwind),
+                stack_unwind == attrs.do_unwind,
+                fpu_preserved == attrs.preserve_fpu),
 #ifdef BOOST_NO_CXX11_RVALUE_REFERENCES
         fn_( fn),
 #else
@@ -109,7 +111,7 @@ public:
         base_t::flags_ |= flag_running;
 
         // create push_coroutine
-        typename PushCoro::synth_type b( & this->callee, & this->caller, false);
+        typename PushCoro::synth_type b( & this->callee, & this->caller, false, base_t::preserve_fpu() );
         PushCoro push_coro( synthesized_t::syntesized, b);
         try
         { fn_( push_coro); }
@@ -123,7 +125,8 @@ public:
         typename base_t::param_type to;
         this->callee.jump(
             this->caller,
-            & to);
+            reinterpret_cast< intptr_t >( & to),
+            base_t::preserve_fpu() );
         BOOST_ASSERT_MSG( false, "pull_coroutine is complete");
     }
 
@@ -161,7 +164,8 @@ public:
         ctx_t( palloc, this),
         base_t( & this->caller,
                 & this->callee,
-                stack_unwind == attrs.do_unwind),
+                stack_unwind == attrs.do_unwind,
+                fpu_preserved == attrs.preserve_fpu),
         fn_( fn),
         stack_ctx_( palloc.sctx),
         stack_alloc_( stack_alloc)
@@ -174,7 +178,8 @@ public:
         ctx_t( palloc, this),
         base_t( & this->caller,
                 & this->callee,
-                stack_unwind == attrs.do_unwind),
+                stack_unwind == attrs.do_unwind,
+                fpu_preserved == attrs.preserve_fpu),
 #ifdef BOOST_NO_CXX11_RVALUE_REFERENCES
         fn_( fn),
 #else
@@ -192,7 +197,7 @@ public:
         base_t::flags_ |= flag_running;
 
         // create push_coroutine
-        typename PushCoro::synth_type b( & this->callee, & this->caller, false);
+        typename PushCoro::synth_type b( & this->callee, & this->caller, false, base_t::preserve_fpu() );
         PushCoro push_coro( synthesized_t::syntesized, b);
         try
         { fn_( push_coro); }
@@ -206,7 +211,8 @@ public:
         typename base_t::param_type to;
         this->callee.jump(
             this->caller,
-            & to);
+            reinterpret_cast< intptr_t >( & to),
+            base_t::preserve_fpu() );
         BOOST_ASSERT_MSG( false, "pull_coroutine is complete");
     }
 
@@ -244,7 +250,8 @@ public:
         ctx_t( palloc, this),
         base_t( & this->caller,
                 & this->callee,
-                stack_unwind == attrs.do_unwind),
+                stack_unwind == attrs.do_unwind,
+                fpu_preserved == attrs.preserve_fpu),
         fn_( fn),
         stack_ctx_( palloc.sctx),
         stack_alloc_( stack_alloc)
@@ -257,7 +264,8 @@ public:
         ctx_t( palloc, this),
         base_t( & this->caller,
                 & this->callee,
-                stack_unwind == attrs.do_unwind),
+                stack_unwind == attrs.do_unwind,
+                fpu_preserved == attrs.preserve_fpu),
 #ifdef BOOST_NO_CXX11_RVALUE_REFERENCES
         fn_( fn),
 #else
@@ -275,7 +283,7 @@ public:
         base_t::flags_ |= flag_running;
 
         // create push_coroutine
-        typename PushCoro::synth_type b( & this->callee, & this->caller, false);
+        typename PushCoro::synth_type b( & this->callee, & this->caller, false, base_t::preserve_fpu() );
         PushCoro push_coro( synthesized_t::syntesized, b);
         try
         { fn_( push_coro); }
@@ -289,7 +297,8 @@ public:
         typename base_t::param_type to;
         this->callee.jump(
             this->caller,
-            & to);
+            reinterpret_cast< intptr_t >( & to),
+            base_t::preserve_fpu() );
         BOOST_ASSERT_MSG( false, "pull_coroutine is complete");
     }
 

@@ -4,6 +4,7 @@
 //#include <stdio.h>
 #define BOOST_ENABLE_ASSERT_HANDLER
 #include <boost/assert.hpp>
+#include <boost/type_traits/is_member_function_pointer.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/python/detail/indirect_traits.hpp>
 #include <boost/mpl/assert.hpp>

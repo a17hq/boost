@@ -131,17 +131,18 @@ protected:
     typedef boost::archive::detail::common_oarchive<portable_binary_oarchive> 
         detail_common_oarchive;
     template<class T>
-    void save_override(T & t){
-        this->detail_common_oarchive::save_override(t);
+    void save_override(T & t, BOOST_PFTO int){
+        this->detail_common_oarchive::save_override(t, 0);
     }
     // explicitly convert to char * to avoid compile ambiguities
-    void save_override(const boost::archive::class_name_type & t){
+    void save_override(const boost::archive::class_name_type & t, int){
         const std::string s(t);
         * this << s;
     }
     // binary files don't include the optional information 
     void save_override(
-        const boost::archive::class_id_optional_type & /* t */
+        const boost::archive::class_id_optional_type & /* t */, 
+        int
     ){}
 
     void init(unsigned int flags);

@@ -16,7 +16,6 @@
 int main()
 {
     boost::reference_wrapper<int const> r = boost::cref( 2 ); // should fail
-    (void)r;
 }
 
 #else

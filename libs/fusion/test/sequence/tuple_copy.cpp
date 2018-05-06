@@ -16,7 +16,7 @@
 int
 main()
 {
-    test<test_detail::can_copy>();
+    test();
     return boost::report_errors();
 }
 

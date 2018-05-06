@@ -1,10 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
-// This file was modified by Oracle on 2013-2016.
-// Modifications copyright (c) 2013-2016 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2013, 2014, 2015.
+// Modifications copyright (c) 2013-2015 Oracle and/or its affiliates.
 
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
@@ -25,7 +24,6 @@
 #include <boost/mpl/is_sequence.hpp>
 #include <boost/mpl/next.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/throw_exception.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/type_traits/integral_constant.hpp>
 
@@ -133,6 +131,9 @@ public:
     static const bool interrupt = false;
 
     matrix_handler()
+    {}
+
+    matrix_handler(Matrix const&)
     {}
 
     result_type const& result() const
@@ -268,7 +269,7 @@ private:
                          || ( c >= '0' && c <= '9' );
         if ( !is_valid )
         {
-            BOOST_THROW_EXCEPTION(geometry::invalid_input_exception());
+            throw geometry::invalid_input_exception();
         }
     }
 
@@ -602,6 +603,10 @@ public:
     typedef bool result_type;
 
     bool interrupt;
+
+    inline mask_handler()
+        : interrupt(false)
+    {}
 
     inline explicit mask_handler(Mask const& m)
         : interrupt(false)

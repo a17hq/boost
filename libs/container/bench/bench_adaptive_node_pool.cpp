@@ -23,8 +23,6 @@
 #include <iostream>  //std::cout, std::endl
 #include <vector>    //std::vector
 #include <cstddef>   //std::size_t
-#include <cassert>   //assert
-
 #include <boost/timer/timer.hpp>
 using boost::timer::cpu_timer;
 using boost::timer::cpu_times;
@@ -131,7 +129,7 @@ void list_test_template(std::size_t num_iterations, std::size_t num_elements, bo
 {
    typedef typename Allocator::template rebind<MyInt>::other IntAllocator;
    nanosecond_type tinsert, terase;
-   bc::dlmalloc_malloc_stats_t insert_stats, erase_stats;
+   boost_cont_malloc_stats_t insert_stats, erase_stats;
    std::size_t insert_inuse, erase_inuse;
    const size_t sizeof_node = 2*sizeof(void*)+sizeof(int);
 
@@ -147,8 +145,8 @@ void list_test_template(std::size_t num_iterations, std::size_t num_elements, bo
       timer.stop();
       tinsert = timer.elapsed().wall;
 
-      insert_inuse = bc::dlmalloc_in_use_memory();
-      insert_stats = bc::dlmalloc_malloc_stats();
+      insert_inuse = boost_cont_in_use_memory();
+      insert_stats = boost_cont_malloc_stats();
 /*
       iterator_t it(l.begin());
       iterator_t last(--l.end());
@@ -177,8 +175,8 @@ void list_test_template(std::size_t num_iterations, std::size_t num_elements, bo
       }
       timer.stop();
       terase = timer.elapsed().wall;
-      erase_inuse = bc::dlmalloc_in_use_memory();
-      erase_stats = bc::dlmalloc_malloc_stats();
+      erase_inuse = boost_cont_in_use_memory();
+      erase_stats = boost_cont_malloc_stats();
    }
 
 
@@ -216,36 +214,36 @@ void list_test_template(std::size_t num_iterations, std::size_t num_elements, bo
                << " / "
                << (float)insert_inuse/(1024*1024) << "(" << (float(insert_inuse)/(num_iterations*num_elements*sizeof_node)*100.0)-100.0 << "%)"
                << std::endl
-               << "  system MB/inuse bytes after:    " << (float)erase_stats.system_bytes/(1024*1024) << '\t' << bc::dlmalloc_in_use_memory()
+               << "  system MB/inuse bytes after:    " << (float)erase_stats.system_bytes/(1024*1024) << '\t' << boost_cont_in_use_memory()
                << std::endl  << std::endl;
    }
 
    //Release node_allocator cache
-   typedef boost::container::dtl::shared_node_pool
+   typedef boost::container::container_detail::shared_node_pool
       < (2*sizeof(void*)+sizeof(int))
       , AdPoolAlignOnlyV2::nodes_per_block> shared_node_pool_t;
-   boost::container::dtl::singleton_default
+   boost::container::container_detail::singleton_default
       <shared_node_pool_t>::instance().purge_blocks();
 
    //Release adaptive_pool cache
-   typedef boost::container::dtl::shared_adaptive_node_pool
+   typedef boost::container::container_detail::shared_adaptive_node_pool
       < (2*sizeof(void*)+sizeof(int))
       , AdPool2PercentV2::nodes_per_block
       , AdPool2PercentV2::max_free_blocks
       , AdPool2PercentV2::overhead_percent> shared_adaptive_pool_plus_t;
-   boost::container::dtl::singleton_default
+   boost::container::container_detail::singleton_default
       <shared_adaptive_pool_plus_t>::instance().deallocate_free_blocks();
 
    //Release adaptive_pool cache
-   typedef boost::container::dtl::shared_adaptive_node_pool
+   typedef boost::container::container_detail::shared_adaptive_node_pool
       < (2*sizeof(void*)+sizeof(int))
       , AdPool2PercentV2::nodes_per_block
       , AdPool2PercentV2::max_free_blocks
       , 0u> shared_adaptive_pool_plus_align_only_t;
-   boost::container::dtl::singleton_default
+   boost::container::container_detail::singleton_default
       <shared_adaptive_pool_plus_align_only_t>::instance().deallocate_free_blocks();
    //Release dlmalloc memory
-   bc::dlmalloc_trim(0);
+   boost_cont_trim(0);
 }
 
 void print_header()
@@ -267,14 +265,14 @@ int main(int argc, const char *argv[])
    #define SINGLE_TEST
    #ifndef SINGLE_TEST
       #ifdef NDEBUG
-      std::size_t numrep [] = { 300, 3000, 30000, 300000, 600000, 1500000, 3000000 };
+      std::size_t numrep [] = { 3000, 30000, 300000, 3000000, 6000000, 15000000, 30000000 };
       #else
       std::size_t numrep [] = { 20,   200, 2000, 20000, 40000, 100000, 200000 };
       #endif
       std::size_t numele [] = { 10000, 1000, 100, 10, 5, 2, 1     };
    #else
       #ifdef NDEBUG
-      std::size_t numrep [] = { 150000 };
+      std::size_t numrep [] = { 1500000 };
       #else
       std::size_t numrep [] = { 10000 };
       #endif

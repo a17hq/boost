@@ -5,7 +5,6 @@
 
 # Boost Typeof Library test Jamfile
 
-import testing ;
 import set ;
 
 # The special requirement is not ported yet.

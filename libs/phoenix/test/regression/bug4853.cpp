@@ -60,8 +60,7 @@ int range_test_complex() {
         std::cout << result1[i] << "\n";
 #endif
 
-// This is failing for gcc 4.4 and 4.5 - reason not identified.
-#if !(BOOST_GCC_VERSION < 40600)
+#if !(BOOST_GCC_VERSION < 40500)
     boost::push_back(result2, source | transformed(phoenix::bind(&Foo::value_, *arg1)) | uniqued);
 
     for(unsigned i = 0; i < result2.size(); ++i)

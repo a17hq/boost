@@ -20,7 +20,7 @@ struct dummy {};
 
 int main()
 {
-    bg::concepts::check
+    bg::concept::check
         <
             ro_lon_lat_point<double, bg::cs::geographic<dummy> > const
         >();

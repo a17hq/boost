@@ -7,18 +7,13 @@
 // See http://www.boost.org/libs/container for documentation.
 //
 //////////////////////////////////////////////////////////////////////////////
-
-// the tests trigger deprecation warnings when compiled with msvc in C++17 mode
-#if defined(_MSVC_LANG) && _MSVC_LANG > 201402
-// warning STL4009: std::allocator<void> is deprecated in C++17
-# define _SILENCE_CXX17_ALLOCATOR_VOID_DEPRECATION_WARNING
-#endif
-
 #include <memory>
 #include <iostream>
 
 #include <boost/container/vector.hpp>
 #include <boost/container/allocator.hpp>
+#include <boost/container/node_allocator.hpp>
+#include <boost/container/adaptive_pool.hpp>
 
 #include <boost/move/utility_core.hpp>
 #include "check_equal_containers.hpp"
@@ -43,10 +38,34 @@ template class boost::container::vector
 
 template class boost::container::vector
    < test::movable_and_copyable_int
+   , test::dummy_test_allocator<test::movable_and_copyable_int> >;
+
+template class boost::container::vector
+   < test::movable_and_copyable_int
+   , std::allocator<test::movable_and_copyable_int> >;
+
+template class boost::container::vector
+   < test::movable_and_copyable_int
    , allocator<test::movable_and_copyable_int> >;
+
+template class boost::container::vector
+   < test::movable_and_copyable_int
+   , adaptive_pool<test::movable_and_copyable_int> >;
+
+template class boost::container::vector
+   < test::movable_and_copyable_int
+   , node_allocator<test::movable_and_copyable_int> >;
+
+namespace container_detail {
+
+#ifndef BOOST_CONTAINER_VECTOR_ITERATOR_IS_POINTER
 
 template class vec_iterator<int*, true >;
 template class vec_iterator<int*, false>;
+
+#endif   //BOOST_CONTAINER_VECTOR_ITERATOR_IS_POINTER
+
+}
 
 }}
 
@@ -76,9 +95,6 @@ int test_expand_bwd()
 class recursive_vector
 {
    public:
-   recursive_vector & operator=(const recursive_vector &x)
-   {  this->vector_ = x.vector_;   return *this; }
-
    int id_;
    vector<recursive_vector> vector_;
    vector<recursive_vector>::iterator it_;
@@ -189,6 +205,16 @@ int main()
    //       boost::container::allocator
    if(test_cont_variants< allocator<void> >()){
       std::cerr << "test_cont_variants< allocator<void> > failed" << std::endl;
+      return 1;
+   }
+   //       boost::container::node_allocator
+   if(test_cont_variants< node_allocator<void> >()){
+      std::cerr << "test_cont_variants< node_allocator<void> > failed" << std::endl;
+      return 1;
+   }
+   //       boost::container::adaptive_pool
+   if(test_cont_variants< adaptive_pool<void> >()){
+      std::cerr << "test_cont_variants< adaptive_pool<void> > failed" << std::endl;
       return 1;
    }
 

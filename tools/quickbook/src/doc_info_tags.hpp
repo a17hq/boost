@@ -13,8 +13,6 @@
 
 namespace quickbook
 {
-    // clang-format off
-
     QUICKBOOK_VALUE_TAGS(doc_info_tags, 0x400,
         (before_docinfo)
         (type)
@@ -46,8 +44,6 @@ namespace quickbook
         ((biblioid)("biblioid"))
         ((xmlbase)("xmlbase"))
     )
-
-    // clang-format on
 }
 
 #endif

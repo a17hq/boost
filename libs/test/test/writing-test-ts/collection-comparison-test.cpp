@@ -5,8 +5,11 @@
 
 //  See http://www.boost.org/libs/test for the library home page.
 //
-/// @file
-/// @brief tests collection comparison implementation
+//  File        : $RCSfile$
+//
+//  Version     : $Revision$
+//
+//  Description : tests collection comparison implementation
 // ***************************************************************************
 
 // Boost.Test
@@ -21,7 +24,8 @@ BOOST_TEST_SPECIALIZED_COLLECTION_COMPARE(std::vector<int>)
 {                                                   \
     BOOST_TEST_INFO( "validating operator " #op );  \
     bool expected = (c1 op c2);                     \
-    auto const& res = (tt::assertion::seed()->* c1 op c2).evaluate();      \
+    BOOST_TEST_BUILD_ASSERTION( c1 op c2 );         \
+    auto const& res = E.evaluate();                 \
     BOOST_TEST( expected == !!res );                \
 }                                                   \
 /**/
@@ -134,60 +138,5 @@ BOOST_AUTO_TEST_CASE( test_lexicographic_ge )
 }
 
 //____________________________________________________________________________//
-
-BOOST_AUTO_TEST_CASE( test_collection_of_collection_comp )
-{
-    BOOST_TEST( std::string("abc") == std::string("abc") );
-}
-
-//____________________________________________________________________________//
-
-// this one does not have const_iterator nor a size, but should be forward iterable
-// and possible to use in the collection comparison
-struct fwd_iterable_custom {
-  typedef std::vector<int>::const_iterator custom_iterator; // named "exotic" on purpose
-
-  custom_iterator begin() const { return values.begin(); }
-  custom_iterator end() const { return values.end(); }
-
-#if !defined(BOOST_MSVC) || (BOOST_MSVC_FULL_VER > 180040629)
-#define MY_TEST_HAS_INIT_LIST
-  // this does not work on VC++ 2013 update 5
-  fwd_iterable_custom(std::initializer_list<int> ilist) : values{ilist}
-  {}
-#else
-  fwd_iterable_custom(int v1, int v2, int v3) {
-    values.push_back(v1);
-    values.push_back(v2);
-    values.push_back(v3);
-  }
-#endif
-private:
-  std::vector<int> values;
-};
-
-BOOST_AUTO_TEST_CASE( test_collection_requirement_type )
-{
-#ifdef MY_TEST_HAS_INIT_LIST
-    fwd_iterable_custom a{3,4,5};
-    fwd_iterable_custom b{3,4,6};
-    fwd_iterable_custom c{3,4,5};
-#else
-    fwd_iterable_custom a(3,4,5);
-    fwd_iterable_custom b(3,4,6);
-    fwd_iterable_custom c(3,4,5);
-#endif
-
-    BOOST_TEST( a == a, tt::per_element() );
-    //BOOST_TEST( a != b, tt::per_element() );
-    BOOST_TEST( a == c, tt::per_element() );
-
-    BOOST_TEST( a < b, tt::lexicographic() );
-    BOOST_TEST( a <= c, tt::lexicographic() );
-    BOOST_TEST( b > c, tt::lexicographic() );
-
-    BOOST_TEST( a <= b, tt::per_element() );
-    BOOST_TEST( a <= c, tt::per_element() );
-}
 
 // EOF

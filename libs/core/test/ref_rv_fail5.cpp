@@ -20,7 +20,6 @@ X const crv() { return X(); }
 int main()
 {
     boost::reference_wrapper<X const> r = boost::cref( crv() ); // must fail
-    (void)r;
 }
 
 #else

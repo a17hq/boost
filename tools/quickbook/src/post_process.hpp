@@ -9,22 +9,23 @@
 #if !defined(BOOST_SPIRIT_QUICKBOOK_POST_PROCESS_HPP)
 #define BOOST_SPIRIT_QUICKBOOK_POST_PROCESS_HPP
 
-#include <stdexcept>
 #include <string>
+#include <stdexcept>
 
 namespace quickbook
 {
     std::string post_process(
-        std::string const& in, int indent = -1, int linewidth = -1);
+        std::string const& in
+      , int indent = -1
+      , int linewidth = -1);
 
     struct post_process_failure : public std::runtime_error
     {
-      public:
+    public:
         explicit post_process_failure(std::string const& error)
-            : std::runtime_error(error)
-        {
-        }
+            : std::runtime_error(error) {}
     };
 }
 
 #endif // BOOST_SPIRIT_QUICKBOOK_POST_PROCESS_HPP
+

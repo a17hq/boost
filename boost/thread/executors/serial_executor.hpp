@@ -20,11 +20,6 @@
 
 #include <boost/config/abi_prefix.hpp>
 
-#if defined(BOOST_MSVC)
-# pragma warning(push)
-# pragma warning(disable: 4355) // 'this' : used in base member initializer list
-#endif
-
 namespace boost
 {
 namespace executors
@@ -87,7 +82,7 @@ namespace executors
       catch (...)
       {
         std::terminate();
-        //return false;
+        return false;
       }
     }
   private:
@@ -170,28 +165,23 @@ namespace executors
      * \b Throws: \c sync_queue_is_closed if the thread pool is closed.
      * Whatever exception that can be throw while storing the closure.
      */
-    void submit(BOOST_THREAD_RV_REF(work) closure)
-    {
-      work_queue.push(boost::move(closure));
-    }
 
 #if defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
     template <typename Closure>
     void submit(Closure & closure)
     {
-      submit(work(closure));
+      work_queue.push(work(closure));
     }
 #endif
     void submit(void (*closure)())
     {
-      submit(work(closure));
+      work_queue.push(work(closure));
     }
 
     template <typename Closure>
-    void submit(BOOST_THREAD_FWD_REF(Closure) closure)
+    void submit(BOOST_THREAD_RV_REF(Closure) closure)
     {
-      work w((boost::forward<Closure>(closure)));
-      submit(boost::move(w));
+      work_queue.push(work(boost::forward<Closure>(closure)));
     }
 
     /**
@@ -215,10 +205,6 @@ namespace executors
 }
 using executors::serial_executor;
 }
-
-#if defined(BOOST_MSVC)
-# pragma warning(pop)
-#endif
 
 #include <boost/config/abi_suffix.hpp>
 

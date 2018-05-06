@@ -1,13 +1,8 @@
-// Copyright (c) 2009-2016 Vladimir Batov.
+// Copyright (c) 2009-2014 Vladimir Batov.
 // Use, modification and distribution are subject to the Boost Software License,
 // Version 1.0. See http://www.boost.org/LICENSE_1_0.txt.
 
 #include "./test.hpp"
-
-#if defined(BOOST_CONVERT_IS_NOT_SUPPORTED)
-int main(int, char const* []) { return 0; }
-#else
-
 #include <boost/convert.hpp>
 #include <boost/detail/lightweight_test.hpp>
 
@@ -26,7 +21,7 @@ my_cypher(std::string const& value_in, boost::optional<std::string>& value_out)
 }
 
 int
-main(int, char const* [])
+main(int argc, char const* argv[])
 {
     ////////////////////////////////////////////////////////////////////////////
     // Testing custom converter.
@@ -40,5 +35,3 @@ main(int, char const* [])
 
     return boost::report_errors();
 }
-
-#endif

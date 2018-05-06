@@ -24,7 +24,6 @@
 
 #ifndef BOOST_NO_EXCEPTIONS
    #include <stdexcept> //for std exception types
-   #include <string>    //for implicit std::string conversion
    #include <new>       //for std::bad_alloc
 #else
    #include <boost/assert.hpp>
@@ -51,41 +50,31 @@ namespace container {
 
    inline void throw_bad_alloc()
    {
-      const char msg[] = "boost::container bad_alloc thrown";
-      (void)msg;
-      BOOST_ASSERT(!msg);
+      BOOST_ASSERT(!"boost::container bad_alloc thrown");
       std::abort();
    }
 
    inline void throw_out_of_range(const char* str)
    {
-      const char msg[] = "boost::container out_of_range thrown";
-      (void)msg; (void)str;
-      BOOST_ASSERT_MSG(!msg, str);
+      BOOST_ASSERT_MSG(!"boost::container out_of_range thrown", str);
       std::abort();
    }
 
    inline void throw_length_error(const char* str)
    {
-      const char msg[] = "boost::container length_error thrown";
-      (void)msg; (void)str;
-      BOOST_ASSERT_MSG(!msg, str);
+      BOOST_ASSERT_MSG(!"boost::container length_error thrown", str);
       std::abort();
    }
 
    inline void throw_logic_error(const char* str)
    {
-      const char msg[] = "boost::container logic_error thrown";
-      (void)msg; (void)str;
-      BOOST_ASSERT_MSG(!msg, str);
+      BOOST_ASSERT_MSG(!"boost::container logic_error thrown", str);
       std::abort();
    }
 
    inline void throw_runtime_error(const char* str)
    {
-      const char msg[] = "boost::container runtime_error thrown";
-      (void)msg; (void)str;
-      BOOST_ASSERT_MSG(!msg, str);
+      BOOST_ASSERT_MSG(!"boost::container runtime_error thrown", str);
       std::abort();
    }
 

@@ -18,7 +18,7 @@ else
 {
    prefix = "lib" ;      
 }
-if [ os.name ] in MACOSX
+if [ MATCH ^(clang-)?(darwin) : $toolset ]
 {
    dll-suffix = dylib ;
 }

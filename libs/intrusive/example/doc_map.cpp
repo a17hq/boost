@@ -28,10 +28,10 @@ class MyClass : public set_base_hook<>
 };
 
 //key_of_value function object, must:
-//- be default constructible if the container constructor requires it
+//- be default constructible (and lightweight)
 //- define the key type using "type"
 //- define an operator() taking "const value_type&" and
-//    returning "type" or "const type &"
+//    returning "const type &"
 struct first_int_is_key
 {
    typedef int type;

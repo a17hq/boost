@@ -35,12 +35,6 @@ typedef boost::chrono::nanoseconds ns;
 #else
 #endif
 
-#ifdef BOOST_THREAD_PLATFORM_WIN32
-const ms max_diff(250);
-#else
-const ms max_diff(50);
-#endif
-
 void f()
 {
 #if defined BOOST_THREAD_USES_CHRONO
@@ -51,7 +45,8 @@ void f()
   m.unlock();
   m.unlock();
   ns d = t1 - t0;
-  BOOST_TEST(d < max_diff);
+  // This test is spurious as it depends on the time the thread system switches the threads
+  BOOST_TEST(d < ns(50000000)); // within 50ms
 #else
   BOOST_TEST(m.try_lock());
   BOOST_TEST(m.try_lock());

@@ -14,7 +14,6 @@
 #include <boost/chrono/config.hpp>
 #include <boost/chrono/thread_clock.hpp>
 #include <cassert>
-#include <boost/assert.hpp>
 
 # include <pthread.h>
 # include <mach/thread_act.h>

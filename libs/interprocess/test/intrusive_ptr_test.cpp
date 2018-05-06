@@ -17,14 +17,9 @@
 #include <boost/core/lightweight_test.hpp>
 #include <boost/config.hpp>
 #include <boost/move/adl_move_swap.hpp>
-#include <boost/move/core.hpp>
 #include <functional>
 
 typedef boost::interprocess::offset_ptr<void> VP;
-
-namespace {
-    int addref_release_calls = 0;
-}
 
 namespace N
 {
@@ -57,13 +52,11 @@ class base
 
    void add_ref()
    {
-      ++addref_release_calls;
       ++use_count_;
    }
 
    void release()
    {
-      ++addref_release_calls;
       if(--use_count_ == 0) delete this;
    }
 };
@@ -196,30 +189,11 @@ void copy_constructor()
    }
 }
 
-void move_constructor()
-{
-   {
-      int prev_addref_release_calls = addref_release_calls;
-      X* x = new X();
-      boost::interprocess::intrusive_ptr<X, VP> px(x);
-      BOOST_TEST(addref_release_calls == prev_addref_release_calls + 1);
-
-      //static_assert(std::is_nothrow_move_constructible< boost::interprocess::intrusive_ptr<X, VP> >::value, "test instrusive_ptr is nothrow move constructible");
-
-      boost::interprocess::intrusive_ptr<X, VP> px2(boost::move(px));
-      BOOST_TEST(px2.get() == x);
-      BOOST_TEST(!px.get());
-      BOOST_TEST(px2->use_count() == 1);
-      BOOST_TEST(addref_release_calls == prev_addref_release_calls + 1);
-   }
-}
-
 void test()
 {
    default_constructor();
    pointer_constructor();
    copy_constructor();
-   move_constructor();
 }
 
 } // namespace n_constructors
@@ -249,26 +223,6 @@ void copy_assignment()
 {
 }
 
-void move_assignment()
-{
-   {      
-      int prev_addref_release_calls = addref_release_calls;
-      X* x = new X();
-      boost::interprocess::intrusive_ptr<X, VP> px(x);
-      BOOST_TEST(px->use_count() == 1);
-      BOOST_TEST(addref_release_calls == prev_addref_release_calls + 1);
-
-      //static_assert(std::is_nothrow_move_assignable< boost::interprocess::intrusive_ptr<X, VP> >::value, "test if nothrow move assignable ");
-
-      boost::interprocess::intrusive_ptr<X, VP> px2;
-      px2 = boost::move(px);
-      BOOST_TEST(px2.get() == x);
-      BOOST_TEST(!px.get());
-      BOOST_TEST(px2->use_count() == 1);
-      BOOST_TEST(addref_release_calls == prev_addref_release_calls + 1);
-   }
-}
-
 void conversion_assignment()
 {
 }
@@ -282,7 +236,6 @@ void test()
    copy_assignment();
    conversion_assignment();
    pointer_assignment();
-   move_assignment();
 }
 
 } // namespace n_assignment

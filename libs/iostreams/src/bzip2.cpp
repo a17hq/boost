@@ -135,18 +135,23 @@ int bzip2_base::decompress()
 
 void bzip2_base::do_init
     ( bool compress, 
-      bzip2::alloc_func /* alloc */, 
-      bzip2::free_func /* free */, 
+      #if !BOOST_WORKAROUND(BOOST_MSVC, < 1300)
+          bzip2::alloc_func /* alloc */, 
+          bzip2::free_func /* free */, 
+      #endif
       void* derived )
 {
     bz_stream* s = static_cast<bz_stream*>(stream_);
 
     // Current interface for customizing memory management 
     // is non-conforming and has been disabled:
+    //#if !BOOST_WORKAROUND(BOOST_MSVC, < 1300)
     //    s->bzalloc = alloc;
     //    s->bzfree = free;
+    //#else
         s->bzalloc = 0;
         s->bzfree = 0;
+    //#endif
     s->opaque = derived;
     bzip2_error::check BOOST_PREVENT_MACRO_SUBSTITUTION( 
         compress ?

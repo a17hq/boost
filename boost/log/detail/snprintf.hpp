@@ -35,10 +35,20 @@ BOOST_LOG_OPEN_NAMESPACE
 
 namespace aux {
 
-#if defined(_MSC_VER) || (defined(__MINGW32__) && !defined(__MINGW64_VERSION_MAJOR))
+#if !defined(_MSC_VER)
 
-// MSVC snprintfs are not conforming but they are good enough for our cases.
-// MinGW32, at least the older versions up until gcc 4.7, also provide the non-conforming interface.
+// Standard-conforming compilers already have the correct snprintfs
+using ::snprintf;
+using ::vsnprintf;
+
+#   ifdef BOOST_LOG_USE_WCHAR_T
+using ::swprintf;
+using ::vswprintf;
+#   endif // BOOST_LOG_USE_WCHAR_T
+
+#else // !defined(_MSC_VER)
+
+// MSVC snprintfs are not conforming but they are good enough for our cases
 inline int vsnprintf(char* buf, std::size_t size, const char* format, std::va_list args)
 {
     int n = _vsnprintf(buf, size, format, args);
@@ -83,18 +93,7 @@ inline int swprintf(wchar_t* buf, std::size_t size, const wchar_t* format, ...)
 }
 #   endif // BOOST_LOG_USE_WCHAR_T
 
-#else
-
-// Standard-conforming compilers already have the correct snprintfs
-using ::snprintf;
-using ::vsnprintf;
-
-#   ifdef BOOST_LOG_USE_WCHAR_T
-using ::swprintf;
-using ::vswprintf;
-#   endif // BOOST_LOG_USE_WCHAR_T
-
-#endif
+#endif // !defined(_MSC_VER)
 
 } // namespace aux
 

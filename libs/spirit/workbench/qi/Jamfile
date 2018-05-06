@@ -8,7 +8,8 @@
 project spirit-qi-benchmark 
     : requirements
         <include>.
-        <c++-template-depth>300
+        <toolset>gcc:<cxxflags>-ftemplate-depth-300
+        <toolset>darwin:<cxxflags>-ftemplate-depth-300
     :
     :
     ;

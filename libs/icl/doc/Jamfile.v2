@@ -53,8 +53,3 @@ boostbook standalone
 
     ;
 
-###############################################################################
-alias boostdoc ;
-explicit boostdoc ;
-alias boostrelease : standalone ;
-explicit boostrelease ;

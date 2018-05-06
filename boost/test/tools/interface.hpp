@@ -1,4 +1,4 @@
-//  (C) Copyright Gennadiy Rozental 2001.
+//  (C) Copyright Gennadiy Rozental 2001-2014.
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
@@ -40,9 +40,17 @@
 // **************               BOOST_TEST_<level>             ************** //
 // ************************************************************************** //
 
-#define BOOST_TEST_BUILD_ASSERTION( P )             \
-    (::boost::test_tools::assertion::seed()->*P)    \
+#ifdef BOOST_NO_CXX11_AUTO_DECLARATIONS
+#define BOOST_TEST_BUILD_ASSERTION( P )                         \
+    ::boost::test_tools::tt_detail::expression_holder const& E= \
+    ::boost::test_tools::tt_detail::hold_expression(            \
+        ::boost::test_tools::assertion::seed() ->* P )          \
 /**/
+#else
+#define BOOST_TEST_BUILD_ASSERTION( P )                         \
+    auto const& E = ::boost::test_tools::assertion::seed()->*P  \
+/**/
+#endif
 
 //____________________________________________________________________________//
 
@@ -67,10 +75,10 @@ do {                                                            \
 #define BOOST_TEST_TOOL_ET_IMPL( P, level )                     \
 do {                                                            \
     BOOST_TEST_PASSPOINT();                                     \
-                                                                \
+    BOOST_TEST_BUILD_ASSERTION( P );                            \
     ::boost::test_tools::tt_detail::                            \
     report_assertion(                                           \
-      BOOST_TEST_BUILD_ASSERTION( P ).evaluate(),               \
+      E.evaluate(),                                             \
       BOOST_TEST_LAZY_MSG( BOOST_TEST_STRINGIZE( P ) ),         \
       BOOST_TEST_L(__FILE__),                                   \
       static_cast<std::size_t>(__LINE__),                       \
@@ -86,11 +94,10 @@ do {                                                            \
 #define BOOST_TEST_TOOL_ET_IMPL_EX( P, level, arg )             \
 do {                                                            \
     BOOST_TEST_PASSPOINT();                                     \
-                                                                \
+    BOOST_TEST_BUILD_ASSERTION( P );                            \
     ::boost::test_tools::tt_detail::                            \
     report_assertion(                                           \
-      ::boost::test_tools::tt_detail::assertion_evaluate(       \
-        BOOST_TEST_BUILD_ASSERTION( P ) )                       \
+      ::boost::test_tools::tt_detail::assertion_evaluate(E)     \
           << arg,                                               \
       ::boost::test_tools::tt_detail::assertion_text(           \
           BOOST_TEST_LAZY_MSG( BOOST_TEST_STRINGIZE(P) ),       \

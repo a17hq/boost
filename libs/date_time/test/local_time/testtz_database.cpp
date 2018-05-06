@@ -15,13 +15,13 @@
 #include "boost/date_time/local_time/posix_time_zone.hpp"
 #include <iostream>
 
-bool run_bad_field_count_test(char const* fn);
+bool run_bad_field_count_test();
 
-int main(int /* argc */, char const* argv[]){
+int main(){
   using namespace boost::gregorian;
   using namespace boost::posix_time;
   using namespace boost::local_time;
-
+  
   /* NOTE: The testlocal_time_facet tests required full names 
    * be added to some of the date_time_zonespec.csv entries. The 
    * tests here also use those full names. Those entries are:
@@ -32,16 +32,30 @@ int main(int /* argc */, char const* argv[]){
   try{
     tz_database tz_db;
     tz_db.load_from_file("missing_file.csv"); // file does not exist
-  }catch(data_not_accessible&){
+  }catch(data_not_accessible& e){
     check("Caught Missing data file exception", true);
   }catch(...){
     check("Caught first unexpected exception", false);
   }
-  check("Caught Bad field count exception", run_bad_field_count_test(argv[2]));
+  check("Caught Bad field count exception", run_bad_field_count_test());
 
+  /* This test-file is usually run from either $BOOST_ROOT/status, or 
+   * $BOOST_ROOT/libs/date_time/test. Therefore, the relative path 
+   * to the data file this test depends on will be one of two 
+   * possible paths.
+   *
+   * If the first attempt at opening the data file fails, an exception 
+   * will be thrown. The handling of that exception consists of 
+   * attempting to open it again but from a different location. If that 
+   * also fails, we abort the test. */
   tz_database tz_db;
   try {
-    tz_db.load_from_file(argv[1]);
+    // first try to find the data file from the test dir
+    tz_db.load_from_file("../data/date_time_zonespec.csv");
+  }catch(data_not_accessible& e) {
+    // couldn't find the data file so assume we are being run from 
+    // boost_root/status and try again
+    tz_db.load_from_file("../libs/date_time/data/date_time_zonespec.csv");
   }catch(...) {
     check("Cannot locate data file - aborting.", false);
     return printTestStats();
@@ -100,17 +114,25 @@ int main(int /* argc */, char const* argv[]){
 /* This test only checks to make sure the bad_field_count exception
  * is properly thrown. It does not pay any attention to any other 
  * exception, those are tested elsewhere. */
-bool run_bad_field_count_test(char const* fn)
+bool run_bad_field_count_test()
 {
   using namespace boost::local_time;
   bool caught_bfc = false;
   tz_database other_db;
   try{
-    other_db.load_from_file(fn);
-  }catch(bad_field_count&){
+    other_db.load_from_file("local_time/poorly_formed_zonespec.csv");
+  }catch(bad_field_count& be){
+    caught_bfc = true;
+  }catch(...) {
+    // do nothing (file not found)
+  }
+  try{
+    other_db.load_from_file("../libs/date_time/test/local_time/poorly_formed_zonespec.csv");
+  }catch(bad_field_count& be){
     caught_bfc = true;
   }catch(...) {
     // do nothing (file not found)
   }
   return caught_bfc;
 }
+

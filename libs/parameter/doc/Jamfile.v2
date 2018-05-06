@@ -22,9 +22,3 @@ for local b in $(bases)
 
 alias htmls : $(bases) ;
 stage html : $(bases) ;
-
-###############################################################################
-alias boostdoc ;
-explicit boostdoc ;
-alias boostrelease : htmls ;
-explicit boostrelease ;

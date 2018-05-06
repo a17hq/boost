@@ -19,7 +19,6 @@ X const crv() { return X(); }
 int main()
 {
     boost::reference_wrapper<X const> r = boost::ref( crv() ); // this should produce an ERROR
-    (void)r;
 }
 
 #else

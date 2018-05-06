@@ -47,7 +47,11 @@ protected:
         const boost::serialization::extended_type_info & type_
     );
 public:
-    virtual BOOST_ARCHIVE_DECL ~basic_pointer_oserializer();
+    // account for bogus gcc warning
+    #if defined(__GNUC__)
+    virtual
+    #endif
+    BOOST_ARCHIVE_DECL ~basic_pointer_oserializer();
     virtual const basic_oserializer & get_basic_serializer() const = 0;
     virtual void save_object_ptr(
         basic_oarchive & ar,

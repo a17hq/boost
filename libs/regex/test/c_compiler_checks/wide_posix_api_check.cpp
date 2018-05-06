@@ -26,8 +26,6 @@
 #include <stdlib.h>
 #include <boost/regex.h>
 #include <wchar.h>
-#include <iostream>
-#include <iomanip>
 
 #ifndef BOOST_NO_WREGEX
 

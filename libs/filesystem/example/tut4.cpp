@@ -35,15 +35,15 @@ int main(int argc, char* argv[])
       {
         cout << p << " is a directory containing:\n";
 
-        std::vector<path> v;
+        std::vector<std::string> v;
 
         for (auto&& x : directory_iterator(p))
-          v.push_back(x.path()); 
+          v.push_back(x.path().filename().string()); 
 
         std::sort(v.begin(), v.end());  
 
         for (auto&& x : v)
-          cout << "    " << x.filename() << '\n';
+          cout << "    " << x << '\n';
       }
       else
         cout << p << " exists, but is not a regular file or directory\n";

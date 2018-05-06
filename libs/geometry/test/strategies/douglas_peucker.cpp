@@ -25,6 +25,11 @@
 
 #include <boost/test/included/unit_test.hpp>
 
+#include <boost/assign/list_of.hpp>
+#include <boost/core/ignore_unused.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/tuple/tuple.hpp>
+
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/core/tags.hpp>
 
@@ -40,11 +45,6 @@
 
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/io/dsv/write.hpp>
-
-#include <boost/assign/list_of.hpp>
-#include <boost/core/ignore_unused.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/tuple/tuple.hpp>
 
 
 namespace bg = ::boost::geometry;

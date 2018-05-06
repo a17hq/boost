@@ -67,7 +67,8 @@ module c
 IMPORT_MODULE c : ;
 c.test ;
 
-EXIT : 0 ;
+actions do-nothing { }
+do-nothing all ;
 """)
 
 t.run_build_system(["-fcode"], stdout="""\
@@ -76,7 +77,6 @@ R2
 L1
 A.L1
 CTEST
-
 """)
 
 t.cleanup()

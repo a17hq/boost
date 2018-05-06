@@ -21,13 +21,14 @@
 #include <boost/spirit/include/phoenix1_closures.hpp>
 
 //////////////////////////////////
+using namespace std;
 using namespace phoenix;
 
 //////////////////////////////////
 int
 main()
 {
-    struct my_closure : closure<int, std::string, double> {
+    struct my_closure : closure<int, string, double> {
 
         member1 num;
         member2 message;
@@ -41,7 +42,7 @@ main()
         (clos.num = 123)();
         (clos.num += 456)();
         (clos.real = clos.num / 56.5)();
-        (clos.message = "Hello " + std::string("World "))();
+        (clos.message = "Hello " + string("World "))();
 
         {   //  Second stack frame
             closure_frame<my_closure::self_t> frame(clos);
@@ -53,13 +54,13 @@ main()
                 tuple<int, char const*, double> init(-1, "Direct Init ", 3.14);
                 closure_frame<my_closure::self_t> frame(clos, init);
 
-                (std::cout << clos.message << clos.num << ", " << clos.real << '\n')();
+                (cout << clos.message << clos.num << ", " << clos.real << '\n')();
             }
 
-            (std::cout << clos.message << clos.num << ", " << clos.real << '\n')();
+            (cout << clos.message << clos.num << ", " << clos.real << '\n')();
         }
 
-        (std::cout << clos.message << clos.num << ", " << clos.real << '\n')();
+        (cout << clos.message << clos.num << ", " << clos.real << '\n')();
     }
 
     return 0;

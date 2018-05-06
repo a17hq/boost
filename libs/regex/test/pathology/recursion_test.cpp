@@ -16,16 +16,15 @@
   *   DESCRIPTION: Test for indefinite recursion and/or stack overrun.
   */
 
-#include <boost/regex.hpp>
-#include <boost/detail/lightweight_main.hpp>
-#include "../test_macros.hpp"
 #include <string>
+#include <boost/regex.hpp>
+#include <boost/test/test_tools.hpp>
 
 #ifdef BOOST_INTEL
 #pragma warning(disable:1418 981 983 383)
 #endif
 
-int cpp_main( int , char* [] )
+int test_main( int , char* [] )
 {
    // this regex will recurse twice for each whitespace character matched:
    boost::regex e("([[:space:]]|.)+");
@@ -63,3 +62,4 @@ int cpp_main( int , char* [] )
    return 0;
 }
 
+#include <boost/test/included/test_exec_monitor.hpp>

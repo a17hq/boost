@@ -26,14 +26,14 @@
  *  -------------------------------------------------  *
  *  | 0x40| 0x44| 0x48| 0x4c| 0x50| 0x54| 0x58| 0x5c|  *
  *  -------------------------------------------------  *
- *  |hiddn|  v1 |  v2 |  v3 |  v4 |  v5 |  v6 |  v7 |  *
+ *  |  v1 |  v2 |  v3 |  v4 |  v5 |  v6 |  v7 |  v8 |  *
  *  -------------------------------------------------  *
  *  -------------------------------------------------  *
- *  |  24 |  25 |  26 |  27 |  28 |  29 |  30 |  31 |  *
+ *  |  24 |  25 |                                   |  *
  *  -------------------------------------------------  *
- *  | 0x60| 0x64| 0x68| 0x6c| 0x70| 0x74| 0x78| 0x7c|  *
+ *  | 0x60| 0x64|                                   |  *
  *  -------------------------------------------------  *
- *  |  v8 |  lr |  pc | FCTX| DATA|                 |  *
+ *  |  lr |  pc |                                   |  *
  *  -------------------------------------------------  *
  *                                                     *
  *******************************************************/
@@ -45,41 +45,48 @@
 jump_fcontext:
     @ save LR as PC
     push {lr}
-    @ save hidden,V1-V8,LR
-    push {a1,v1-v8,lr}
+    @ save V1-V8,LR
+    push {v1-v8,lr}
 
     @ prepare stack for FPU
     sub  sp, sp, #64
+
 #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
+    @ test if fpu env should be preserved
+    cmp  a4, #0
+    beq  1f
+
     @ save S16-S31
-    vstmia sp, {d8-d15}
+    vstmia  sp, {d8-d15}
+
+1:
 #endif
 
     @ store RSP (pointing to context-data) in A1
-    mov  a1, sp
+    str  sp, [a1]
 
     @ restore RSP (pointing to context-data) from A2
     mov  sp, a2
 
 #if (defined(__VFP_FP__) && !defined(__SOFTFP__))
+    @ test if fpu env should be preserved
+    cmp  a4, #0
+    beq  2f
+
     @ restore S16-S31
     vldmia  sp, {d8-d15}
+2:
 #endif
+
     @ prepare stack for FPU
     add  sp, sp, #64
 
-    @ restore hidden,V1-V8,LR
-    pop {a4,v1-v8,lr}
-
-    @ return transfer_t from jump
-    str  a1, [a4, #0]
-    str  a3, [a4, #4]
-    @ pass transfer_t as first arg in context function
-    @ A1 == FCTX, A2 == DATA
-    mov  a2, a3
-
-    @ restore PC
-    pop {pc}
+    @ use third arg as return value after jump
+    @ and as first arg in context function
+    mov  a1, a3
+    
+    @ restore v1-V8,LR,PC
+    pop {v1-v8,lr,pc}
 .size jump_fcontext,.-jump_fcontext
 
 @ Mark that we don't need executable stack.

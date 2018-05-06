@@ -26,21 +26,21 @@ void expected_results()
       ".*",                          // platform
       ".*",                          // test type(s)
       "Beta Function: Small.*",      // test data group
-      "beta", 8, 5);    // test function
+      "boost::math::beta", 8, 5);    // test function
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
       ".*",                          // platform
       ".*",                          // test type(s)
       "Beta Function: Medium.*",     // test data group
-      "beta", 1000, 750); // test function
+      "boost::math::beta", 1000, 750); // test function
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
       ".*",                          // platform
       ".*",                          // test type(s)
       "Beta Function: Divergent.*",  // test data group
-      "beta", 1000, 700);   // test function
+      "boost::math::beta", 1000, 700);   // test function
    //
    // Finish off by printing out the compiler/stdlib/platform names,
    // we do this to make it easier to mark up expected error rates.

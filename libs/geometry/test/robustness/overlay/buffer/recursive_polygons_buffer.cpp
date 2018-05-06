@@ -87,8 +87,8 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
     bool result = true;
 
     // Area of buffer must be larger than of original polygon
-    double area_mp = bg::area(mp);
-    double area_buf = bg::area(buffer);
+    BOOST_AUTO(area_mp, bg::area(mp));
+    BOOST_AUTO(area_buf, bg::area(buffer));
 
     if (area_buf < area_mp)
     {
@@ -106,16 +106,6 @@ bool verify(std::string const& caseid, MultiPolygon const& mp, MultiPolygon cons
             {
                 result = false;
             }
-        }
-    }
-
-    if (result)
-    {
-        std::string message;
-        if (! bg::is_valid(buffer, message))
-        {
-            std::cout << "Buffer is not valid: " << message << std::endl;
-            result = false;
         }
     }
 
@@ -214,7 +204,7 @@ bool test_buffer(MultiPolygon& result, int& index,
     bg::strategy::buffer::end_round end_strategy;
     bg::strategy::buffer::point_circle point_strategy;
     bg::strategy::buffer::side_straight side_strategy;
-    bg::strategy::buffer::join_round join_round_strategy(32); // Compatible with MySQL
+    bg::strategy::buffer::join_round join_round_strategy(100); // Compatible with unit tests
     bg::strategy::buffer::join_miter join_miter_strategy;
 
     try

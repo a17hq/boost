@@ -11,11 +11,6 @@
 #include <boost/container/detail/workaround.hpp>
 //[doc_custom_tree
 #include <boost/container/set.hpp>
-
-//Make sure assertions are active
-#ifdef NDEBUG
-#undef NDEBUG
-#endif
 #include <cassert>
 
 int main ()

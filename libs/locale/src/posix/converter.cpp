@@ -7,9 +7,6 @@
 //
 #define BOOST_LOCALE_SOURCE
 
-#if defined(__FreeBSD__)
-#include <xlocale.h>
-#endif
 #include <locale>
 #include <stdexcept>
 #include <boost/locale/generator.hpp>

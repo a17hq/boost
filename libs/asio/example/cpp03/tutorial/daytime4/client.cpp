@@ -2,7 +2,7 @@
 // client.cpp
 // ~~~~~~~~~~
 //
-// Copyright (c) 2003-2018 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2015 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -24,13 +24,13 @@ int main(int argc, char* argv[])
       return 1;
     }
 
-    boost::asio::io_context io_context;
+    boost::asio::io_service io_service;
 
-    udp::resolver resolver(io_context);
-    udp::endpoint receiver_endpoint =
-      *resolver.resolve(udp::v4(), argv[1], "daytime").begin();
+    udp::resolver resolver(io_service);
+    udp::resolver::query query(udp::v4(), argv[1], "daytime");
+    udp::endpoint receiver_endpoint = *resolver.resolve(query);
 
-    udp::socket socket(io_context);
+    udp::socket socket(io_service);
     socket.open(udp::v4());
 
     boost::array<char, 1> send_buf  = {{ 0 }};

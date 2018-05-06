@@ -38,8 +38,6 @@ class CompleteSmartPtr
 {
    template <class U>
    friend class CompleteSmartPtr;
-   void unspecified_bool_type_func() const {}
-   typedef void (CompleteSmartPtr::*unspecified_bool_type)() const;
 
    public:
    #if !defined(BOOST_NO_CXX11_TEMPLATE_ALIASES)
@@ -75,32 +73,17 @@ class CompleteSmartPtr
    T & operator *() const
    {  return *ptr_;  }
 
-   operator unspecified_bool_type() const
-   {  return ptr_? &CompleteSmartPtr::unspecified_bool_type_func : 0;   }
-
    template<class U>
    static CompleteSmartPtr static_cast_from(const CompleteSmartPtr<U> &uptr)
-   {
-      ++CompleteSmartPtrStats::static_cast_called;
-      element_type* const p = static_cast<element_type*>(uptr.ptr_);
-      return p ? CompleteSmartPtr(*p) : CompleteSmartPtr();
-   }
+   {  ++CompleteSmartPtrStats::static_cast_called; return CompleteSmartPtr(*static_cast<element_type*>(uptr.ptr_));  }
 
    template<class U>
    static CompleteSmartPtr const_cast_from(const CompleteSmartPtr<U> &uptr)
-   {
-      ++CompleteSmartPtrStats::const_cast_called; 
-      element_type* const p = const_cast<element_type*>(uptr.ptr_);
-      return p ? CompleteSmartPtr(*p) : CompleteSmartPtr();
-   }
-  
+   {  ++CompleteSmartPtrStats::const_cast_called; return CompleteSmartPtr(*const_cast<element_type*>(uptr.ptr_));  }
+
    template<class U>
    static CompleteSmartPtr dynamic_cast_from(const CompleteSmartPtr<U> &uptr)
-   {
-      ++CompleteSmartPtrStats::dynamic_cast_called; 
-      element_type* const p = dynamic_cast<element_type*>(uptr.ptr_);
-      return p ? CompleteSmartPtr(*p) : CompleteSmartPtr();
-   }
+   {  ++CompleteSmartPtrStats::dynamic_cast_called; return CompleteSmartPtr(*dynamic_cast<element_type*>(uptr.ptr_));  }
 
    friend bool operator ==(const CompleteSmartPtr &l, const CompleteSmartPtr &r)
    {  return l.ptr_ == r.ptr_; }
@@ -116,8 +99,6 @@ class CompleteSmartPtr
 template<class T>
 class SimpleSmartPtr
 {
-   void unspecified_bool_type_func() const {}
-   typedef void (SimpleSmartPtr::*unspecified_bool_type)() const;
    public:
 
    SimpleSmartPtr()
@@ -145,9 +126,6 @@ class SimpleSmartPtr
 
    T & operator *() const
    {  return *ptr_;  }
-
-   operator unspecified_bool_type() const
-   {  return ptr_? &SimpleSmartPtr::unspecified_bool_type_func : 0;   }
 
    private:
    T *ptr_;

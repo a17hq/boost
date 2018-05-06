@@ -13,16 +13,17 @@
 
 #include <boost/utility/string_ref.hpp>
 
-#include <boost/core/lightweight_test.hpp>
+#define BOOST_TEST_MAIN
+#include <boost/test/unit_test.hpp>
 
 typedef boost::string_ref string_ref;
 
 //  Should be equal
 void interop ( const std::string &str, string_ref ref ) {
-//  BOOST_TEST ( str == ref );
-    BOOST_TEST ( str.size () == ref.size ());
-    BOOST_TEST ( std::equal ( str.begin (),  str.end (),  ref.begin ()));
-    BOOST_TEST ( std::equal ( str.rbegin (), str.rend (), ref.rbegin ()));
+//  BOOST_CHECK ( str == ref );
+    BOOST_CHECK ( str.size () == ref.size ());
+    BOOST_CHECK ( std::equal ( str.begin (),  str.end (),  ref.begin ()));
+    BOOST_CHECK ( std::equal ( str.rbegin (), str.rend (), ref.rbegin ()));
     }
 
 void null_tests ( const char *p ) {
@@ -33,10 +34,10 @@ void null_tests ( const char *p ) {
     string_ref sr4 ( p );
     sr4.clear ();
 
-    BOOST_TEST ( sr1 == sr2 );
-    BOOST_TEST ( sr1 == sr3 );
-    BOOST_TEST ( sr2 == sr3 );
-    BOOST_TEST ( sr1 == sr4 );
+    BOOST_CHECK ( sr1 == sr2 );
+    BOOST_CHECK ( sr1 == sr3 );
+    BOOST_CHECK ( sr2 == sr3 );
+    BOOST_CHECK ( sr1 == sr4 );
     }
 
 //  make sure that substrings work just like strings
@@ -93,7 +94,7 @@ const char *test_strings [] = {
     NULL
     };
 
-int main()
+BOOST_AUTO_TEST_CASE( test_main )
 {
     const char **p = &test_strings[0];
 
@@ -105,6 +106,4 @@ int main()
 
         p++;
         }
-
-    return boost::report_errors();
 }

@@ -15,7 +15,6 @@
 #ifndef BOOST_LOG_SINKS_ASYNC_FRONTEND_HPP_INCLUDED_
 #define BOOST_LOG_SINKS_ASYNC_FRONTEND_HPP_INCLUDED_
 
-#include <exception> // std::terminate
 #include <boost/log/detail/config.hpp>
 
 #ifdef BOOST_HAS_PRAGMA_ONCE
@@ -28,12 +27,8 @@
 
 #include <boost/bind.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/memory_order.hpp>
-#include <boost/atomic/atomic.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/smart_ptr/make_shared_object.hpp>
-#include <boost/preprocessor/control/if.hpp>
-#include <boost/preprocessor/comparison/equal.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/thread.hpp>
@@ -56,31 +51,7 @@ namespace sinks {
 
 #ifndef BOOST_LOG_DOXYGEN_PASS
 
-#define BOOST_LOG_SINK_CTOR_FORWARD_INTERNAL_1(n, data)\
-    template< typename T0 >\
-    explicit asynchronous_sink(T0 const& arg0, typename boost::log::aux::enable_if_named_parameters< T0, boost::log::aux::sfinae_dummy >::type = boost::log::aux::sfinae_dummy()) :\
-        base_type(true),\
-        queue_base_type(arg0),\
-        m_pBackend(boost::make_shared< sink_backend_type >(arg0)),\
-        m_StopRequested(false),\
-        m_FlushRequested(false)\
-    {\
-        if (arg0[keywords::start_thread | true])\
-            start_feeding_thread();\
-    }\
-    template< typename T0 >\
-    explicit asynchronous_sink(shared_ptr< sink_backend_type > const& backend, T0 const& arg0) :\
-        base_type(true),\
-        queue_base_type(arg0),\
-        m_pBackend(backend),\
-        m_StopRequested(false),\
-        m_FlushRequested(false)\
-    {\
-        if (arg0[keywords::start_thread | true])\
-            start_feeding_thread();\
-    }
-
-#define BOOST_LOG_SINK_CTOR_FORWARD_INTERNAL_N(n, data)\
+#define BOOST_LOG_SINK_CTOR_FORWARD_INTERNAL(z, n, types)\
     template< BOOST_PP_ENUM_PARAMS(n, typename T) >\
     explicit asynchronous_sink(BOOST_PP_ENUM_BINARY_PARAMS(n, T, const& arg)) :\
         base_type(true),\
@@ -103,9 +74,6 @@ namespace sinks {
         if ((BOOST_PP_ENUM_PARAMS(n, arg))[keywords::start_thread | true])\
             start_feeding_thread();\
     }
-
-#define BOOST_LOG_SINK_CTOR_FORWARD_INTERNAL(z, n, data)\
-    BOOST_PP_IF(BOOST_PP_EQUAL(n, 1), BOOST_LOG_SINK_CTOR_FORWARD_INTERNAL_1, BOOST_LOG_SINK_CTOR_FORWARD_INTERNAL_N)(n, data)
 
 #endif // BOOST_LOG_DOXYGEN_PASS
 
@@ -136,11 +104,11 @@ private:
         frontend_mutex_type& m_Mutex;
         condition_variable_any& m_Cond;
         thread::id& m_ThreadID;
-        boost::atomic< bool >& m_StopRequested;
+        bool volatile& m_StopRequested;
 
     public:
         //! Initializing constructor
-        scoped_thread_id(frontend_mutex_type& mut, condition_variable_any& cond, thread::id& tid, boost::atomic< bool >& sr)
+        scoped_thread_id(frontend_mutex_type& mut, condition_variable_any& cond, thread::id& tid, bool volatile& sr)
             : m_Mutex(mut), m_Cond(cond), m_ThreadID(tid), m_StopRequested(sr)
         {
             lock_guard< frontend_mutex_type > lock(m_Mutex);
@@ -149,7 +117,7 @@ private:
             m_ThreadID = this_thread::get_id();
         }
         //! Initializing constructor
-        scoped_thread_id(unique_lock< frontend_mutex_type >& l, condition_variable_any& cond, thread::id& tid, boost::atomic< bool >& sr)
+        scoped_thread_id(unique_lock< frontend_mutex_type >& l, condition_variable_any& cond, thread::id& tid, bool volatile& sr)
             : m_Mutex(*l.mutex()), m_Cond(cond), m_ThreadID(tid), m_StopRequested(sr)
         {
             unique_lock< frontend_mutex_type > lock(move(l));
@@ -163,7 +131,7 @@ private:
             try
             {
                 lock_guard< frontend_mutex_type > lock(m_Mutex);
-                m_StopRequested.store(false, boost::memory_order_release);
+                m_StopRequested = false;
                 m_ThreadID = thread::id();
                 m_Cond.notify_all();
             }
@@ -172,8 +140,9 @@ private:
             }
         }
 
-        BOOST_DELETED_FUNCTION(scoped_thread_id(scoped_thread_id const&))
-        BOOST_DELETED_FUNCTION(scoped_thread_id& operator= (scoped_thread_id const&))
+    private:
+        scoped_thread_id(scoped_thread_id const&);
+        scoped_thread_id& operator= (scoped_thread_id const&);
     };
 
     //! A scope guard that resets a flag on destructor
@@ -182,10 +151,10 @@ private:
     private:
         frontend_mutex_type& m_Mutex;
         condition_variable_any& m_Cond;
-        boost::atomic< bool >& m_Flag;
+        volatile bool& m_Flag;
 
     public:
-        explicit scoped_flag(frontend_mutex_type& mut, condition_variable_any& cond, boost::atomic< bool >& f) :
+        explicit scoped_flag(frontend_mutex_type& mut, condition_variable_any& cond, volatile bool& f) :
             m_Mutex(mut), m_Cond(cond), m_Flag(f)
         {
         }
@@ -194,7 +163,7 @@ private:
             try
             {
                 lock_guard< frontend_mutex_type > lock(m_Mutex);
-                m_Flag.store(false, boost::memory_order_release);
+                m_Flag = false;
                 m_Cond.notify_all();
             }
             catch (...)
@@ -202,8 +171,9 @@ private:
             }
         }
 
-        BOOST_DELETED_FUNCTION(scoped_flag(scoped_flag const&))
-        BOOST_DELETED_FUNCTION(scoped_flag& operator= (scoped_flag const&))
+    private:
+        scoped_flag(scoped_flag const&);
+        scoped_flag& operator= (scoped_flag const&);
     };
 
 public:
@@ -239,9 +209,9 @@ private:
     condition_variable_any m_BlockCond;
 
     //! The flag indicates that the feeding loop has to be stopped
-    boost::atomic< bool > m_StopRequested;
+    volatile bool m_StopRequested; // TODO: make it a real atomic
     //! The flag indicates that queue flush has been requested
-    boost::atomic< bool > m_FlushRequested;
+    volatile bool m_FlushRequested; // TODO: make it a real atomic
 
 public:
     /*!
@@ -283,38 +253,16 @@ public:
             start_feeding_thread();
     }
 
-    /*!
-     * Constructor that passes arbitrary named parameters to the interprocess sink backend constructor.
-     * Refer to the backend documentation for the list of supported parameters.
-     *
-     * The frontend uses the following named parameters:
-     *
-     *   \li start_thread - If \c true, the frontend creates a thread to feed
-     *                      log records to the backend. Otherwise no thread is
-     *                      started and it is assumed that the user will call
-     *                      either \c run or \c feed_records himself.
-     */
-#ifndef BOOST_LOG_DOXYGEN_PASS
+    // Constructors that pass arbitrary parameters to the backend constructor
     BOOST_LOG_PARAMETRIZED_CONSTRUCTORS_GEN(BOOST_LOG_SINK_CTOR_FORWARD_INTERNAL, ~)
-#else
-    template< typename... Args >
-    explicit asynchronous_sink(Args&&... args);
-#endif
 
     /*!
      * Destructor. Implicitly stops the dedicated feeding thread, if one is running.
      */
-    ~asynchronous_sink() BOOST_NOEXCEPT
+    ~asynchronous_sink()
     {
-        try
-        {
-            boost::this_thread::disable_interruption no_interrupts;
-            stop();
-        }
-        catch (...)
-        {
-            std::terminate();
-        }
+        boost::this_thread::disable_interruption no_interrupts;
+        stop();
     }
 
     /*!
@@ -330,11 +278,11 @@ public:
      */
     void consume(record_view const& rec)
     {
-        if (BOOST_UNLIKELY(m_FlushRequested.load(boost::memory_order_acquire)))
+        if (m_FlushRequested)
         {
             unique_lock< frontend_mutex_type > lock(base_type::frontend_mutex());
             // Wait until flush is done
-            while (m_FlushRequested.load(boost::memory_order_acquire))
+            while (m_FlushRequested)
                 m_BlockCond.wait(lock);
         }
         queue_base_type::enqueue(rec);
@@ -345,7 +293,7 @@ public:
      */
     bool try_consume(record_view const& rec)
     {
-        if (!m_FlushRequested.load(boost::memory_order_acquire))
+        if (!m_FlushRequested)
         {
             return queue_base_type::try_enqueue(rec);
         }
@@ -371,7 +319,7 @@ public:
         while (true)
         {
             do_feed_records();
-            if (!m_StopRequested.load(boost::memory_order_acquire))
+            if (!m_StopRequested)
             {
                 // Block until new record is available
                 record_view rec;
@@ -404,14 +352,14 @@ public:
         {
             try
             {
-                m_StopRequested.store(true, boost::memory_order_release);
+                m_StopRequested = true;
                 queue_base_type::interrupt_dequeue();
-                while (m_StopRequested.load(boost::memory_order_acquire))
+                while (m_StopRequested)
                     m_BlockCond.wait(lock);
             }
             catch (...)
             {
-                m_StopRequested.store(false, boost::memory_order_release);
+                m_StopRequested = false;
                 throw;
             }
 
@@ -438,6 +386,8 @@ public:
      * The method feeds all log records that may have been buffered to the backend and returns.
      * Unlike \c feed_records, in case of ordering queueing the method also feeds records
      * that were enqueued during the ordering window, attempting to empty the queue completely.
+     *
+     * \pre The sink frontend must be constructed without spawning a dedicated thread
      */
     void flush()
     {
@@ -445,9 +395,9 @@ public:
         if (m_FeedingThreadID != thread::id() || m_DedicatedFeedingThread.joinable())
         {
             // There is already a thread feeding records, let it do the job
-            m_FlushRequested.store(true, boost::memory_order_release);
+            m_FlushRequested = true;
             queue_base_type::interrupt_dequeue();
-            while (!m_StopRequested.load(boost::memory_order_acquire) && m_FlushRequested.load(boost::memory_order_acquire))
+            while (!m_StopRequested && m_FlushRequested)
                 m_BlockCond.wait(lock);
 
             // The condition may have been signalled when the feeding thread was finishing.
@@ -456,7 +406,7 @@ public:
                 return;
         }
 
-        m_FlushRequested.store(true, boost::memory_order_release);
+        m_FlushRequested = true;
 
         // Flush records ourselves. The guard releases the lock.
         scoped_thread_id guard(lock, m_BlockCond, m_FeedingThreadID, m_StopRequested);
@@ -475,11 +425,11 @@ private:
     //! The record feeding loop
     void do_feed_records()
     {
-        while (!m_StopRequested.load(boost::memory_order_acquire))
+        while (!m_StopRequested)
         {
             record_view rec;
             bool dequeued = false;
-            if (BOOST_LIKELY(!m_FlushRequested.load(boost::memory_order_acquire)))
+            if (!m_FlushRequested)
                 dequeued = queue_base_type::try_dequeue_ready(rec);
             else
                 dequeued = queue_base_type::try_dequeue(rec);
@@ -490,7 +440,7 @@ private:
                 break;
         }
 
-        if (BOOST_UNLIKELY(m_FlushRequested.load(boost::memory_order_acquire)))
+        if (m_FlushRequested)
         {
             scoped_flag guard(base_type::frontend_mutex(), m_BlockCond, m_FlushRequested);
             base_type::flush_backend(m_BackendMutex, *m_pBackend);
@@ -499,8 +449,6 @@ private:
 #endif // BOOST_LOG_DOXYGEN_PASS
 };
 
-#undef BOOST_LOG_SINK_CTOR_FORWARD_INTERNAL_1
-#undef BOOST_LOG_SINK_CTOR_FORWARD_INTERNAL_N
 #undef BOOST_LOG_SINK_CTOR_FORWARD_INTERNAL
 
 } // namespace sinks

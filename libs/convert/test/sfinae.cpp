@@ -1,11 +1,11 @@
 // Boost.Convert test and usage example
-// Copyright (c) 2009-2016 Vladimir Batov.
+// Copyright (c) 2009-2014 Vladimir Batov.
 // Use, modification and distribution are subject to the Boost Software License,
 // Version 1.0. See http://www.boost.org/LICENSE_1_0.txt.
 
 #include "./test.hpp"
 
-#if defined(BOOST_CONVERT_IS_NOT_SUPPORTED)
+#if defined(BOOST_CONVERT_INTEL_SFINAE_BROKEN)
 int main(int, char const* []) { return 0; }
 #else
 
@@ -140,7 +140,7 @@ test_is_callable()
 }
 
 int
-main(int, char const* [])
+main(int argc, char const* argv[])
 {
     //[is_callable_usage
     //]

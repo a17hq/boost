@@ -10,7 +10,6 @@
 #include <boost/mpl/and.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/shared_ptr.hpp>
-#include <iostream>
 
 class gps_position
 {
@@ -33,8 +32,6 @@ public:
         degrees(d), minutes(m), seconds(s)
     {}
 
-  friend std::ostream& operator<<(std::ostream& out, const gps_position& g);
-
   friend bool operator==(const gps_position& x, const gps_position& y)
   {
     return (x.degrees == y.degrees
@@ -48,11 +45,6 @@ public:
   }
 };
 
-inline
-std::ostream& operator<<(std::ostream& out,  const gps_position& g) {
-  out << "gps{" << g.degrees << 'd' << g.minutes << 'm' << g.seconds << "s}";
-  return out;
-}
 
 namespace boost { namespace mpi {
 

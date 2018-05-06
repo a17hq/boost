@@ -31,7 +31,6 @@
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/and.hpp>
 #include <boost/limits.hpp>
-#include <boost/integer_traits.hpp>
 
 #if defined(BOOST_MSVC)
 # pragma warning(push)
@@ -101,9 +100,11 @@ namespace boost { namespace spirit { namespace qi { namespace detail
         template <typename Char>
         inline static bool is_valid(Char ch)
         {
-            return (ch >= '0' && ch <= (Radix > 10 ? '9' : static_cast<Char>('0' + Radix -1)))
-                || (Radix > 10 && ch >= 'a' && ch <= static_cast<Char>('a' + Radix -10 -1))
-                || (Radix > 10 && ch >= 'A' && ch <= static_cast<Char>('A' + Radix -10 -1));
+            if (Radix <= 10)
+                return (ch >= '0' && ch <= static_cast<Char>('0' + Radix -1));
+            return (ch >= '0' && ch <= '9')
+                || (ch >= 'a' && ch <= static_cast<Char>('a' + Radix -10 -1))
+                || (ch >= 'A' && ch <= static_cast<Char>('A' + Radix -10 -1));
         }
 
         template <typename Char>
@@ -113,12 +114,6 @@ namespace boost { namespace spirit { namespace qi { namespace detail
                 return ch - '0';
             return spirit::char_encoding::ascii::tolower(ch) - 'a' + 10;
         }
-    };
-    
-    template <typename T, T Val>
-    struct constexpr_int
-    {
-        BOOST_STATIC_CONSTEXPR T value = Val; 
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -140,17 +135,17 @@ namespace boost { namespace spirit { namespace qi { namespace detail
         inline static bool add(T& n, Char ch, mpl::true_) // checked add
         {
             // Ensure n *= Radix will not overflow
-            typedef constexpr_int<T, boost::integer_traits<T>::const_max> max;
-            typedef constexpr_int<T, max::value / Radix> val;
+            static T const max = (std::numeric_limits<T>::max)();
+            static T const val = max / Radix;
 
-            if (n > val::value)
+            if (n > val)
                 return false;
 
             n *= Radix;
 
             // Ensure n += digit will not overflow
             const int digit = radix_traits<Radix>::digit(ch);
-            if (n > max::value - digit)
+            if (n > max - digit)
                 return false;
 
             n += static_cast<T>(digit);
@@ -172,17 +167,16 @@ namespace boost { namespace spirit { namespace qi { namespace detail
         inline static bool add(T& n, Char ch, mpl::true_) // checked subtract
         {
             // Ensure n *= Radix will not underflow
-            typedef constexpr_int<T, boost::integer_traits<T>::const_min> min;
-            typedef constexpr_int<T, (min::value + 1) / T(Radix)> val;
-
-            if (n < val::value)
+            static T const min = (std::numeric_limits<T>::min)();
+            static T const val = (min + 1) / T(Radix);
+            if (n < val)
                 return false;
 
             n *= Radix;
 
             // Ensure n -= digit will not underflow
             int const digit = radix_traits<Radix>::digit(ch);
-            if (n < min::value + digit)
+            if (n < min + digit)
                 return false;
 
             n -= static_cast<T>(digit);
@@ -200,9 +194,10 @@ namespace boost { namespace spirit { namespace qi { namespace detail
         inline static bool
         call(Char ch, std::size_t count, T& n, mpl::true_)
         {
-            typedef constexpr_int<std::size_t, digits_traits<T, Radix>::value - 1> overflow_free;
+            static std::size_t const
+                overflow_free = digits_traits<T, Radix>::value - 1;
 
-            if (!AlwaysCheckOverflow && (count < overflow_free::value))
+            if (!AlwaysCheckOverflow && (count < overflow_free))
             {
                 Accumulator::add(n, ch, mpl::false_());
             }
@@ -276,20 +271,14 @@ namespace boost { namespace spirit { namespace qi { namespace detail
 #define SPIRIT_NUMERIC_INNER_LOOP(z, x, data)                                 \
         if (!check_max_digits<MaxDigits>::call(count + leading_zeros)         \
             || it == last)                                                    \
-        {                                                                     \
             break;                                                            \
-        }                                                                     \
         ch = *it;                                                             \
         if (!radix_check::is_valid(ch))                                       \
-        {                                                                     \
             break;                                                            \
-        }                                                                     \
         if (!extractor::call(ch, count, val))                                 \
         {                                                                     \
             if (IgnoreOverflowDigits)                                         \
-            {                                                                 \
                 first = it;                                                   \
-            }                                                                 \
             traits::assign_to(val, attr);                                     \
             return IgnoreOverflowDigits;                                      \
         }                                                                     \
@@ -327,7 +316,7 @@ namespace boost { namespace spirit { namespace qi { namespace detail
             if (!Accumulate)
             {
                 // skip leading zeros
-                while (it != last && *it == '0' && (MaxDigits < 0 || leading_zeros < static_cast< std::size_t >(MaxDigits)))
+                while (it != last && *it == '0' && leading_zeros < MaxDigits)
                 {
                     ++it;
                     ++leading_zeros;
@@ -390,14 +379,10 @@ namespace boost { namespace spirit { namespace qi { namespace detail
     ///////////////////////////////////////////////////////////////////////////
 #define SPIRIT_NUMERIC_INNER_LOOP(z, x, data)                                 \
         if (it == last)                                                       \
-        {                                                                     \
             break;                                                            \
-        }                                                                     \
         ch = *it;                                                             \
         if (!radix_check::is_valid(ch))                                       \
-        {                                                                     \
             break;                                                            \
-        }                                                                     \
         if (!extractor::call(ch, count, val))                                 \
         {                                                                     \
             traits::assign_to(val, attr);                                     \
@@ -504,6 +489,35 @@ namespace boost { namespace spirit { namespace qi { namespace detail
     };
 
 #undef SPIRIT_NUMERIC_INNER_LOOP
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Cast an signed integer to an unsigned integer
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename T,
+        bool force_unsigned
+            = mpl::and_<is_integral<T>, is_signed<T> >::value>
+    struct cast_unsigned;
+
+    template <typename T>
+    struct cast_unsigned<T, true>
+    {
+        typedef typename make_unsigned<T>::type unsigned_type;
+        typedef typename make_unsigned<T>::type& unsigned_type_ref;
+
+        inline static unsigned_type_ref call(T& n)
+        {
+            return unsigned_type_ref(n);
+        }
+    };
+
+    template <typename T>
+    struct cast_unsigned<T, false>
+    {
+        inline static T& call(T& n)
+        {
+            return n;
+        }
+    };
 }}}}
 
 #if defined(BOOST_MSVC)

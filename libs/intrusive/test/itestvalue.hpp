@@ -96,9 +96,6 @@ struct testvalue
    bool operator< (const testvalue &other) const
    {  return value_ < other.value_;  }
 
-   bool operator> (const testvalue &other) const
-   {  return value_ > other.value_;  }
-
    bool operator==(const testvalue &other) const
    {  return value_ == other.value_;  }
 
@@ -108,14 +105,8 @@ struct testvalue
    friend bool operator< (int other1, const testvalue &other2)
    {  return other1 < other2.value_.int_;  }
 
-   friend bool operator> (int other1, const testvalue &other2)
-   {  return other1 > other2.value_.int_;  }
-
    friend bool operator< (const testvalue &other1, int other2)
    {  return other1.value_.int_ < other2;  }
-
-   friend bool operator> (const testvalue &other1, int other2)
-   {  return other1.value_.int_ > other2;  }
 
    friend bool operator== (int other1, const testvalue &other2)
    {  return other1 == other2.value_.int_;  }
@@ -136,20 +127,23 @@ struct testvalue
    }
 };
 
-template<class T>
-std::size_t priority_hash(const T &t)
-{  return boost::hash<int>()((&t)->int_value()); }
 
-std::size_t priority_hash(int i)
-{  return boost::hash<int>()(i); }
-
-template <class T, class U>
-bool priority_order(const T& t1, const U& t2)
+template <class Type>
+bool priority_order(const Type& t1, const Type& t2)
 {
-   std::size_t hash1 = (priority_hash)(t1);
-   boost::hash_combine(hash1, -hash1);
-   std::size_t hash2 = (priority_hash)(t2);
-   boost::hash_combine(hash2, -hash2);
+   std::size_t hash1 = boost::hash<int>()((&t1)->int_value());
+   boost::hash_combine(hash1, &t1);
+   std::size_t hash2 = boost::hash<int>()((&t2)->int_value());
+   boost::hash_combine(hash2, &t2);
+   return hash1 < hash2;
+}
+
+bool priority_order(int t1, int t2)
+{
+   std::size_t hash1 = boost::hash<int>()(t1);
+   boost::hash_combine(hash1, &t1);
+   std::size_t hash2 = boost::hash<int>()(t2);
+   boost::hash_combine(hash2, &t2);
    return hash1 < hash2;
 }
 
@@ -162,7 +156,7 @@ void swap_nodes(testvalue<Hooks>& lhs, testvalue<Hooks>& rhs)
 template<class Hooks>
 std::ostream& operator<<
    (std::ostream& s, const testvalue<Hooks>& t)
-{  return s << t.value_.int_value();   }
+{  return s << t.value_;   }
 
 struct even_odd
 {

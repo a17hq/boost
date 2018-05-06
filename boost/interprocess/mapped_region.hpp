@@ -523,8 +523,8 @@ inline bool mapped_region::flush(std::size_t mapping_offset, std::size_t numbyte
 
 inline bool mapped_region::shrink_by(std::size_t bytes, bool from_back)
 {
-   void *shrink_page_start = 0;
-   std::size_t shrink_page_bytes = 0;
+   void *shrink_page_start;
+   std::size_t shrink_page_bytes;
    if(!this->priv_shrink_param_check(bytes, from_back, shrink_page_start, shrink_page_bytes)){
       return false;
    }
@@ -621,10 +621,7 @@ inline mapped_region::mapped_region
          throw interprocess_exception(err);
       }
       //Attach memory
-      //Some old shmat implementation take the address as a non-const void pointer
-      //so uncast it to make code portable.
-      void *const final_address = const_cast<void *>(address);
-      void *base = ::shmat(map_hnd.handle, final_address, flag);
+      void *base = ::shmat(map_hnd.handle, (void*)address, flag);
       if(base == (void*)-1){
          error_info err(system_error_code());
          throw interprocess_exception(err);
@@ -879,7 +876,7 @@ struct null_mapped_region_function
    bool operator()(void *, std::size_t , bool) const
       {   return true;   }
 
-   static std::size_t get_min_size()
+   std::size_t get_min_size() const
    {  return 0;  }
 };
 

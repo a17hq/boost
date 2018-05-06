@@ -16,10 +16,9 @@
 namespace boost {
 
   template <class Operation> 
-  class binder1st {
-  public:
-    typedef typename Operation::result_type result_type;
-    typedef typename Operation::second_argument_type argument_type;
+  class binder1st
+    : public std::unary_function<typename Operation::second_argument_type,
+                                 typename Operation::result_type> {
   protected:
     Operation op;
     typename Operation::first_argument_type value;
@@ -30,7 +29,7 @@ namespace boost {
         : op(x), value(y) {}
     typename Operation::result_type
     operator()(const typename Operation::second_argument_type& x) const {
-      return op(value, x);
+      return op(value, x); 
     }
   };
 
@@ -73,3 +72,5 @@ main(int, char*[])
   
   return 0;
 }
+
+

@@ -8,7 +8,6 @@
 #define BOOST_LOCALE_SOURCE
 #include <boost/locale/date_time.hpp>
 #include <boost/locale/formatting.hpp>
-#include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
 #include <math.h>
 

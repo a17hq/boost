@@ -20,11 +20,6 @@
 #include <boost/filesystem/convenience.hpp>
 #include <boost/timer.hpp>
 #include <boost/any.hpp>
-#include <boost/algorithm/cxx11/any_of.hpp>
-#include <boost/algorithm/string/join.hpp>
-#include <boost/range/algorithm/find.hpp>
-#include <boost/range/end.hpp>
-#include <boost/foreach.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Include Wave itself
@@ -176,6 +171,7 @@ namespace fs = boost::filesystem;
 
 ///////////////////////////////////////////////////////////////////////////////
 namespace cmd_line_utils {
+
     // Additional command line parser which interprets '@something' as an
     // option "config-file" with the value "something".
     inline pair<std::string, std::string>
@@ -376,7 +372,7 @@ namespace {
     //  Generate some meaningful error messages
     template <typename Exception>
     inline int
-    report_error_message(Exception const &e, bool treat_warnings_as_error)
+    report_error_message(Exception const &e)
     {
         // default error reporting
         cerr
@@ -384,18 +380,16 @@ namespace {
             << ": " << e.description() << endl;
 
         // errors count as one
-        return (treat_warnings_as_error ||
-                e.get_severity() == boost::wave::util::severity_error ||
+        return (e.get_severity() == boost::wave::util::severity_error ||
                 e.get_severity() == boost::wave::util::severity_fatal) ? 1 : 0;
     }
 
     template <typename Context>
     inline int
-    report_error_message(Context &ctx, boost::wave::cpp_exception const &e,
-        bool treat_warnings_as_error)
+    report_error_message(Context &ctx, boost::wave::cpp_exception const &e)
     {
         // default error reporting
-        int result = report_error_message(e, treat_warnings_as_error);
+        int result = report_error_message(e);
 
         using boost::wave::preprocess_exception;
         switch(e.get_errorcode()) {
@@ -673,9 +667,6 @@ do_actual_work (std::string file_name, std::istream &instream,
 boost::wave::util::file_position_type current_position;
 auto_stop_watch elapsed_time(cerr);
 int error_count = 0;
-const bool treat_warnings_as_error = vm.count("warning") &&
-    boost::algorithm::any_of_equal(
-        vm["warning"].as<std::vector<std::string> >(), "error");
 
     try {
     // process the given file
@@ -1184,8 +1175,7 @@ const bool treat_warnings_as_error = vm.count("warning") &&
                 catch (boost::wave::cpp_exception const &e) {
                 // some preprocessing error
                     if (is_interactive || boost::wave::is_recoverable(e)) {
-                        error_count += report_error_message(ctx, e,
-                            treat_warnings_as_error);
+                        error_count += report_error_message(ctx, e);
                         need_to_advanve = true;   // advance to the next token
                     }
                     else {
@@ -1197,8 +1187,7 @@ const bool treat_warnings_as_error = vm.count("warning") &&
                     if (is_interactive ||
                         boost::wave::cpplexer::is_recoverable(e))
                     {
-                        error_count +=
-                            report_error_message(e, treat_warnings_as_error);
+                        error_count += report_error_message(e);
                         need_to_advanve = true;   // advance to the next token
                     }
                     else {
@@ -1223,12 +1212,12 @@ const bool treat_warnings_as_error = vm.count("warning") &&
     }
     catch (boost::wave::cpp_exception const &e) {
     // some preprocessing error
-        report_error_message(e, treat_warnings_as_error);
+        report_error_message(e);
         return 1;
     }
     catch (boost::wave::cpplexer::lexing_exception const &e) {
     // some lexing error
-        report_error_message(e, treat_warnings_as_error);
+        report_error_message(e);
         return 2;
     }
     catch (std::exception const &e) {
@@ -1254,8 +1243,6 @@ const bool treat_warnings_as_error = vm.count("warning") &&
 int
 main (int argc, char *argv[])
 {
-    const std::string accepted_w_args[] = {"error"};
-
     // test Wave compilation configuration
     if (!BOOST_WAVE_TEST_CONFIGURATION()) {
         cout << "wave: warning: the library this application was linked against was compiled "
@@ -1276,9 +1263,6 @@ main (int argc, char *argv[])
             ("config-file", po::value<vector<std::string> >()->composing(),
                 "specify a config file (alternatively: @filepath)")
         ;
-
-    const std::string w_arg_desc = "Warning settings. Currently supported: -W" +
-        boost::algorithm::join(accepted_w_args, ", -W");
 
     // declare the options allowed on command line and in config files
     po::options_description desc_generic ("Options allowed additionally in a config file");
@@ -1309,8 +1293,6 @@ main (int argc, char *argv[])
 #endif
             ("nesting,n", po::value<int>(),
                 "specify a new maximal include nesting depth")
-            ("warning,W", po::value<std::vector<std::string> >()->composing(),
-                w_arg_desc.c_str())
         ;
 
     po::options_description desc_ext ("Extended options (allowed everywhere)");
@@ -1432,21 +1414,6 @@ main (int argc, char *argv[])
             // parse a single config file and store the results
                 cmd_line_utils::read_config_file_options(*cit,
                     desc_overall_cfgfile, vm);
-            }
-        }
-
-    // validate warning settings
-        if (vm.count("warning"))
-        {
-            BOOST_FOREACH(const std::string& arg,
-                vm["warning"].as<std::vector<std::string> >())
-            {
-                if (boost::range::find(accepted_w_args, arg) ==
-                    boost::end(accepted_w_args))
-                {
-                    cerr << "wave: Invalid warning setting: " << arg << endl;
-                    return -1;
-                }
             }
         }
 

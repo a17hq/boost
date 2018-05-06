@@ -17,6 +17,7 @@
 
 #include <boost/mpl/bool.hpp>
 #include <boost/log/detail/config.hpp>
+#include <boost/log/detail/cleanup_scope_guard.hpp>
 #include <boost/log/detail/code_conversion.hpp>
 #include <boost/log/detail/attachable_sstream_buf.hpp>
 #include <boost/log/detail/fake_mutex.hpp>
@@ -28,6 +29,7 @@
 #if !defined(BOOST_LOG_NO_THREADS)
 #include <boost/thread/exceptions.hpp>
 #include <boost/thread/tss.hpp>
+#include <boost/thread/locks.hpp>
 #include <boost/log/detail/locks.hpp>
 #include <boost/log/detail/light_rw_mutex.hpp>
 #endif // !defined(BOOST_LOG_NO_THREADS)
@@ -184,10 +186,13 @@ protected:
     bool try_feed_record(record_view const& rec, BackendMutexT& backend_mutex, BackendT& backend)
     {
 #if !defined(BOOST_LOG_NO_THREADS)
+        unique_lock< BackendMutexT > lock;
         try
         {
-            if (!backend_mutex.try_lock())
+            unique_lock< BackendMutexT > tmp_lock(backend_mutex, try_to_lock);
+            if (!tmp_lock.owns_lock())
                 return false;
+            lock.swap(tmp_lock);
         }
         catch (thread_interrupted&)
         {
@@ -201,8 +206,6 @@ protected:
             this->exception_handler()();
             return false;
         }
-
-        boost::log::aux::exclusive_auto_unlocker< BackendMutexT > unlocker(backend_mutex);
 #endif
         // No need to lock anything in the feed_record method
         boost::log::aux::fake_mutex m;
@@ -277,28 +280,6 @@ protected:
 private:
     struct formatting_context
     {
-        class cleanup_guard
-        {
-        private:
-            formatting_context& m_context;
-
-        public:
-            explicit cleanup_guard(formatting_context& ctx) BOOST_NOEXCEPT : m_context(ctx)
-            {
-            }
-
-            ~cleanup_guard()
-            {
-                m_context.m_FormattedRecord.clear();
-                m_context.m_FormattingStream.rdbuf()->max_size(m_context.m_FormattedRecord.max_size());
-                m_context.m_FormattingStream.rdbuf()->storage_overflow(false);
-                m_context.m_FormattingStream.clear();
-            }
-
-            BOOST_DELETED_FUNCTION(cleanup_guard(cleanup_guard const&))
-            BOOST_DELETED_FUNCTION(cleanup_guard& operator=(cleanup_guard const&))
-        };
-
 #if !defined(BOOST_LOG_NO_THREADS)
         //! Object version
         const unsigned int m_Version;
@@ -450,7 +431,8 @@ protected:
         context = &m_Context;
 #endif
 
-        typename formatting_context::cleanup_guard cleanup(*context);
+        boost::log::aux::cleanup_guard< stream_type > cleanup1(context->m_FormattingStream);
+        boost::log::aux::cleanup_guard< string_type > cleanup2(context->m_FormattedRecord);
 
         try
         {
@@ -482,10 +464,13 @@ protected:
     bool try_feed_record(record_view const& rec, BackendMutexT& backend_mutex, BackendT& backend)
     {
 #if !defined(BOOST_LOG_NO_THREADS)
+        unique_lock< BackendMutexT > lock;
         try
         {
-            if (!backend_mutex.try_lock())
+            unique_lock< BackendMutexT > tmp_lock(backend_mutex, try_to_lock);
+            if (!tmp_lock.owns_lock())
                 return false;
+            lock.swap(tmp_lock);
         }
         catch (thread_interrupted&)
         {
@@ -499,8 +484,6 @@ protected:
             this->exception_handler()();
             return false;
         }
-
-        boost::log::aux::exclusive_auto_unlocker< BackendMutexT > unlocker(backend_mutex);
 #endif
         // No need to lock anything in the feed_record method
         boost::log::aux::fake_mutex m;

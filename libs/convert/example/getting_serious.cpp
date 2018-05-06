@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2016 Vladimir Batov.
+// Copyright (c) 2009-2014 Vladimir Batov.
 // Use, modification and distribution are subject to the Boost Software License,
 // Version 1.0. See http://www.boost.org/LICENSE_1_0.txt.
 
@@ -21,7 +21,7 @@ static void log(...) {}
 static int fallback_function() { return -1; }
 
 //[getting_serious_default_converter
-struct boost::cnv::by_default : boost::cnv::cstream {};
+struct boost::cnv::by_default : public boost::cnv::cstream {};
 //]
 static
 void
@@ -104,7 +104,7 @@ example4()
     //[getting_serious_example6
     // Fallback function is called when failed
     int i2 = convert<int>(str, cnv).value_or_eval(fallback_func());
-    int i3 = convert<int>(str, cnv, fallback_func()); // Same as above. Alternative API.
+    int i3 = convert<int>(str, cnv, fallback_func());
     //]
 }
 
@@ -147,7 +147,7 @@ example7()
 }
 
 int
-main(int, char const* [])
+main(int argc, char const* argv[])
 {
     example1();
     example4();

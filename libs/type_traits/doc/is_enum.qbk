@@ -16,7 +16,10 @@ __std_ref 3.9.2 and 7.2.
 
 __header ` #include <boost/type_traits/is_enum.hpp>` or ` #include <boost/type_traits.hpp>`
 
-[all_compilers]
+__compat Requires a correctly functioning __is_convertible template;
+ this means that is_enum is currently broken under Borland C++ Builder 5, 
+ and for the Metrowerks compiler prior to version 8, other compilers 
+ should handle this template just fine.
 
 __examples
 

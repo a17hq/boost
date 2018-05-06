@@ -30,8 +30,8 @@ private:
 public:
     push_coroutine_synthesized( coroutine_context * caller,
                                 coroutine_context * callee,
-                                bool unwind) :
-        impl_t( caller, callee, unwind)
+                                bool unwind, bool preserve_fpu) :
+        impl_t( caller, callee, unwind, preserve_fpu)
     {}
 
     void destroy() {}
@@ -46,8 +46,8 @@ private:
 public:
     push_coroutine_synthesized( coroutine_context * caller,
                                 coroutine_context * callee,
-                                bool unwind) :
-        impl_t( caller, callee, unwind)
+                                bool unwind, bool preserve_fpu) :
+        impl_t( caller, callee, unwind, preserve_fpu)
     {}
 
     void destroy() {}
@@ -62,8 +62,8 @@ private:
 public:
     push_coroutine_synthesized( coroutine_context * caller,
                                 coroutine_context * callee,
-                                bool unwind) :
-        impl_t( caller, callee, unwind)
+                                bool unwind, bool preserve_fpu) :
+        impl_t( caller, callee, unwind, preserve_fpu)
     {}
 
     inline void destroy() {}

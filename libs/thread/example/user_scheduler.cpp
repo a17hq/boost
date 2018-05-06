@@ -17,10 +17,6 @@
 #include <boost/thread/thread_only.hpp>
 #include <string>
 
-#ifdef BOOST_MSVC
-#pragma warning(disable: 4127) // conditional expression is constant
-#endif
-
 void p1()
 {
   BOOST_THREAD_LOG

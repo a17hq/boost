@@ -14,16 +14,13 @@
 
 #include <exception>
 #include <string>
-#include <cstring>
 
 #define BOOST_ARCHIVE_SOURCE
-#include <boost/serialization/config.hpp>
 #include <boost/archive/archive_exception.hpp>
 
 namespace boost {
 namespace archive {
 
-BOOST_ARCHIVE_DECL
 unsigned int
 archive_exception::append(unsigned int l, const char * a){
     while(l < (sizeof(m_buffer) - 1)){
@@ -77,14 +74,6 @@ archive_exception::archive_exception(
         break;
     case input_stream_error:
         length = append(length, "input stream error");
-        if(NULL != e1){
-            length = append(length, "-");
-            length = append(length, e1);
-        }
-        if(NULL != e2){
-            length = append(length, "-");
-            length = append(length, e2);
-        }
         break;
     case invalid_class_name:
         length = append(length, "class name too long");
@@ -113,14 +102,6 @@ archive_exception::archive_exception(
         break;
     case output_stream_error:
         length = append(length, "output stream error");
-        if(NULL != e1){
-            length = append(length, "-");
-            length = append(length, e1);
-        }
-        if(NULL != e2){
-            length = append(length, "-");
-            length = append(length, e2);
-        }
         break;
     default:
         BOOST_ASSERT(false);
@@ -128,23 +109,13 @@ archive_exception::archive_exception(
         break;
     }
 }
-
-BOOST_ARCHIVE_DECL
-archive_exception::archive_exception(archive_exception const & oth) BOOST_NOEXCEPT :
-	std::exception(oth),
-	code(oth.code)
-{
-	std::memcpy(m_buffer,oth.m_buffer,sizeof m_buffer);
-}
-
 BOOST_ARCHIVE_DECL
 archive_exception::~archive_exception() BOOST_NOEXCEPT_OR_NOTHROW {}
 
 BOOST_ARCHIVE_DECL const char *
-archive_exception::what() const BOOST_NOEXCEPT_OR_NOTHROW {
+archive_exception::what( ) const BOOST_NOEXCEPT_OR_NOTHROW {
     return m_buffer;
 }
-
 BOOST_ARCHIVE_DECL
 archive_exception::archive_exception() BOOST_NOEXCEPT :
     code(no_exception)

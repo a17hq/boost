@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2015. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -31,51 +31,11 @@
 #include <string>
 #include <vector>
 
-//#define BOOST_INTERPROCESS_BOOTSTAMP_IS_LASTBOOTUPTIME
-//#define BOOST_INTERPROCESS_BOOTSTAMP_IS_EVENTLOG_BASED
-//#define BOOST_INTERPROCESS_BOOTSTAMP_IS_SESSION_MANAGER_BASED
-
-#ifdef BOOST_INTERPROCESS_BOOTSTAMP_IS_LASTBOOTUPTIME
-#  define BOOST_INTERPROCESS_BOOTSTAMP_IS_LASTBOOTUPTIME_VALUE 1 
-#else
-#  define BOOST_INTERPROCESS_BOOTSTAMP_IS_LASTBOOTUPTIME_VALUE 0
-#endif
-
-#ifdef BOOST_INTERPROCESS_BOOTSTAMP_IS_EVENTLOG_BASED
-#  define BOOST_INTERPROCESS_BOOTSTAMP_IS_EVENTLOG_BASED_VALUE 1 
-#else
-#  define BOOST_INTERPROCESS_BOOTSTAMP_IS_EVENTLOG_BASED_VALUE 0
-#endif
-
-#ifdef BOOST_INTERPROCESS_BOOTSTAMP_IS_SESSION_MANAGER_BASED
-#  define BOOST_INTERPROCESS_BOOTSTAMP_IS_SESSION_MANAGER_BASED_VALUE 1 
-#else
-#  define BOOST_INTERPROCESS_BOOTSTAMP_IS_SESSION_MANAGER_BASED_VALUE 0
-#endif
-
-#define BOOST_INTERPROCESS_BOOTSTAMP_VALUE_SUM \
-   (BOOST_INTERPROCESS_BOOTSTAMP_IS_EVENTLOG_BASED_VALUE + \
-    BOOST_INTERPROCESS_BOOTSTAMP_IS_SESSION_MANAGER_BASED_VALUE + \
-    BOOST_INTERPROCESS_BOOTSTAMP_IS_LASTBOOTUPTIME_VALUE)
-
-#if 1 < BOOST_INTERPROCESS_BOOTSTAMP_VALUE_SUM
-#  error "Only one of BOOST_INTERPROCESS_BOOTSTAMP_IS_LASTBOOTUPTIME, \
-          BOOST_INTERPROCESS_BOOTSTAMP_IS_SESSION_MANAGER_BASED and \
-          BOOST_INTERPROCESS_BOOTSTAMP_IS_EVENTLOG_BASED can be defined"
-#endif
-
-#if 0 == BOOST_INTERPROCESS_BOOTSTAMP_VALUE_SUM
-#  define BOOST_INTERPROCESS_BOOTSTAMP_IS_EVENTLOG_BASED
-#endif
-
 #ifdef BOOST_USE_WINDOWS_H
 #include <windows.h>
-#  if defined(BOOST_INTERPROCESS_BOOTSTAMP_IS_LASTBOOTUPTIME)
-#  include <wbemidl.h>
-#  include <objbase.h>
-#  endif
-
-#include <shlobj.h>
+#include <Wbemidl.h>
+#include <Objbase.h>
+#include <Shlobj.h>
 #endif
 
 #if defined(_MSC_VER)
@@ -83,7 +43,8 @@
 #  pragma comment( lib, "Advapi32.lib" )
 #  pragma comment( lib, "oleaut32.lib" )
 #  pragma comment( lib, "Ole32.lib" )
-#  pragma comment( lib, "Shell32.lib" )   //SHGetFolderPath
+#  pragma comment( lib, "Psapi.lib" )
+#  pragma comment( lib, "Shell32.lib" )   //SHGetSpecialFolderPathA
 #endif
 
 #if defined (BOOST_INTERPROCESS_WINDOWS)
@@ -100,17 +61,9 @@
 //////////////////////////////////////////////////////////////////////////////
 
 //Ignore -pedantic errors here (anonymous structs, etc.)
-#if defined(BOOST_GCC)
-#  if (BOOST_GCC >= 40600)
-#     pragma GCC diagnostic push
-#     if (BOOST_GCC >= 60000)
-#        pragma GCC diagnostic ignored "-Wpedantic"
-#     else
-#        pragma GCC diagnostic ignored "-pedantic"
-#     endif
-#  else
-#     pragma GCC system_header
-#  endif
+#if defined(BOOST_GCC) && (BOOST_GCC >= 40600)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-pedantic"
 #endif
 
 namespace boost  {
@@ -185,6 +138,22 @@ struct wchar_variant
 #if defined(_MSC_VER)
 #pragma warning (pop)
 #endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct IUnknown_BIPC
 {
@@ -679,8 +648,6 @@ typedef int     (__stdcall *farproc_t)();
 typedef GUID GUID_BIPC;
 typedef VARIANT wchar_variant;
 
-#if defined(BOOST_INTERPROCESS_BOOTSTAMP_IS_LASTBOOTUPTIME)
-
 typedef IUnknown IUnknown_BIPC;
 
 typedef IWbemClassObject IWbemClassObject_BIPC;
@@ -692,8 +659,6 @@ typedef IEnumWbemClassObject IEnumWbemClassObject_BIPC;
 typedef IWbemServices IWbemServices_BIPC;
 
 typedef IWbemLocator IWbemLocator_BIPC;
-
-#endif
 
 typedef OVERLAPPED interprocess_overlapped;
 
@@ -1198,23 +1163,6 @@ const unsigned long COINIT_MULTITHREADED_BIPC       = 0x0;
 const unsigned long COINIT_DISABLE_OLE1DDE_BIPC     = 0x4;
 const unsigned long COINIT_SPEED_OVER_MEMORY_BIPC   = 0x4;
 
-// Registry types
-#define reg_none                       ( 0 )   // No value type
-#define reg_sz                         ( 1 )   // Unicode nul terminated string
-#define reg_expand_sz                  ( 2 )   // Unicode nul terminated string
-                                               // (with environment variable references)
-#define reg_binary                     ( 3 )   // Free form binary
-#define reg_dword                      ( 4 )   // 32-bit number
-#define reg_dword_little_endian        ( 4 )   // 32-bit number (same as REG_DWORD)
-#define reg_dword_big_endian           ( 5 )   // 32-bit number
-#define reg_link                       ( 6 )   // Symbolic Link (unicode)
-#define reg_multi_sz                   ( 7 )   // Multiple Unicode strings
-#define reg_resource_list              ( 8 )   // Resource list in the resource map
-#define reg_full_resource_descriptor   ( 9 )  // Resource list in the hardware description
-#define reg_resource_requirements_list ( 10 )
-#define reg_qword                      ( 11 )  // 64-bit number
-#define reg_qword_little_endian        ( 11 )  // 64-bit number (same as reg_qword)
-
 
 //If the user needs to change default COM initialization model,
 //it can define BOOST_INTERPROCESS_WINDOWS_COINIT_MODEL to one of these:
@@ -1464,13 +1412,13 @@ inline bool get_file_information_by_handle(void *hnd, interprocess_by_handle_fil
 {  return 0 != GetFileInformationByHandle(hnd, info);  }
 
 inline long interlocked_increment(long volatile *addr)
-{  return BOOST_INTERLOCKED_INCREMENT(const_cast<long*>(addr));  }
+{  return BOOST_INTERLOCKED_INCREMENT(addr);  }
 
 inline long interlocked_decrement(long volatile *addr)
-{  return BOOST_INTERLOCKED_DECREMENT(const_cast<long*>(addr));  }
+{  return BOOST_INTERLOCKED_DECREMENT(addr);  }
 
 inline long interlocked_compare_exchange(long volatile *addr, long val1, long val2)
-{  return BOOST_INTERLOCKED_COMPARE_EXCHANGE(const_cast<long*>(addr), val1, val2);  }
+{  return BOOST_INTERLOCKED_COMPARE_EXCHANGE(addr, val1, val2);  }
 
 inline long interlocked_exchange_add(long volatile* addend, long value)
 {  return BOOST_INTERLOCKED_EXCHANGE_ADD(const_cast<long*>(addend), value);  }
@@ -1707,6 +1655,28 @@ inline bool get_boot_and_system_time(unsigned char (&bootsystemstamp) [BootAndSy
    return true;
 }
 
+inline bool get_boot_time_str(char *bootstamp_str, std::size_t &s)
+   //will write BootstampLength chars
+{
+   if(s < (BootstampLength*2))
+      return false;
+   system_timeofday_information info;
+   bool ret = get_system_time_of_day_information(info);
+   if(!ret){
+      return false;
+   }
+   const char Characters [] =
+      { '0', '1', '2', '3', '4', '5', '6', '7'
+      , '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+   std::size_t char_counter = 0;
+   for(std::size_t i = 0; i != static_cast<std::size_t>(BootstampLength); ++i){
+      bootstamp_str[char_counter++] = Characters[(info.Reserved1[i]&0xF0)>>4];
+      bootstamp_str[char_counter++] = Characters[(info.Reserved1[i]&0x0F)];
+   }
+   s = BootstampLength*2;
+   return true;
+}
+
 //Writes the hexadecimal value of the buffer, in the wide character string.
 //str must be twice length
 inline void buffer_to_wide_str(const void *buf, std::size_t length, wchar_t *str)
@@ -1720,37 +1690,6 @@ inline void buffer_to_wide_str(const void *buf, std::size_t length, wchar_t *str
       str[char_counter++] = Characters[(chbuf[i]&0xF0)>>4];
       str[char_counter++] = Characters[(chbuf[i]&0x0F)];
    }
-}
-
-//Writes the hexadecimal value of the buffer, in the narrow character string.
-//str must be twice length
-inline void buffer_to_narrow_str(const void *buf, std::size_t length, char *str)
-{
-   const char Characters [] =
-      { '0', '1', '2', '3', '4', '5', '6', '7'
-      , '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-   std::size_t char_counter = 0;
-   const char *chbuf = static_cast<const char *>(buf);
-   for(std::size_t i = 0; i != length; ++i){
-      str[char_counter++] = Characters[(chbuf[i]&0xF0)>>4];
-      str[char_counter++] = Characters[(chbuf[i]&0x0F)];
-   }
-}
-
-inline bool get_boot_time_str(char *bootstamp_str, std::size_t &s)
-   //will write BootstampLength chars
-{
-   if(s < (BootstampLength*2))
-      return false;
-   system_timeofday_information info;
-   bool ret = get_system_time_of_day_information(info);
-   if(!ret){
-      return false;
-   }
-
-   buffer_to_narrow_str(info.Reserved1, BootstampLength, bootstamp_str);
-   s = BootstampLength*2;
-   return true;
 }
 
 inline bool get_boot_and_system_time_wstr(wchar_t *bootsystemstamp, std::size_t &s)
@@ -1810,7 +1749,7 @@ class nt_query_mem_deleter
       (SystemTimeOfDayInfoLength + sizeof(unsigned long) + sizeof(boost::uint32_t))*2;
 
    public:
-   explicit nt_query_mem_deleter(std::size_t object_name_information_size)
+   nt_query_mem_deleter(std::size_t object_name_information_size)
       : m_size(object_name_information_size + rename_offset + rename_suffix)
       , m_buf(new char [m_size])
    {}
@@ -1848,7 +1787,7 @@ class nt_query_mem_deleter
 class c_heap_deleter
 {
    public:
-   explicit c_heap_deleter(std::size_t size)
+   c_heap_deleter(std::size_t size)
       : m_buf(::malloc(size))
    {}
 
@@ -1997,35 +1936,13 @@ struct reg_closer
    ~reg_closer(){ reg_close_key(key_);  }
 };
 
-inline bool get_registry_value_buffer(hkey key_type, const char *subkey_name, const char *value_name, void *buf, std::size_t &buflen)
+inline void get_shared_documents_folder(std::string &s)
 {
-   bool bret = false;
-   hkey key;
-   if (reg_open_key_ex( key_type
-                     , subkey_name
-                     , 0
-                     , key_query_value
-                     , &key) == 0){
-      reg_closer key_closer(key);
-
-      //Obtain the value
-      unsigned long size = buflen;
-      unsigned long type;
-      buflen = 0;
-      bret = 0 == reg_query_value_ex( key, value_name, 0, &type, (unsigned char*)buf, &size);
-      if(bret)
-         buflen = (std::size_t)size;
-   }
-   return bret;
-}
-
-inline bool get_registry_value_string(hkey key_type, const char *subkey_name, const char *value_name, std::string &s)
-{
-   bool bret = false;
+   #if 1 //Original registry search code
    s.clear();
    hkey key;
-   if (reg_open_key_ex( key_type
-                     , subkey_name
+   if (reg_open_key_ex( hkey_local_machine
+                     , "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders"
                      , 0
                      , key_query_value
                      , &key) == 0){
@@ -2034,29 +1951,20 @@ inline bool get_registry_value_string(hkey key_type, const char *subkey_name, co
       //Obtain the value
       unsigned long size;
       unsigned long type;
-      long err = reg_query_value_ex( key, value_name, 0, &type, 0, &size);
-      if((reg_sz == type || reg_expand_sz == type) && !err){
+      const char *const reg_value = "Common AppData";
+      //long err = (*pRegQueryValue)( key, reg_value, 0, &type, 0, &size);
+      long err = reg_query_value_ex( key, reg_value, 0, &type, 0, &size);
+      if(!err){
          //Size includes terminating NULL
          s.resize(size);
-         err = reg_query_value_ex( key, value_name, 0, &type, (unsigned char*)(&s[0]), &size);
-         if(!err){
+         //err = (*pRegQueryValue)( key, reg_value, 0, &type, (unsigned char*)(&s[0]), &size);
+         err = reg_query_value_ex( key, reg_value, 0, &type, (unsigned char*)(&s[0]), &size);
+         if(!err)
             s.erase(s.end()-1);
-            bret = true;
-         }
          (void)err;
       }
    }
-   return bret;
-}
-
-inline void get_shared_documents_folder(std::string &s)
-{
-   #if 1 //Original registry search code
-   get_registry_value_string( hkey_local_machine
-                            , "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders"
-                            , "Common AppData"
-                            , s);
-   #else //registry alternative: SHGetFolderPath
+   #else //registry alternative: SHGetSpecialFolderPathA
    const int BIPC_CSIDL_COMMON_APPDATA = 0x0023;  // All Users\Application Data
    const int BIPC_CSIDL_FLAG_CREATE = 0x8000;     // new for Win2K, or this in to force creation of folder
    const int BIPC_SHGFP_TYPE_CURRENT  = 0;        // current value for user, verify it exists
@@ -2098,8 +2006,6 @@ inline void get_registry_value(const char *folder, const char *value_key, std::v
       }
    }
 }
-
-#if defined(BOOST_INTERPROCESS_BOOTSTAMP_IS_LASTBOOTUPTIME)
 
 struct co_uninitializer
 {
@@ -2241,6 +2147,8 @@ inline bool get_wmi_class_attribute( std::wstring& strValue, const wchar_t *wmi_
    return bRet;
 }
 
+#ifdef BOOST_INTERPROCESS_BOOTSTAMP_IS_LASTBOOTUPTIME
+
 //Obtains the bootup time from WMI LastBootUpTime.
 //This time seems to change with hibernation and clock synchronization so avoid it.
 inline bool get_last_bootup_time( std::wstring& strValue )
@@ -2268,9 +2176,7 @@ inline bool get_last_bootup_time( std::string& str )
    return ret;
 }
 
-#endif   //BOOST_INTERPROCESS_BOOTSTAMP_IS_LASTBOOTUPTIME
-
-#if defined(BOOST_INTERPROCESS_BOOTSTAMP_IS_EVENTLOG_BASED)
+#else
 
 // Loop through the buffer and obtain the contents of the
 // requested record in the buffer.
@@ -2366,41 +2272,7 @@ inline bool get_last_bootup_time(std::string &stamp)
    return true;
 }
 
-#endif   //BOOST_INTERPROCESS_BOOTSTAMP_IS_EVENTLOG_BASED
-
-#if defined(BOOST_INTERPROCESS_BOOTSTAMP_IS_SESSION_MANAGER_BASED)
-
-inline bool get_last_bootup_time(std::string &stamp)
-{
-   unsigned dword_val = 0;
-   std::size_t dword_size = sizeof(dword_val);
-   bool b_ret = get_registry_value_buffer( hkey_local_machine
-      , "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management\\PrefetchParameters"
-      , "BootId", &dword_val, dword_size);
-   if (b_ret)
-   {
-      char dword_str[sizeof(dword_val)*2u+1];
-      buffer_to_narrow_str(&dword_val, dword_size, dword_str);
-      dword_str[sizeof(dword_val)*2] = '\0';
-      stamp = dword_str;
-
-      b_ret = get_registry_value_buffer( hkey_local_machine
-         , "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power"
-         , "HybridBootAnimationTime", &dword_val, dword_size);
-      //Old Windows versions have no HybridBootAnimationTime
-      if(b_ret)
-      {
-         buffer_to_narrow_str(&dword_val, dword_size, dword_str);
-         dword_str[sizeof(dword_val)*2] = '\0';
-         stamp += "_";
-         stamp += dword_str;
-      }
-      b_ret = true;
-   }
-   return b_ret;
-}
-
-#endif   //BOOST_INTERPROCESS_BOOTSTAMP_IS_SESSION_MANAGER_BASED
+#endif
 
 inline bool is_directory(const char *path)
 {

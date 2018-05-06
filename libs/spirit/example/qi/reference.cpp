@@ -123,19 +123,10 @@ struct ts_real_policies : boost::spirit::qi::ureal_policies<T>
     //  2 decimal places Max
     template <typename Iterator, typename Attribute>
     static bool
-    parse_frac_n(Iterator& first, Iterator const& last, Attribute& attr,
-                 int& frac_digits)
+    parse_frac_n(Iterator& first, Iterator const& last, Attribute& attr)
     {
-        Iterator savef = first;
-        bool r = boost::spirit::qi::
+        return boost::spirit::qi::
             extract_uint<T, 10, 1, 2, true>::call(first, last, attr);
-        if (r) {
-            // Optimization note: don't compute frac_digits if T is
-            // an unused_type. This should be optimized away by the compiler.
-            if (!boost::is_same<T, boost::spirit::unused_type>::value)
-                frac_digits = static_cast<int>(std::distance(savef, first));
-        }
-        return r;
     }
 
     //  No exponent
@@ -770,7 +761,7 @@ main()
         test_parser("Hello", lazy(val(string("Hello"))));
 
         //` The above is equivalent to:
-        test_parser("Hello", string("Hello"));
+        test_parser("Hello", val(string("Hello")));
         //]
     }
 
@@ -1037,38 +1028,6 @@ main()
         //]
     }
 
-    // expectd
-    {
-        //[reference_using_declarations_expectd
-        using boost::spirit::ascii::char_;
-        using boost::spirit::qi::expect;
-        using boost::spirit::qi::expectation_failure;
-        //]
-
-        //[reference_expectd
-        /*`The code below uses an expectation operator to throw an __qi_expectation_failure__
-            with a deliberate parsing error when `"o"` is expected and `"x"` is what is
-            found in the input. The `catch` block prints the information related to the
-            error. Note: This is low level code that demonstrates the /bare-metal/. Typically,
-            you use an __qi_error_handler__ to deal with the error.
-         */
-        try
-        {
-            test_parser("xi", expect[char_('o')]); // should throw an exception
-        }
-        catch (expectation_failure<char const*> const& x)
-        {
-            std::cout << "expected: "; print_info(x.what_);
-            std::cout << "got: \"" << std::string(x.first, x.last) << '"' << std::endl;
-        }
-        /*`The code above will print:[teletype]
-
-                expected: tag: literal-char, value: o
-                got: "x"``[c++]``
-         */
-        //]
-    }
-	
     // and-predicate
     {
         //[reference_and_predicate

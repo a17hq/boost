@@ -8,8 +8,6 @@
 #define FUSION_SET_09162005_1104
 
 #include <boost/fusion/support/config.hpp>
-#include <boost/fusion/support/void.hpp>
-#include <boost/fusion/support/detail/enabler.hpp>
 #include <boost/fusion/support/is_sequence.hpp>
 #include <boost/fusion/support/sequence_base.hpp>
 #include <boost/fusion/support/category_of.hpp>
@@ -49,6 +47,7 @@
 
 namespace boost { namespace fusion
 {
+    struct void_;
     struct fusion_sequence_tag;
 
     template <BOOST_PP_ENUM_PARAMS(FUSION_MAX_SET_SIZE, typename T)>
@@ -73,7 +72,7 @@ namespace boost { namespace fusion
         template <typename Sequence>
         BOOST_CONSTEXPR BOOST_FUSION_GPU_ENABLED
         set(Sequence const& rhs
-            , typename enable_if<traits::is_sequence<Sequence>, detail::enabler_>::type = detail::enabler)
+            , typename boost::enable_if<traits::is_sequence<Sequence> >::type* = 0)
             : data(rhs) {}
 
         #include <boost/fusion/container/set/detail/cpp03/set_forward_ctor.hpp>

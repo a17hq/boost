@@ -2,7 +2,7 @@
 // is_write_buffered.cpp
 // ~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2018 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2015 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -18,7 +18,7 @@
 
 #include <boost/asio/buffered_read_stream.hpp>
 #include <boost/asio/buffered_write_stream.hpp>
-#include <boost/asio/io_context.hpp>
+#include <boost/asio/io_service.hpp>
 #include <boost/asio/ip/tcp.hpp>
 #include "unit_test.hpp"
 
@@ -27,20 +27,18 @@ using namespace std; // For memcmp, memcpy and memset.
 class test_stream
 {
 public:
-  typedef boost::asio::io_context io_context_type;
+  typedef boost::asio::io_service io_service_type;
 
   typedef test_stream lowest_layer_type;
 
-  typedef io_context_type::executor_type executor_type;
-
-  test_stream(boost::asio::io_context& io_context)
-    : io_context_(io_context)
+  test_stream(boost::asio::io_service& io_service)
+    : io_service_(io_service)
   {
   }
 
-  io_context_type& io_context()
+  io_service_type& io_service()
   {
-    return io_context_;
+    return io_service_;
   }
 
   lowest_layer_type& lowest_layer()
@@ -65,8 +63,7 @@ public:
   void async_write(const Const_Buffers&, Handler handler)
   {
     boost::system::error_code error;
-    boost::asio::post(io_context_,
-        boost::asio::detail::bind_handler(handler, error, 0));
+    io_service_.post(boost::asio::detail::bind_handler(handler, error, 0));
   }
 
   template <typename Mutable_Buffers>
@@ -86,12 +83,11 @@ public:
   void async_read(const Mutable_Buffers&, Handler handler)
   {
     boost::system::error_code error;
-    boost::asio::post(io_context_,
-        boost::asio::detail::bind_handler(handler, error, 0));
+    io_service_.post(boost::asio::detail::bind_handler(handler, error, 0));
   }
 
 private:
-  io_context_type& io_context_;
+  io_service_type& io_service_;
 };
 
 void is_write_buffered_test()

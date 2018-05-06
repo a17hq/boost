@@ -7,13 +7,13 @@
 #include <boost/fusion/container/vector/vector.hpp>
 #include <boost/core/lightweight_test.hpp>
 
-#define FUSION_SEQUENCE boost::fusion::vector
+#define FUSION_SEQUENCE vector
 #include "nest.hpp"
 
 int
 main()
 {
-    test<test_detail::can_nest>();
+    test();
     return boost::report_errors();
 }
 

@@ -136,7 +136,7 @@ public:
      *
      * \b Note: Only available, if BOOST_NO_CXX11_RVALUE_REFERENCES is not defined
      * */
-    priority_queue(priority_queue && rhs) BOOST_NOEXCEPT_IF(boost::is_nothrow_move_constructible<super_t>::value):
+    priority_queue(priority_queue && rhs):
         super_t(std::move(rhs)), q_(std::move(rhs.q_))
     {}
 
@@ -147,7 +147,7 @@ public:
      *
      * \b Note: Only available, if BOOST_NO_CXX11_RVALUE_REFERENCES is not defined
      * */
-    priority_queue & operator=(priority_queue && rhs) BOOST_NOEXCEPT_IF(boost::is_nothrow_move_assignable<super_t>::value)
+    priority_queue & operator=(priority_queue && rhs)
     {
         super_t::operator=(std::move(rhs));
         q_ = std::move(rhs.q_);
@@ -174,7 +174,7 @@ public:
      * \b Complexity: Constant.
      *
      * */
-    bool empty(void) const BOOST_NOEXCEPT
+    bool empty(void) const
     {
         return q_.empty();
     }
@@ -185,7 +185,7 @@ public:
      * \b Complexity: Constant.
      *
      * */
-    size_type size(void) const BOOST_NOEXCEPT
+    size_type size(void) const
     {
         return q_.size();
     }
@@ -196,7 +196,7 @@ public:
      * \b Complexity: Constant.
      *
      * */
-    size_type max_size(void) const BOOST_NOEXCEPT
+    size_type max_size(void) const
     {
         return q_.max_size();
     }
@@ -207,7 +207,7 @@ public:
      * \b Complexity: Linear.
      *
      * */
-    void clear(void) BOOST_NOEXCEPT
+    void clear(void)
     {
         q_.clear();
     }
@@ -281,7 +281,7 @@ public:
      * \b Complexity: Constant.
      *
      * */
-    void swap(priority_queue & rhs) BOOST_NOEXCEPT_IF(boost::is_nothrow_move_constructible<super_t>::value && boost::is_nothrow_move_assignable<super_t>::value)
+    void swap(priority_queue & rhs)
     {
         super_t::swap(rhs);
         q_.swap(rhs.q_);
@@ -293,7 +293,7 @@ public:
      * \b Complexity: Constant.
      *
      * */
-    iterator begin(void) const BOOST_NOEXCEPT
+    iterator begin(void) const
     {
         return iterator(q_.begin());
     }
@@ -304,7 +304,7 @@ public:
      * \b Complexity: Constant.
      *
      * */
-    iterator end(void) const BOOST_NOEXCEPT
+    iterator end(void) const
     {
         return iterator(q_.end());
     }

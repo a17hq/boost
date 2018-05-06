@@ -58,10 +58,10 @@ BOOST_ARCHIVE_IGNORE_IMPLEMENTATION(archive::class_name_type)
 BOOST_ARCHIVE_IGNORE_IMPLEMENTATION(serialization::collection_size_type)
 BOOST_ARCHIVE_IGNORE_IMPLEMENTATION(serialization::item_version_type)
 
-    void save_override(std::string const & s)       
+    void save_override(std::string const & s, int)       
     {
       if (s.size())
-        save_override(serialization::make_array(s.data(),s.size()));
+        save_override(serialization::make_array(s.data(),s.size()),0);
     }
 
 #undef BOOST_ARCHIVE_IGNORE_IMPLEMENTATION

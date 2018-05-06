@@ -117,8 +117,5 @@ int test_main(int /* argc */, char * /* argv */[])
     // Try to save and load pointers to Bs, to an xml archive
     test_save_and_load<xml_oarchive, xml_iarchive>(b, b1);
 
-    delete a;
-    delete b;
-
     return EXIT_SUCCESS;
 }

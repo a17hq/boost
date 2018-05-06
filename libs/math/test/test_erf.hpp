@@ -14,6 +14,7 @@
 #include <boost/array.hpp>
 #include "functor.hpp"
 
+#include "test_erf_hooks.hpp"
 #include "handle_test_result.hpp"
 #include "table_type.hpp"
 
@@ -27,9 +28,7 @@ void do_test_erf(const T& data, const char* type_name, const char* test_name)
    typedef Real                   value_type;
 
    typedef value_type (*pg)(value_type);
-#ifdef ERF_FUNCTION_TO_TEST
-   pg funcp = ERF_FUNCTION_TO_TEST;
-#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
    pg funcp = boost::math::erf<value_type>;
 #else
    pg funcp = boost::math::erf;
@@ -43,38 +42,50 @@ void do_test_erf(const T& data, const char* type_name, const char* test_name)
    //
    // test erf against data:
    //
-#if !(defined(ERROR_REPORTING_MODE) && !defined(ERF_FUNCTION_TO_TEST))
    result = boost::math::tools::test_hetero<Real>(
       data,
       bind_func<Real>(funcp, 0),
       extract_result<Real>(1));
-   handle_test_result(result, data[result.worst()], result.worst(), type_name, "erf", test_name);
+   handle_test_result(result, data[result.worst()], result.worst(), type_name, "boost::math::erf", test_name);
+#ifdef TEST_OTHER
+   if(::boost::is_floating_point<value_type>::value){
+      funcp = other::erf;
+      result = boost::math::tools::test_hetero<Real>(
+         data,
+         bind_func<Real>(funcp, 0),
+         extract_result<Real>(1));
+      print_test_result(result, data[result.worst()], result.worst(), type_name, "other::erf");
+   }
 #endif
    //
    // test erfc against data:
    //
-#ifdef ERFC_FUNCTION_TO_TEST
-   funcp = ERFC_FUNCTION_TO_TEST;
-#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
    funcp = boost::math::erfc<value_type>;
 #else
    funcp = boost::math::erfc;
 #endif
-#if !(defined(ERROR_REPORTING_MODE) && !defined(ERFC_FUNCTION_TO_TEST))
    result = boost::math::tools::test_hetero<Real>(
       data,
       bind_func<Real>(funcp, 0),
       extract_result<Real>(2));
-   handle_test_result(result, data[result.worst()], result.worst(), type_name, "erfc", test_name);
-   std::cout << std::endl;
+   handle_test_result(result, data[result.worst()], result.worst(), type_name, "boost::math::erfc", test_name);
+#ifdef TEST_OTHER
+   if(::boost::is_floating_point<value_type>::value){
+      funcp = other::erfc;
+      result = boost::math::tools::test_hetero<Real>(
+         data,
+         bind_func<Real>(funcp, 0),
+         extract_result<Real>(2));
+      print_test_result(result, data[result.worst()], result.worst(), type_name, "other::erfc");
+   }
 #endif
+   std::cout << std::endl;
 }
-
 
 template <class Real, class T>
 void do_test_erf_inv(const T& data, const char* type_name, const char* test_name)
 {
-#if !(defined(ERROR_REPORTING_MODE) && !defined(ERF_INV_FUNCTION_TO_TEST))
    typedef Real                   value_type;
 
    typedef value_type (*pg)(value_type);
@@ -85,9 +96,7 @@ void do_test_erf_inv(const T& data, const char* type_name, const char* test_name
    //
    // test erf_inv against data:
    //
-#ifdef ERF_INV_FUNCTION_TO_TEST
-   pg funcp = ERF_INV_FUNCTION_TO_TEST;
-#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
    pg funcp = boost::math::erf_inv<value_type>;
 #else
    pg funcp = boost::math::erf_inv;
@@ -96,18 +105,21 @@ void do_test_erf_inv(const T& data, const char* type_name, const char* test_name
       data,
       bind_func<Real>(funcp, 0),
       extract_result<Real>(1));
-   handle_test_result(result, data[result.worst()], result.worst(), type_name, "erf_inv", test_name);
+   handle_test_result(result, data[result.worst()], result.worst(), type_name, "boost::math::erf_inv", test_name);
    std::cout << std::endl;
-#endif
 }
 
 template <class Real, class T>
 void do_test_erfc_inv(const T& data, const char* type_name, const char* test_name)
 {
-#if !(defined(ERROR_REPORTING_MODE) && !defined(ERFC_INV_FUNCTION_TO_TEST))
    typedef Real                   value_type;
 
    typedef value_type (*pg)(value_type);
+#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+   pg funcp = boost::math::erf<value_type>;
+#else
+   pg funcp = boost::math::erf;
+#endif
 
    boost::math::tools::test_result<value_type> result;
    std::cout << "Testing " << test_name << " with type " << type_name
@@ -115,20 +127,17 @@ void do_test_erfc_inv(const T& data, const char* type_name, const char* test_nam
    //
    // test erfc_inv against data:
    //
-#ifdef ERFC_INV_FUNCTION_TO_TEST
-   pg funcp = ERFC_INV_FUNCTION_TO_TEST;
-#elif defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
-   pg funcp = boost::math::erfc_inv<value_type>;
+#if defined(BOOST_MATH_NO_DEDUCED_FUNCTION_POINTERS)
+   funcp = boost::math::erfc_inv<value_type>;
 #else
-   pg funcp = boost::math::erfc_inv;
+   funcp = boost::math::erfc_inv;
 #endif
    result = boost::math::tools::test_hetero<Real>(
       data,
       bind_func<Real>(funcp, 0),
       extract_result<Real>(1));
-   handle_test_result(result, data[result.worst()], result.worst(), type_name, "erfc_inv", test_name);
+   handle_test_result(result, data[result.worst()], result.worst(), type_name, "boost::math::erfc_inv", test_name);
    std::cout << std::endl;
-#endif
 }
 
 template <class T>

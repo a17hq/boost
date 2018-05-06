@@ -14,6 +14,7 @@
 
 #include <boost/assert.hpp>
 
+#include <boost/iterator.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/iterator/iterator_categories.hpp>
 #include <boost/iterator/iterator_facade.hpp>

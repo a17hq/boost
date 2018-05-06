@@ -6,24 +6,25 @@
     http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 
+#include <boost/utility/string_ref.hpp>
 #include <stdexcept>
-#include "string_view.hpp"
 
 namespace quickbook
 {
     struct glob_error : std::runtime_error
     {
-        explicit glob_error(char const* error) : std::runtime_error(error) {}
+        explicit glob_error(char const* error) :
+            std::runtime_error(error) {}
     };
 
     // Is this path a glob? Throws glob_error if glob is invalid.
-    bool check_glob(quickbook::string_view);
+    bool check_glob(boost::string_ref);
 
     // pre: glob is valid (call check_glob first on user data).
-    bool glob(
-        quickbook::string_view const& pattern,
-        quickbook::string_view const& filename);
+    bool glob(boost::string_ref const& pattern,
+            boost::string_ref const& filename);
 
-    std::size_t find_glob_char(quickbook::string_view, std::size_t start = 0);
-    std::string glob_unescape(quickbook::string_view);
+    std::size_t find_glob_char(boost::string_ref,
+            std::size_t start = 0);
+    std::string glob_unescape(boost::string_ref);
 }

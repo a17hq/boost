@@ -47,7 +47,7 @@ using namespace BOOST_SPIRIT_CLASSIC_NS;
 
 ///////////////////////////////////////////////////////////////////////////////
 // main entry point
-int main()
+int main (int argc, char *argv[])
 {
     const char *ptest = "123 E 456";
     const char *prx = "[1-9]+[[:space:]]*E[[:space:]]*";

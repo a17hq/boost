@@ -1,12 +1,11 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2014-2017, Oracle and/or its affiliates.
-// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
 
+// Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
 
 #ifndef BOOST_GEOMETRY_TEST_INTERSECTION_LINEAR_LINEAR_HPP
 #define BOOST_GEOMETRY_TEST_INTERSECTION_LINEAR_LINEAR_HPP
@@ -26,25 +25,6 @@
 // intersection of (linear) geometries
 //==================================================================
 //==================================================================
-
-template <typename Geometry1, typename Geometry2, typename MultiLineString>
-inline void check_result(Geometry1 const& geometry1,
-                         Geometry2 const& geometry2,
-                         MultiLineString const& mls_output,
-                         MultiLineString const& mls_int1,
-                         MultiLineString const& mls_int2,
-                         std::string const& case_id,
-                         double tolerance)
-{
-    BOOST_CHECK_MESSAGE( equals::apply(mls_int1, mls_output, tolerance)
-                         || equals::apply(mls_int2, mls_output, tolerance),
-                         "case id: " << case_id
-                         << ", intersection L/L: " << bg::wkt(geometry1)
-                         << " " << bg::wkt(geometry2)
-                         << " -> Expected: " << bg::wkt(mls_int1)
-                         << " or: " << bg::wkt(mls_int2)
-                         << " computed: " << bg::wkt(mls_output) );
-}
 
 template
 <
@@ -73,20 +53,16 @@ private:
         linestring_vector ls_vector_output;
         linestring_deque ls_deque_output;
 
-        // Check normal behaviour
         bg::intersection(geometry1, geometry2, mls_output);
 
-        check_result(geometry1, geometry2, mls_output, mls_int1, mls_int2, case_id, tolerance);
-
-        // Check strategy passed explicitly
-        typedef typename bg::strategy::relate::services::default_strategy
-            <
-                Geometry1, Geometry2
-            >::type strategy_type;
-        bg::clear(mls_output);
-        bg::intersection(geometry1, geometry2, mls_output, strategy_type());
-
-        check_result(geometry1, geometry2, mls_output, mls_int1, mls_int2, case_id, tolerance);
+        BOOST_CHECK_MESSAGE( equals::apply(mls_int1, mls_output, tolerance)
+                             || equals::apply(mls_int2, mls_output, tolerance),
+                             "case id: " << case_id
+                             << ", intersection L/L: " << bg::wkt(geometry1)
+                             << " " << bg::wkt(geometry2)
+                             << " -> Expected: " << bg::wkt(mls_int1)
+                             << " or: " << bg::wkt(mls_int2)
+                             << " computed: " << bg::wkt(mls_output) );
 
         set_operation_output("intersection", case_id,
                              geometry1, geometry2, mls_output);
@@ -133,7 +109,14 @@ private:
         bg::clear(mls_output);
         bg::intersection(geometry2, geometry1, mls_output);
 
-        check_result(geometry1, geometry2, mls_output, mls_int1, mls_int2, case_id, tolerance);
+        BOOST_CHECK_MESSAGE( equals::apply(mls_int1, mls_output, tolerance)
+                             || equals::apply(mls_int2, mls_output, tolerance),
+                             "case id: " << case_id
+                             << ", intersection L/L: " << bg::wkt(geometry1)
+                             << " " << bg::wkt(geometry2)
+                             << " -> Expected: " << bg::wkt(mls_int1)
+                             << " or: " << bg::wkt(mls_int2)
+                             << " computed: " << bg::wkt(mls_output) );
 
 #ifdef BOOST_GEOMETRY_TEST_DEBUG
         std::cout << "Geometry #1: " << bg::wkt(geometry2) << std::endl;

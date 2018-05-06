@@ -111,7 +111,6 @@ int main()
       BOOST_TEST(! q.closed());
   }
 #endif
-#if !BOOST_WORKAROUND(BOOST_MSVC, <= 1900)
   {
     // empty queue push rvalue/non_copyable succeeds
     boost::queue_adaptor<boost::sync_queue<non_copyable> > q;
@@ -124,7 +123,6 @@ int main()
       BOOST_TEST_EQ(q.size(), 1u);
       BOOST_TEST(! q.closed());
   }
-#endif
 
   {
     // empty queue push rvalue succeeds
@@ -187,7 +185,7 @@ int main()
     // empty queue try_push lvalue succeeds
     boost::queue_adaptor<boost::sync_queue<int> > sq;
     boost::queue_back<int> q(sq);
-      int i=0;
+      int i;
       BOOST_TEST(boost::queue_op_status::success == q.try_push(i));
       BOOST_TEST(! q.empty());
       BOOST_TEST(! q.full());
@@ -218,7 +216,6 @@ int main()
       BOOST_TEST(! q.closed());
   }
 #endif
-#if !BOOST_WORKAROUND(BOOST_MSVC, <= 1900)
   {
     // empty queue nonblocking_push rvalue/non-copyable succeeds
     boost::queue_adaptor<boost::sync_queue<non_copyable> > sq;
@@ -230,7 +227,6 @@ int main()
       BOOST_TEST_EQ(q.size(), 1u);
       BOOST_TEST(! q.closed());
   }
-#endif
   {
     // 1-element queue pull succeed
     boost::queue_adaptor<boost::sync_queue<int> > sq;
@@ -244,7 +240,6 @@ int main()
       BOOST_TEST_EQ(q.size(), 0u);
       BOOST_TEST(! q.closed());
   }
-#if !BOOST_WORKAROUND(BOOST_MSVC, <= 1900)
   {
     // 1-element queue pull succeed
     boost::queue_adaptor<boost::sync_queue<non_copyable> > sq;
@@ -259,7 +254,6 @@ int main()
       BOOST_TEST_EQ(q.size(), 0u);
       BOOST_TEST(! q.closed());
   }
-#endif
   {
     // 1-element queue pull succeed
     boost::queue_adaptor<boost::sync_queue<int> > sq;
@@ -272,7 +266,6 @@ int main()
       BOOST_TEST_EQ(q.size(), 0u);
       BOOST_TEST(! q.closed());
   }
-#if !BOOST_WORKAROUND(BOOST_MSVC, <= 1900)
   {
     // 1-element queue pull succeed
     boost::queue_adaptor<boost::sync_queue<non_copyable> > sq;
@@ -286,7 +279,6 @@ int main()
       BOOST_TEST_EQ(q.size(), 0u);
       BOOST_TEST(! q.closed());
   }
-#endif
   {
     // 1-element queue try_pull succeed
     boost::queue_adaptor<boost::sync_queue<int> > sq;
@@ -300,7 +292,6 @@ int main()
       BOOST_TEST_EQ(q.size(), 0u);
       BOOST_TEST(! q.closed());
   }
-#if !BOOST_WORKAROUND(BOOST_MSVC, <= 1900)
   {
     // 1-element queue try_pull succeed
     boost::queue_adaptor<boost::sync_queue<non_copyable> > sq;
@@ -315,7 +306,6 @@ int main()
       BOOST_TEST_EQ(q.size(), 0u);
       BOOST_TEST(! q.closed());
   }
-#endif
   {
     // 1-element queue nonblocking_pull succeed
     boost::queue_adaptor<boost::sync_queue<int> > sq;
@@ -329,7 +319,6 @@ int main()
       BOOST_TEST_EQ(q.size(), 0u);
       BOOST_TEST(! q.closed());
   }
-#if !BOOST_WORKAROUND(BOOST_MSVC, <= 1900)
   {
     // 1-element queue nonblocking_pull succeed
     boost::queue_adaptor<boost::sync_queue<non_copyable> > sq;
@@ -358,7 +347,6 @@ int main()
       BOOST_TEST_EQ(q.size(), 0u);
       BOOST_TEST(! q.closed());
   }
-#endif
   {
     // 1-element queue wait_pull succeed
     boost::queue_adaptor<boost::sync_queue<int> > sq;
@@ -372,7 +360,6 @@ int main()
       BOOST_TEST_EQ(q.size(), 0u);
       BOOST_TEST(! q.closed());
   }
-#if !BOOST_WORKAROUND(BOOST_MSVC, <= 1900)
   {
     // 1-element queue wait_pull succeed
     boost::queue_adaptor<boost::sync_queue<non_copyable> > sq;
@@ -387,7 +374,7 @@ int main()
       BOOST_TEST_EQ(q.size(), 0u);
       BOOST_TEST(! q.closed());
   }
-#endif
+
   {
     // closed invariants
     boost::queue_adaptor<boost::sync_queue<int> > sq;

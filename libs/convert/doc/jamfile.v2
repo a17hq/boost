@@ -99,9 +99,3 @@ install pdfinstall
     ;
 explicit css ;
 explicit images ;
-
-###############################################################################
-alias boostdoc ;
-explicit boostdoc ;
-alias boostrelease : standalone ;
-explicit boostrelease ;

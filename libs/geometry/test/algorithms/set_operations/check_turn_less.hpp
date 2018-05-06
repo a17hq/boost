@@ -72,11 +72,6 @@ struct check_turn_less
     static inline void apply(Geometry1 const& geometry1,
                              Geometry2 const& geometry2)
     {
-        typedef typename bg::strategy::intersection::services::default_strategy
-            <
-                typename bg::cs_tag<Geometry1>::type
-            >::type strategy_type;
-
         typedef bg::detail::no_rescale_policy robust_policy_type;
 
         typedef bg::detail::relate::turns::get_turns
@@ -99,8 +94,7 @@ struct check_turn_less
         bg::detail::get_turns::no_interrupt_policy interrupt_policy;
 
         get_turns_type::apply(turns, geometry1, geometry2,
-                              interrupt_policy,
-                              strategy_type(), robust_policy_type());
+                              interrupt_policy, robust_policy_type());
 
 
         typedef bg::detail::turns::less_seg_fraction_other_op<> turn_less_type;

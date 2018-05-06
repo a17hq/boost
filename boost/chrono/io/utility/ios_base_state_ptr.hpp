@@ -164,10 +164,9 @@ namespace boost
        */
       T * release() BOOST_NOEXCEPT
       {
-        void*& pw = ios_.pword(index());
-        T* ptr = static_cast<T*> (pw);
-        pw = 0;
-        return ptr;
+        T const* f = get();
+        reset();
+        return f;
       }
 
       /**

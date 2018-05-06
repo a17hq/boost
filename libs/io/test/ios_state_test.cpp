@@ -10,7 +10,6 @@
 //   15 Jun 2003  Adjust to changes in Boost.Test (Daryle Walker)
 //   26 Feb 2002  Initial version (Daryle Walker)
 
-#include <boost/config.hpp>
 #include <boost/test/minimal.hpp>  // main, BOOST_CHECK, etc.
 
 #include <boost/cstdlib.hpp>       // for boost::exit_success
@@ -25,9 +24,7 @@
 #include <ostream>    // for std::endl, std::ostream
 #include <streambuf>  // for std::streambuf
 #include <string>     // for std::string
-#if defined(BOOST_GCC) || (defined(BOOST_CLANG) && defined(BOOST_GNU_STDLIB))
-#include <stdexcept>
-#endif
+
 
 // Facet with the bool names spelled backwards
 class backward_bool_names
@@ -184,15 +181,11 @@ saver_tests_1
         boost::io::ios_exception_saver const  ies( output );
         boost::io::ios_iostate_saver const    iis( output );
 
-        output.exceptions( ios_base::eofbit | ios_base::badbit );
+        output.exceptions( ios_base::eofbit );
         output.setstate( ios_base::eofbit );
         BOOST_ERROR( "previous line should have thrown" );
     }
-#if defined(BOOST_GCC) || (defined(BOOST_CLANG) && defined(BOOST_GNU_STDLIB))
-    catch ( std::exception &f )
-#else
     catch ( ios_base::failure &f )
-#endif
     {
         err << "Got the expected I/O failure: \"" << f.what() << "\".\n";
         BOOST_CHECK( output.exceptions() == ios_base::goodbit );
@@ -250,11 +243,7 @@ saver_tests_2
 
         BOOST_ERROR( "previous line should have thrown" );
     }
-#if defined(BOOST_GCC) || (defined(BOOST_CLANG) && defined(BOOST_GNU_STDLIB))
-    catch ( std::exception &f )
-#else
     catch ( ios_base::failure &f )
-#endif
     {
         err << "Got the expected I/O failure: \"" << f.what() << "\".\n";
         BOOST_CHECK( output.exceptions() == ios_base::goodbit );

@@ -13,6 +13,7 @@
 #ifndef BOOST_ALGORITHM_ORDERED_HPP
 #define BOOST_ALGORITHM_ORDERED_HPP
 
+#include <algorithm>
 #include <functional>
 #include <iterator>
 

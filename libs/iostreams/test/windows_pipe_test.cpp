@@ -6,7 +6,7 @@
 
 // See http://www.boost.org/libs/iostreams for documentation.
 
-#include <windows.h>
+#include <Windows.h>
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/get.hpp>

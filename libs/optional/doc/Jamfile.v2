@@ -46,8 +46,4 @@ boostbook standalone
         <format>docbook:<auto-index-internal>on
     ;
 
-###############################################################################
-alias boostdoc ;
-explicit boostdoc ;
-alias boostrelease : standalone ;
-explicit boostrelease ;
+

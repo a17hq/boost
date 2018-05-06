@@ -43,7 +43,7 @@ struct test_distance
 
     BOOST_CONCEPT_ASSERT
         (
-            (bg::concepts::PointDistanceStrategy<haversine_type, Point, Point>)
+            (bg::concept::PointDistanceStrategy<haversine_type, Point, Point>)
         );
 
 

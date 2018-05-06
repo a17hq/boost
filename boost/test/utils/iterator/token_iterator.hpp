@@ -1,4 +1,4 @@
-//  (C) Copyright Gennadiy Rozental 2001.
+//  (C) Copyright Gennadiy Rozental 2004-2014.
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
@@ -40,8 +40,8 @@ namespace std{ using ::ispunct; using ::isspace; }
 #endif
 
 namespace boost {
+
 namespace unit_test {
-namespace utils {
 
 // ************************************************************************** //
 // **************               ti_delimeter_type              ************** //
@@ -82,21 +82,22 @@ class delim_policy {
     typedef basic_cstring<CharT const> cstring;
 public:
     // Constructor
-    explicit    delim_policy( ti_delimeter_type type_ = dt_char, cstring delimeters_ = cstring() )
-    : m_type( type_ )
+    explicit    delim_policy( ti_delimeter_type t = dt_char, cstring d = cstring() )
+    : m_type( t )
     {
-        set_delimeters( delimeters_ );
+        set_delimeters( d );
     }
 
-    void        set_delimeters( ti_delimeter_type type_ ) { m_type = type_; }
-    void        set_delimeters( cstring delimeters_ )
+    void        set_delimeters( ti_delimeter_type t ) { m_type = t; }
+    template<typename Src>
+    void        set_delimeters( Src d )
     {
-        m_delimeters = delimeters_;
+        nfp::optionally_assign( m_delimeters, d );
 
         if( !m_delimeters.is_empty() )
             m_type = dt_char;
     }
-    void        set_delimeters( nfp::nil ) {}
+
     bool        operator()( CharT c )
     {
         switch( m_type ) {
@@ -209,7 +210,7 @@ protected:
         if( m.has( keep_empty_tokens ) )
             m_keep_empty_tokens = true;
 
-        nfp::opt_assign( m_tokens_left, m, max_tokens );
+        nfp::optionally_assign( m_tokens_left, m, max_tokens );
     }
 
     template<typename Iter>
@@ -300,12 +301,8 @@ public:
         this->init();
     }
 
-    // warning: making the constructor accept anything else than a cstring should
-    // ensure that no temporary object is created during string creation (previous
-    // definition was "template<typename Src, typename Modifier> basic_string_token_iterator( Src src ..."
-    // which may create a temporary string copy when called with an std::string.
-    template<typename Modifier>
-    basic_string_token_iterator( cstring src, Modifier const& m )
+    template<typename Src, typename Modifier>
+    basic_string_token_iterator( Src src, Modifier const& m )
     : m_src( src )
     {
         this->apply_modifier( m );
@@ -409,8 +406,8 @@ make_range_token_iterator( Iter begin, Iter end, Modifier const& m )
 
 //____________________________________________________________________________//
 
-} // namespace utils
 } // namespace unit_test
+
 } // namespace boost
 
 //____________________________________________________________________________//

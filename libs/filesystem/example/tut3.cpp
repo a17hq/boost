@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
       {
         cout << p << " is a directory containing:\n";
 
-        for (const directory_entry& x : directory_iterator(p))
+        for (directory_entry& x : directory_iterator(p))
           cout << "    " << x.path() << '\n'; 
       }
       else

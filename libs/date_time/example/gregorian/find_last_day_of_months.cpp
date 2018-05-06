@@ -15,8 +15,7 @@ main()
 
   // get a month and a year from the user
   try {
-    greg_year::value_type y;
-    greg_month::value_type m;
+    int y, m;
     std::cout << "   Enter Year(ex: 2002): ";
     std::cin >> y;
     year = greg_year(y);

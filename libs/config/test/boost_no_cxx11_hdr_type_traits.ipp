@@ -45,11 +45,7 @@ int test()
   using std::is_trivially_copyable;
   using std::is_standard_layout;
   using std::is_pod;
-#if !((__cplusplus > 201700) || (defined(_MSVC_LANG) && (_MSVC_LANG > 201700)))
-  // deprecated in C++ 17:
   using std::is_literal_type;
-  using std::result_of;
-#endif
   using std::is_empty;
   using std::is_polymorphic;
   using std::is_abstract;
@@ -103,6 +99,7 @@ int test()
   using std::conditional;
   using std::common_type;
   using std::underlying_type;
+  using std::result_of;
   return 0;
 }
 

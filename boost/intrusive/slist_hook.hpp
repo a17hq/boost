@@ -50,8 +50,7 @@ struct make_slist_base_hook
       >::type packed_options;
 
    typedef generic_hook
-   < CircularSListAlgorithms
-   , slist_node_traits<typename packed_options::void_pointer>
+   < circular_slist_algorithms<slist_node_traits<typename packed_options::void_pointer> >
    , typename packed_options::tag
    , packed_options::link_mode
    , SlistBaseHookId
@@ -179,8 +178,7 @@ struct make_slist_member_hook
       >::type packed_options;
 
    typedef generic_hook
-   < CircularSListAlgorithms
-   , slist_node_traits<typename packed_options::void_pointer>
+   < circular_slist_algorithms<slist_node_traits<typename packed_options::void_pointer> >
    , member_tag
    , packed_options::link_mode
    , NoBaseHookId
@@ -272,11 +270,6 @@ class slist_member_hook
    //!   otherwise. This function can be used to test whether \c slist::iterator_to
    //!   will return a valid iterator.
    //!
-   //! <b>Note</b>: If this member is called when the value is inserted in a
-   //!   slist with the option linear<true>, this function will return "false"
-   //!   for the last element, as it is not linked to anything (the next element is null),
-   //!   so use with care.
-   //!  
    //! <b>Complexity</b>: Constant
    bool is_linked() const;
 

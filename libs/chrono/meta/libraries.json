@@ -20,7 +20,6 @@
   {
     "key": "chrono/stopwatch",
     "name": "Chrono.Stopwatch",
-    "status": "unreleased",
     "authors": [
       "Vicente J. Botet Escriba"
     ],

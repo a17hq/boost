@@ -12,8 +12,6 @@
 #ifndef BOOST_INTRUSIVE_DETAIL_INT_HOLDER_HPP
 #define BOOST_INTRUSIVE_DETAIL_INT_HOLDER_HPP
 
-#include <boost/functional/hash/hash.hpp>
-
 namespace boost{
 namespace intrusive{
 
@@ -98,7 +96,7 @@ struct int_holder_key_of_value
 {
    typedef int_holder type;
 
-   type operator()(const ValueType &tv) const
+   const type &operator()(const ValueType &tv)
    {  return tv.get_int_holder();  }
 };
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2009-2016 Vladimir Batov.
+// Copyright (c) 2009-2014 Vladimir Batov.
 // Use, modification and distribution are subject to the Boost Software License,
 // Version 1.0. See http://www.boost.org/LICENSE_1_0.txt.
 
@@ -13,7 +13,7 @@
 using std::string;
 using boost::convert;
 
-struct boost::cnv::by_default : boost::cnv::cstream {};
+struct boost::cnv::by_default : public boost::cnv::cstream {};
 //]
 //[stream_headers2
 namespace cnv = boost::cnv;
@@ -63,7 +63,7 @@ example2()
     //]
     //[stream_example4
     ccnv(arg::base = cnv::base::dec)
-        (arg::uppercase = true)
+        (arg::uppercase = false)
         (arg::notation = cnv::notation::scientific);
     //]
     //[stream_example5
@@ -81,7 +81,7 @@ example6()
 
     change chg = change::up;
     string  s1 = convert<string>(chg, cnv1, "bad");                // Input type (change) deduced
-    string  s2 = convert<string, change>(change::dn, cnv1, "bad"); // Input type (change) enforced
+    string  s2 = convert<string, change>(change::dn, cnv1, "bad"); // Input type (change) forced
 
     BOOST_TEST(convert<change>("up", cnv1, change::no) == change::up);
     BOOST_TEST(convert<change>("up", cnv2, change::no) == change::up);
@@ -91,7 +91,7 @@ example6()
 }
 
 int
-main(int, char const* [])
+main(int argc, char const* argv[])
 {
     example1();
     example2();

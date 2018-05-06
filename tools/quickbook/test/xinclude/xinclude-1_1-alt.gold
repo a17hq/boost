@@ -5,5 +5,4 @@
   <xi:include href="../../stub.xml" />
   <xi:include href="../stub.xml" />
   <xi:include href="stub.xml" />
-  <xi:include href="../../xinclude" />
 </article>

@@ -39,8 +39,8 @@ namespace serialization {
 namespace archive {
 namespace detail{
 
-class basic_oserializer;
-class basic_pointer_oserializer;
+class BOOST_ARCHIVE_DECL basic_oserializer;
+class BOOST_ARCHIVE_DECL basic_pointer_oserializer;
 
 #ifdef BOOST_MSVC
 #  pragma warning(push)

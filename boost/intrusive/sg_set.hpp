@@ -26,11 +26,6 @@
 namespace boost {
 namespace intrusive {
 
-#if !defined(BOOST_INTRUSIVE_DOXYGEN_INVOKED)
-template<class ValueTraits, class VoidOrKeyOfValue, class Compare, class SizeType, bool ConstantTimeSize, typename HeaderHolder>
-class sg_multiset_impl;
-#endif
-
 //! The class template sg_set is an intrusive container, that mimics most of
 //! the interface of std::sg_set as described in the C++ standard.
 //!
@@ -86,13 +81,9 @@ class sg_set_impl
    static const bool constant_time_size = tree_type::constant_time_size;
 
    public:
-   //! @copydoc ::boost::intrusive::sgtree::sgtree()
-   sg_set_impl()
-      :  tree_type()
-   {}
-
    //! @copydoc ::boost::intrusive::sgtree::sgtree(const key_compare &,const value_traits &)
-   explicit sg_set_impl( const key_compare &cmp, const value_traits &v_traits = value_traits())
+   explicit sg_set_impl( const key_compare &cmp = key_compare()
+                    , const value_traits &v_traits = value_traits())
       :  tree_type(cmp, v_traits)
    {}
 
@@ -153,15 +144,6 @@ class sg_set_impl
    //! @copydoc ::boost::intrusive::sgtree::crend()const
    const_reverse_iterator crend() const;
 
-   //! @copydoc ::boost::intrusive::sgtree::root()
-   iterator root();
-
-   //! @copydoc ::boost::intrusive::sgtree::root()const
-   const_iterator root() const;
-
-   //! @copydoc ::boost::intrusive::sgtree::croot()const
-   const_iterator croot() const;
-
    //! @copydoc ::boost::intrusive::sgtree::container_from_end_iterator(iterator)
    static sg_set_impl &container_from_end_iterator(iterator end_iterator);
 
@@ -211,17 +193,6 @@ class sg_set_impl
    //! @copydoc ::boost::intrusive::sgtree::insert_unique(const_iterator,reference)
    iterator insert(const_iterator hint, reference value)
    {  return tree_type::insert_unique(hint, value);  }
-
-   //! @copydoc ::boost::intrusive::sgtree::insert_unique_check(const key_type&,insert_commit_data&)
-   std::pair<iterator, bool> insert_check
-      (const key_type &key, insert_commit_data &commit_data)
-   {  return tree_type::insert_unique_check(key, commit_data); }
-
-   //! @copydoc ::boost::intrusive::sgtree::insert_unique_check(const_iterator,const key_type&,insert_commit_data&)
-   std::pair<iterator, bool> insert_check
-      (const_iterator hint, const key_type &key
-      ,insert_commit_data &commit_data)
-   {  return tree_type::insert_unique_check(hint, key, commit_data); }
 
    //! @copydoc ::boost::intrusive::sgtree::insert_unique_check(const KeyType&,KeyTypeKeyCompare,insert_commit_data&)
    template<class KeyType, class KeyTypeKeyCompare>
@@ -348,25 +319,25 @@ class sg_set_impl
 
    #endif   //   #ifdef BOOST_INTRUSIVE_DOXYGEN_INVOKED
 
-   //! @copydoc ::boost::intrusive::sgtree::equal_range(const key_type &)
+   //! @copydoc ::boost::intrusive::rbtree::equal_range(const key_type &)
    std::pair<iterator,iterator> equal_range(const key_type &key)
    {  return this->tree_type::lower_bound_range(key); }
 
-   //! @copydoc ::boost::intrusive::sgtree::equal_range(const KeyType&,KeyTypeKeyCompare)
+   //! @copydoc ::boost::intrusive::rbtree::equal_range(const KeyType&,KeyTypeKeyCompare)
    template<class KeyType, class KeyTypeKeyCompare>
    std::pair<iterator,iterator> equal_range(const KeyType& key, KeyTypeKeyCompare comp)
-   {  return this->tree_type::equal_range(key, comp); }
+   {  return this->tree_type::lower_bound_range(key, comp); }
 
-   //! @copydoc ::boost::intrusive::sgtree::equal_range(const key_type &)const
+   //! @copydoc ::boost::intrusive::rbtree::equal_range(const key_type &)const
    std::pair<const_iterator, const_iterator>
       equal_range(const key_type &key) const
    {  return this->tree_type::lower_bound_range(key); }
 
-   //! @copydoc ::boost::intrusive::sgtree::equal_range(const KeyType&,KeyTypeKeyCompare)const
+   //! @copydoc ::boost::intrusive::rbtree::equal_range(const KeyType&,KeyTypeKeyCompare)const
    template<class KeyType, class KeyTypeKeyCompare>
    std::pair<const_iterator, const_iterator>
       equal_range(const KeyType& key, KeyTypeKeyCompare comp) const
-   {  return this->tree_type::equal_range(key, comp); }
+   {  return this->tree_type::lower_bound_range(key, comp); }
 
    #ifdef BOOST_INTRUSIVE_DOXYGEN_INVOKED
 
@@ -423,24 +394,6 @@ class sg_set_impl
 
    //! @copydoc ::boost::intrusive::sgtree::balance_factor(float)
    void balance_factor(float new_alpha);
-
-   //! @copydoc ::boost::intrusive::rbtree::merge_unique
-   template<class ...Options2>
-   void merge(sg_set<T, Options2...> &source);
-
-   //! @copydoc ::boost::intrusive::rbtree::merge_unique
-   template<class ...Options2>
-   void merge(sg_multiset<T, Options2...> &source);
-
-   #else
-
-   template<class Compare2>
-   void merge(sg_set_impl<ValueTraits, VoidOrKeyOfValue, Compare2, SizeType, FloatingPoint, HeaderHolder> &source)
-   {  return tree_type::merge_unique(source);  }
-
-   template<class Compare2>
-   void merge(sg_multiset_impl<ValueTraits, VoidOrKeyOfValue, Compare2, SizeType, FloatingPoint, HeaderHolder> &source)
-   {  return tree_type::merge_unique(source);  }
 
    #endif   //#ifdef BOOST_INTRUSIVE_DOXYGEN_INVOKED
 };
@@ -534,11 +487,8 @@ class sg_set
    //Assert if passed value traits are compatible with the type
    BOOST_STATIC_ASSERT((detail::is_same<typename value_traits::value_type, T>::value));
 
-   sg_set()
-      :  Base()
-   {}
-
-   explicit sg_set( const key_compare &cmp, const value_traits &v_traits = value_traits())
+   explicit sg_set( const key_compare &cmp = key_compare()
+                  , const value_traits &v_traits = value_traits())
       :  Base(cmp, v_traits)
    {}
 
@@ -634,13 +584,9 @@ class sg_multiset_impl
    static const bool constant_time_size = tree_type::constant_time_size;
 
    public:
-   //! @copydoc ::boost::intrusive::sgtree::sgtree()
-   sg_multiset_impl()
-      :  tree_type()
-   {}
-
    //! @copydoc ::boost::intrusive::sgtree::sgtree(const key_compare &,const value_traits &)
-   explicit sg_multiset_impl( const key_compare &cmp, const value_traits &v_traits = value_traits())
+   explicit sg_multiset_impl( const key_compare &cmp = key_compare()
+                         , const value_traits &v_traits = value_traits())
       :  tree_type(cmp, v_traits)
    {}
 
@@ -700,15 +646,6 @@ class sg_multiset_impl
 
    //! @copydoc ::boost::intrusive::sgtree::crend()const
    const_reverse_iterator crend() const;
-
-   //! @copydoc ::boost::intrusive::sgtree::root()
-   iterator root();
-
-   //! @copydoc ::boost::intrusive::sgtree::root()const
-   const_iterator root() const;
-
-   //! @copydoc ::boost::intrusive::sgtree::croot()const
-   const_iterator croot() const;
 
    //! @copydoc ::boost::intrusive::sgtree::container_from_end_iterator(iterator)
    static sg_multiset_impl &container_from_end_iterator(iterator end_iterator);
@@ -930,24 +867,6 @@ class sg_multiset_impl
    //! @copydoc ::boost::intrusive::sgtree::balance_factor(float)
    void balance_factor(float new_alpha);
 
-   //! @copydoc ::boost::intrusive::treap::merge_unique
-   template<class ...Options2>
-   void merge(sg_multiset<T, Options2...> &source);
-
-   //! @copydoc ::boost::intrusive::treap::merge_unique
-   template<class ...Options2>
-   void merge(sg_set<T, Options2...> &source);
-
-   #else
-
-   template<class Compare2>
-   void merge(sg_multiset_impl<ValueTraits, VoidOrKeyOfValue, Compare2, SizeType, FloatingPoint, HeaderHolder> &source)
-   {  return tree_type::merge_equal(source);  }
-
-   template<class Compare2>
-   void merge(sg_set_impl<ValueTraits, VoidOrKeyOfValue, Compare2, SizeType, FloatingPoint, HeaderHolder> &source)
-   {  return tree_type::merge_equal(source);  }
-
    #endif   //#ifdef BOOST_INTRUSIVE_DOXYGEN_INVOKED
 };
 
@@ -1041,11 +960,8 @@ class sg_multiset
    //Assert if passed value traits are compatible with the type
    BOOST_STATIC_ASSERT((detail::is_same<typename value_traits::value_type, T>::value));
 
-   sg_multiset()
-      :  Base()
-   {}
-
-   explicit sg_multiset( const key_compare &cmp, const value_traits &v_traits = value_traits())
+   sg_multiset( const key_compare &cmp = key_compare()
+           , const value_traits &v_traits = value_traits())
       :  Base(cmp, v_traits)
    {}
 

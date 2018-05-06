@@ -14,7 +14,6 @@ import generators ;
 import feature ;
 import common ;
 import "class" : new ;
-import os ;
 
 type.register GCI : gci ;
 
@@ -75,12 +74,4 @@ TOUCH = [ common.file-touch-command ] ;
 actions touch
 {
     $(TOUCH) $(<)
-}
-
-if [ os.name ] = VMS
-{
-    actions touch
-    {
-        $(TOUCH) $(<:W)
-    }
 }

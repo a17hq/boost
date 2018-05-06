@@ -20,7 +20,8 @@ project boost/spirit/test/test_headers
     : requirements 
         <include>$(BOOST_ROOT) 
         <include>../../../..
-        <c++-template-depth>300
+        <toolset>gcc:<cxxflags>-ftemplate-depth-300
+        <toolset>darwin:<cxxflags>-ftemplate-depth-300
     ;
 
 headers = 

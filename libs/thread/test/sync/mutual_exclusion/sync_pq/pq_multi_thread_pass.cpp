@@ -21,10 +21,6 @@
 
 #include <boost/core/lightweight_test.hpp>
 
-#ifdef BOOST_MSVC
-#pragma warning(disable: 4127) // conditional expression is constant
-#endif
-
 typedef boost::concurrent::sync_priority_queue<int> sync_pq;
 
 int call_pull(sync_pq* q, boost::barrier* go)
@@ -109,7 +105,7 @@ void atomic_pull(sync_pq* q, boost::atomic<int>* sum)
             const int val = q->pull();
             sum->fetch_add(val);
         }
-        catch(std::exception&  ){
+        catch(std::exception& e ){
             break;
         }
     }
@@ -151,7 +147,7 @@ void move_between_queues(sync_pq* q1, sync_pq* q2)
             const int val = q1->pull();
             q2->push(val);
         }
-        catch(std::exception& ){
+        catch(std::exception& e){
             break;
         }
     }

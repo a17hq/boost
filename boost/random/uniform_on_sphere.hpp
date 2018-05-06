@@ -172,7 +172,6 @@ public:
                 } else {
                     *_container.begin() = 1;
                 }
-                break;
             }
         case 2:
             {
@@ -225,12 +224,8 @@ public:
                     }
                 } while(sqsum == 0);
                 // for all i: result[i] /= sqrt(sqsum)
-                RealType inverse_distance = 1 / sqrt(sqsum);
-                for(typename Cont::iterator it = _container.begin();
-                    it != _container.end();
-                    ++it) {
-                    *it *= inverse_distance;
-                }
+                std::transform(_container.begin(), _container.end(), _container.begin(),
+                               std::bind2nd(std::multiplies<RealType>(), 1/sqrt(sqsum)));
             }
         }
         return _container;

@@ -15,8 +15,6 @@
 #include <iostream>
 #include <sstream>
 
-#include <boost/typeof/typeof.hpp>
-#include <boost/variant/variant.hpp>
 
 #include <geometry_test_common.hpp>
 
@@ -27,6 +25,7 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/io/wkt/wkt.hpp>
 #include <boost/geometry/strategies/strategies.hpp>
+#include <boost/variant/variant.hpp>
 
 #include <test_common/test_point.hpp>
 

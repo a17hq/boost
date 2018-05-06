@@ -4,8 +4,6 @@
 # Boost Software License, Version 1.0. (See accompanying file
 # LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-import sequence ;
-
 project boost/container
     : source-location ../src
     : usage-requirements  # pass these requirement to dependents (i.e. users)
@@ -13,8 +11,11 @@ project boost/container
       <link>static:<define>BOOST_CONTAINER_STATIC_LINK=1
     ;
 
+# Base names of the source files for libboost_container
+CPP_SOURCES = alloc_lib ;
+
 lib boost_container
-   : alloc_lib.c [ sequence.insertion-sort [ glob *.cpp ] ]
+   : $(CPP_SOURCES).c
    : <link>shared:<define>BOOST_CONTAINER_DYN_LINK=1
      <link>static:<define>BOOST_CONTAINER_STATIC_LINK=1
    ;

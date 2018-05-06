@@ -47,7 +47,6 @@ int
 main()
 {
     BOOST_STATIC_ASSERT((phx::stl::has_mapped_type<std::map<int, int> >::value));
-    BOOST_STATIC_ASSERT((phx::stl::has_key_type<std::map<int, int> >::value));
 
     std::map<int, int> const data = build_map();
     test_map_insert(data);

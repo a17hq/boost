@@ -4,7 +4,6 @@
 // Copyright (c) 2007-2015 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
-// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -37,14 +36,6 @@ void test_2d(bool is_integer = false)
 #ifdef REPORT_RESULTS
     std::cout << std::endl << "type: " << typeid(ct).name() << " size: " << sizeof(ct) << std::endl;
 #endif
-
-    test_centroid<bg::model::multi_point<P> >(
-            "MULTIPOINT((1 1),(3 3))",
-            2.0, 2.0);
-
-    test_centroid<bg::model::multi_point<P> >(
-            "MULTIPOINT((-1 -1),(-3 -3))",
-            -2.0, -2.0);
 
     if (! is_integer)
     {
@@ -124,58 +115,6 @@ void test_2d(bool is_integer = false)
         424530.6059719588, 4527519.619367547);
 }
 
-template <typename P>
-void test_exceptions()
-{
-    using namespace bg::model;
-    typedef multi_polygon<polygon<P> > multi_polygon;
-    typedef multi_linestring<linestring<P> > multi_linestring;
-
-    // Empty multi-polygon
-    test_centroid_exception<multi_polygon>("MULTIPOLYGON()");
-    test_centroid_exception<multi_polygon>("MULTIPOLYGON(())");
-    test_centroid_exception<multi_polygon>("MULTIPOLYGON((), ())");
-    test_centroid_exception<multi_polygon>("MULTIPOLYGON((()), ())");
-    test_centroid_exception<multi_polygon>("MULTIPOLYGON(((), ()))");
-
-    // Empty multi-linestring
-    test_centroid_exception<multi_linestring>("MULTILINESTRING()");
-    test_centroid_exception<multi_linestring>("MULTILINESTRING(())");
-    test_centroid_exception<multi_linestring>("MULTILINESTRING((), ())");
-}
-
-template <typename P>
-void test_empty()
-{
-    using namespace bg::model;
-    typedef multi_polygon<polygon<P> > multi_polygon;
-    typedef multi_linestring<linestring<P> > multi_linestring;
-
-    // Multi-linestring with empty linestring
-    test_centroid<multi_linestring>(
-        "MULTILINESTRING((), (0 0))",
-        0.0, 0.0);
-    test_centroid<multi_linestring>(
-        "MULTILINESTRING((0 0, 1 0), ())",
-        0.5, 0.0);
-
-    // Multi-polygon with empty polygon
-    test_centroid<multi_polygon>(
-        "MULTIPOLYGON((()), ((0 0)))",
-        0.0, 0.0);
-    test_centroid<multi_polygon>(
-        "MULTIPOLYGON(((0 0, 1 0, 1 1, 0 1, 0 0)), (()))",
-        0.5, 0.5);
-
-    // Multi-polygon with empty interior ring
-    test_centroid<multi_polygon>(
-        "MULTIPOLYGON(((0 0, 1 0, 1 1, 0 1, 0 0), ()))",
-        0.5, 0.5);
-    test_centroid<multi_polygon>(
-        "MULTIPOLYGON((()), ((0 0, 1 0, 1 1, 0 1, 0 0), ()))",
-        0.5, 0.5);
-}
-
 
 
 int test_main(int, char* [])
@@ -189,9 +128,6 @@ int test_main(int, char* [])
 #ifdef HAVE_TTMATH
     test_2d<bg::model::d2::point_xy<ttmath_big> >();
 #endif
-
-    test_exceptions<bg::model::d2::point_xy<double> >();
-    test_empty<bg::model::d2::point_xy<double> >();
 
     return 0;
 }

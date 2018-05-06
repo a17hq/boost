@@ -15,15 +15,7 @@ boostbook standalone
         <xsl:param>navig.graphics=0
     ;
 
-install html : ../../../doc/src/boostbook.css ;
+install html : ../../../doc/html/boostbook.css ;
 install ../ : ../../../boost.png ;
 
-###############################################################################
-alias boostdoc
-    : typeof
-    :
-    :
-    : ;
-explicit boostdoc ;
-alias boostrelease ;
-explicit boostrelease ;
+

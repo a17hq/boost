@@ -11,7 +11,6 @@
 // token
 
 //O --long_long
-//D __TESTWAVE_SUPPORT_MS_EXTENSIONS__
 
 #if defined(__TESTWAVE_SUPPORT_MS_EXTENSIONS__)
 

@@ -16,6 +16,8 @@
 
 #include <boost/container/deque.hpp>
 #include <boost/container/allocator.hpp>
+#include <boost/container/node_allocator.hpp>
+#include <boost/container/adaptive_pool.hpp>
 
 #include "print_container.hpp"
 #include "check_equal_containers.hpp"
@@ -44,21 +46,37 @@ template class boost::container::deque
  , test::simple_allocator<test::movable_and_copyable_int> >;
 
 template class boost::container::deque
+ < test::movable_and_copyable_int
+ , test::dummy_test_allocator<test::movable_and_copyable_int> >;
+
+template class boost::container::deque
+ < test::movable_and_copyable_int
+ , std::allocator<test::movable_and_copyable_int> >;
+
+template class boost::container::deque
    < test::movable_and_copyable_int
    , allocator<test::movable_and_copyable_int> >;
+
+template class boost::container::deque
+   < test::movable_and_copyable_int
+   , adaptive_pool<test::movable_and_copyable_int> >;
+
+template class boost::container::deque
+   < test::movable_and_copyable_int
+   , node_allocator<test::movable_and_copyable_int> >;
 
 }}
 
 //Function to check if both sets are equal
 template<class V1, class V2>
-bool deque_copyable_only(V1 &, V2 &, dtl::false_type)
+bool deque_copyable_only(V1 &, V2 &, container_detail::false_type)
 {
    return true;
 }
 
 //Function to check if both sets are equal
 template<class V1, class V2>
-bool deque_copyable_only(V1 &cntdeque, V2 &stddeque, dtl::true_type)
+bool deque_copyable_only(V1 &cntdeque, V2 &stddeque, container_detail::true_type)
 {
    typedef typename V1::value_type IntType;
    std::size_t size = cntdeque.size();
@@ -246,7 +264,7 @@ bool do_test()
       }
 
       if(!deque_copyable_only(cntdeque, stddeque
-                     ,dtl::bool_<boost::container::test::is_copyable<IntType>::value>())){
+                     ,container_detail::bool_<boost::container::test::is_copyable<IntType>::value>())){
          return false;
       }
 
@@ -368,6 +386,16 @@ int main ()
    //       boost::container::allocator
    if(test_cont_variants< allocator<void> >()){
       std::cerr << "test_cont_variants< allocator<void> > failed" << std::endl;
+      return 1;
+   }
+   //       boost::container::node_allocator
+   if(test_cont_variants< node_allocator<void> >()){
+      std::cerr << "test_cont_variants< node_allocator<void> > failed" << std::endl;
+      return 1;
+   }
+   //       boost::container::adaptive_pool
+   if(test_cont_variants< adaptive_pool<void> >()){
+      std::cerr << "test_cont_variants< adaptive_pool<void> > failed" << std::endl;
       return 1;
    }
    ////////////////////////////////////

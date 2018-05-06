@@ -21,7 +21,6 @@ namespace bg = ::boost::geometry;
 #include <algorithm>
 #include <fstream>
 #include <boost/core/ignore_unused.hpp>
-#include <boost/typeof/typeof.hpp>
 
 #include <boost/geometry/policies/compare.hpp>
 #include <boost/geometry/algorithms/equals.hpp>

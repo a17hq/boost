@@ -468,8 +468,10 @@ void test_aimes()
     bg::strategy::buffer::end_flat end_flat;
     bg::strategy::buffer::end_round end_round(100);
 
+    double const tolerance = 1.0e-10;
+
     // Aimes tested originally with 0.000018 degrees (around 2 m)
-    ut_settings settings(1.0e-10);
+    std::size_t self_ip_count = 0;
 
     int expectation_index = 0;
     for (int width = 18; width <= 36; width += 18, expectation_index += 2)
@@ -485,13 +487,15 @@ void test_aimes()
                 (
                     name.str(), testcases[i], join_miter, end_flat,
                     expectations[i][expectation_index],
-                    aimes_width, settings
+                    aimes_width, aimes_width,
+                    self_ip_count, tolerance
                 );
                 test_one<linestring, polygon>
                 (
                     name.str(), testcases[i], join_round, end_round,
                     expectations[i][expectation_index + 1],
-                    aimes_width, settings
+                    aimes_width, aimes_width,
+                    self_ip_count, tolerance
                 );
             }
             catch(std::exception const& e)
@@ -500,6 +504,12 @@ void test_aimes()
             }
         }
     }
+
+    BOOST_CHECK_MESSAGE
+        (
+            self_ip_count == 0,
+            "There are self-intersections: " << self_ip_count
+        );
 }
 
 

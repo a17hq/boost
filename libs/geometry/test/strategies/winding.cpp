@@ -3,8 +3,9 @@
 
 // Copyright (c) 2010-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
-// This file was modified by Oracle on 2014, 2016.
-// Modifications copyright (c) 2014-2016 Oracle and/or its affiliates.
+// This file was modified by Oracle on 2014.
+// Modifications copyright (c) 2014 Oracle and/or its affiliates.
+
 // Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
@@ -89,6 +90,8 @@ void test_spherical()
         s,
         false);
 
+#ifdef BOOST_GEOMETRY_TEST_STRATEGIES_WINDING_ENABLE_FAILING_TESTS
+
     test_geometry<point, polygon>(
         "sph1N",
         "POINT(0 10.001)",
@@ -142,6 +145,8 @@ void test_spherical()
               point(0, (T)-10.001)) == -1 // right side
       /*true*/);
 
+#endif // BOOST_GEOMETRY_TEST_STRATEGIES_WINDING_ENABLE_FAILING_TESTS
+
     test_geometry<point, polygon>(
         "sphEq1",
         "POINT(179 10)",
@@ -154,7 +159,7 @@ void test_spherical()
         "POINT(179 10)",
         "POLYGON((170 20, -170 20, -170 10, 170 10, 170 20))",
         s,
-        false,
+        true,
         false);
     test_geometry<point, polygon>(
         "sphEq3",
@@ -168,8 +173,10 @@ void test_spherical()
         "POINT(-179 10)",
         "POLYGON((170 20, -170 20, -170 10, 170 10, 170 20))",
         s,
-        false,
+        true,
         false);
+
+#ifdef BOOST_GEOMETRY_TEST_STRATEGIES_WINDING_ENABLE_FAILING_TESTS
 
     test_geometry<point, polygon>(
         "sphEq5",
@@ -199,6 +206,8 @@ void test_spherical()
         s,
         false,
         false);
+
+#endif // BOOST_GEOMETRY_TEST_STRATEGIES_WINDING_ENABLE_FAILING_TESTS
 }
 
 int test_main(int, char* [])

@@ -20,7 +20,7 @@
 #include <boost/intrusive/detail/config_begin.hpp>
 #include <boost/intrusive/detail/workaround.hpp>
 #include <boost/intrusive/pointer_rebind.hpp>
-#include <boost/move/detail/pointer_element.hpp>
+#include <boost/intrusive/detail/pointer_element.hpp>
 #include <boost/intrusive/detail/mpl.hpp>
 #include <cstddef>
 
@@ -97,7 +97,7 @@ struct pointer_traits
       //
       typedef BOOST_INTRUSIVE_OBTAIN_TYPE_WITH_EVAL_DEFAULT
          ( boost::intrusive::detail::, Ptr, element_type
-         , boost::movelib::detail::first_param<Ptr>)                          element_type;
+         , boost::intrusive::detail::first_param<Ptr>)                        element_type;
       //
       typedef BOOST_INTRUSIVE_OBTAIN_TYPE_WITH_DEFAULT
          (boost::intrusive::detail::, Ptr, difference_type, std::ptrdiff_t)   difference_type;
@@ -223,7 +223,7 @@ struct pointer_traits
 
    template<class UPtr>
    static pointer priv_static_cast_from(boost::intrusive::detail::false_, const UPtr &uptr)
-   {  return uptr ? pointer_to(*static_cast<element_type*>(to_raw_pointer(uptr))) : pointer();  }
+   {  return pointer_to(*static_cast<element_type*>(to_raw_pointer(uptr)));  }
 
    //priv_const_cast_from
    template<class UPtr>
@@ -232,7 +232,7 @@ struct pointer_traits
 
    template<class UPtr>
    static pointer priv_const_cast_from(boost::intrusive::detail::false_, const UPtr &uptr)
-   {  return uptr ? pointer_to(const_cast<element_type&>(*uptr)) : pointer();  }
+   {  return pointer_to(const_cast<element_type&>(*uptr));  }
 
    //priv_dynamic_cast_from
    template<class UPtr>
@@ -241,7 +241,15 @@ struct pointer_traits
 
    template<class UPtr>
    static pointer priv_dynamic_cast_from(boost::intrusive::detail::false_, const UPtr &uptr)
-   {  return uptr ? pointer_to(dynamic_cast<element_type&>(*uptr)) : pointer();  }
+   {
+      element_type *p = dynamic_cast<element_type*>(&*uptr);
+     if(!p){
+        return pointer();
+     }
+     else{
+        return pointer_to(*p);
+     }
+   }
    ///@endcond
 };
 
@@ -288,25 +296,25 @@ struct pointer_traits<T*>
 
    //! <b>Returns</b>: addressof(r)
    //!
-   BOOST_INTRUSIVE_FORCEINLINE static pointer pointer_to(reference r)
+   static pointer pointer_to(reference r)
    { return boost::intrusive::detail::addressof(r); }
 
    //! <b>Returns</b>: static_cast<pointer>(uptr)
    //!
    template<class U>
-   BOOST_INTRUSIVE_FORCEINLINE static pointer static_cast_from(U *uptr)
+   static pointer static_cast_from(U *uptr)
    {  return static_cast<pointer>(uptr);  }
 
    //! <b>Returns</b>: const_cast<pointer>(uptr)
    //!
    template<class U>
-   BOOST_INTRUSIVE_FORCEINLINE static pointer const_cast_from(U *uptr)
+   static pointer const_cast_from(U *uptr)
    {  return const_cast<pointer>(uptr);  }
 
    //! <b>Returns</b>: dynamic_cast<pointer>(uptr)
    //!
    template<class U>
-   BOOST_INTRUSIVE_FORCEINLINE static pointer dynamic_cast_from(U *uptr)
+   static pointer dynamic_cast_from(U *uptr)
    {  return dynamic_cast<pointer>(uptr);  }
 };
 

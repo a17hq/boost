@@ -4,6 +4,8 @@
 //  Boost Software License, Version 1.0. (See accompanying file 
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#include "test.hpp"
+#include "check_integral_constant.hpp"
 #ifdef TEST_STD
 #  include <type_traits>
 #else
@@ -21,8 +23,6 @@
 #include <boost/type_traits/is_member_function_pointer.hpp>
 #include <boost/type_traits/is_pointer.hpp>
 #endif
-#include "test.hpp"
-#include "check_integral_constant.hpp"
 #include <stdexcept>
 #include <new>
 #include <exception>

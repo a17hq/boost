@@ -6,7 +6,6 @@
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  */
 
-#include "random_shuffle.hpp"
 #include <boost/pool/pool_alloc.hpp>
 #include <boost/pool/object_pool.hpp>
 
@@ -138,7 +137,7 @@ void test()
         {
             v.push_back(pool.construct());
         }
-        pool_test_random_shuffle(v.begin(), v.end());
+        std::random_shuffle(v.begin(), v.end());
         for(int j=0; j < 5; ++j)
         {
             pool.destroy(v[j]);

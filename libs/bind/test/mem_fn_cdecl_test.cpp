@@ -1,13 +1,5 @@
 #include <boost/config.hpp>
 
-#ifndef BOOST_MSVC
-
-int main()
-{
-}
-
-#else
-
 #if defined(BOOST_MSVC)
 #pragma warning(disable: 4786)  // identifier truncated in debug info
 #pragma warning(disable: 4710)  // function not inlined
@@ -192,5 +184,3 @@ int main()
 
     return detect_errors(x.hash == 17610 && sp->hash == 2155);
 }
-
-#endif

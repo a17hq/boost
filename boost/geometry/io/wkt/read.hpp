@@ -3,7 +3,6 @@
 // Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
 // Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
-// Copyright (c) 2017 Adam Wulkiewicz, Lodz, Poland.
 
 // This file was modified by Oracle on 2014, 2015.
 // Modifications copyright (c) 2014-2015 Oracle and/or its affiliates.
@@ -28,13 +27,9 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/mpl/if.hpp>
-#include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
-#include <boost/range/size.hpp>
-#include <boost/range/value_type.hpp>
-#include <boost/throw_exception.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/remove_reference.hpp>
+#include <boost/range.hpp>
+
+#include <boost/type_traits.hpp>
 
 #include <boost/geometry/algorithms/assign.hpp>
 #include <boost/geometry/algorithms/append.hpp>
@@ -141,15 +136,15 @@ struct parsing_assigner
         }
         catch(boost::bad_lexical_cast const& blc)
         {
-            BOOST_THROW_EXCEPTION(read_wkt_exception(blc.what(), it, end, wkt));
+            throw read_wkt_exception(blc.what(), it, end, wkt);
         }
         catch(std::exception const& e)
         {
-            BOOST_THROW_EXCEPTION(read_wkt_exception(e.what(), it, end, wkt));
+            throw read_wkt_exception(e.what(), it, end, wkt);
         }
         catch(...)
         {
-            BOOST_THROW_EXCEPTION(read_wkt_exception("", it, end, wkt));
+            throw read_wkt_exception("", it, end, wkt);
         }
 
         parsing_assigner<Point, Dimension + 1, DimensionCount>::apply(
@@ -177,7 +172,7 @@ inline void handle_open_parenthesis(Iterator& it,
 {
     if (it == end || *it != "(")
     {
-        BOOST_THROW_EXCEPTION(read_wkt_exception("Expected '('", it, end, wkt));
+        throw read_wkt_exception("Expected '('", it, end, wkt);
     }
     ++it;
 }
@@ -194,7 +189,7 @@ inline void handle_close_parenthesis(Iterator& it,
     }
     else
     {
-        BOOST_THROW_EXCEPTION(read_wkt_exception("Expected ')'", it, end, wkt));
+        throw read_wkt_exception("Expected ')'", it, end, wkt);
     }
 }
 
@@ -205,7 +200,7 @@ inline void check_end(Iterator& it,
 {
     if (it != end)
     {
-        BOOST_THROW_EXCEPTION(read_wkt_exception("Too many tokens", it, end, wkt));
+        throw read_wkt_exception("Too much tokens", it, end, wkt);
     }
 }
 
@@ -517,15 +512,11 @@ inline bool initialize(tokenizer const& tokens,
 {
     it = tokens.begin();
     end = tokens.end();
-
-    if (it == end || ! boost::iequals(*it++, geometry_name))
+    if (it != end && boost::iequals(*it++, geometry_name))
     {
-        BOOST_THROW_EXCEPTION(read_wkt_exception(std::string("Should start with '") + geometry_name + "'", wkt));
-    }
+        bool has_empty, has_z, has_m;
 
-    bool has_empty, has_z, has_m;
-
-    handle_empty_z_m(it, end, has_empty, has_z, has_m);
+        handle_empty_z_m(it, end, has_empty, has_z, has_m);
 
 // Silence warning C4127: conditional expression is constant
 #if defined(_MSC_VER)
@@ -533,23 +524,25 @@ inline bool initialize(tokenizer const& tokens,
 #pragma warning(disable : 4127)  
 #endif
 
-    if (has_z && dimension<Geometry>::type::value < 3)
-    {
-        BOOST_THROW_EXCEPTION(read_wkt_exception("Z only allowed for 3 or more dimensions", wkt));
-    }
+        if (has_z && dimension<Geometry>::type::value < 3)
+        {
+            throw read_wkt_exception("Z only allowed for 3 or more dimensions", wkt);
+        }
 
 #if defined(_MSC_VER)
 #pragma warning(pop)
 #endif
 
-    if (has_empty)
-    {
-        check_end(it, end, wkt);
-        return false;
+        if (has_empty)
+        {
+            check_end(it, end, wkt);
+            return false;
+        }
+        // M is ignored at all.
+
+        return true;
     }
-    // M is ignored at all.
-    
-    return true;
+    throw read_wkt_exception(std::string("Should start with '") + geometry_name + "'", wkt);
 }
 
 
@@ -706,7 +699,7 @@ struct box_parser
         }
         else
         {
-            BOOST_THROW_EXCEPTION(read_wkt_exception("Should start with 'POLYGON' or 'BOX'", wkt));
+            throw read_wkt_exception("Should start with 'POLYGON' or 'BOX'", wkt);
         }
 
         typedef typename point_type<Box>::type point_type;
@@ -733,7 +726,7 @@ struct box_parser
         }
         else
         {
-            BOOST_THROW_EXCEPTION(read_wkt_exception("Box should have 2,4 or 5 points", wkt));
+            throw read_wkt_exception("Box should have 2,4 or 5 points", wkt);
         }
 
         geometry::detail::assign_point_to_index<min_corner>(points.front(), box);
@@ -764,7 +757,7 @@ struct segment_parser
         }
         else
         {
-            BOOST_THROW_EXCEPTION(read_wkt_exception("Should start with 'LINESTRING' or 'SEGMENT'", wkt));
+            throw read_wkt_exception("Should start with 'LINESTRING' or 'SEGMENT'", wkt);
         }
 
         typedef typename point_type<Segment>::type point_type;
@@ -780,7 +773,7 @@ struct segment_parser
         }
         else
         {
-            BOOST_THROW_EXCEPTION(read_wkt_exception("Segment should have 2 points", wkt));
+            throw read_wkt_exception("Segment should have 2 points", wkt);
         }
 
     }
@@ -898,7 +891,7 @@ struct read_wkt<segment_tag, Segment>
 template <typename Geometry>
 inline void read_wkt(std::string const& wkt, Geometry& geometry)
 {
-    geometry::concepts::check<Geometry>();
+    geometry::concept::check<Geometry>();
     dispatch::read_wkt<typename tag<Geometry>::type, Geometry>::apply(wkt, geometry);
 }
 

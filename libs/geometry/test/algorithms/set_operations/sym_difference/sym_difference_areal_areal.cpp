@@ -67,15 +67,12 @@ struct test_sym_difference_of_areal_geometries
                   << expected_area
                   << "; detected: " << bg::area(sdf) << std::endl;
 #endif
-        ut_settings settings;
-        settings.percentage = tolerance;
-
         test_difference
             <
                 PolygonOut
             >(case_id, areal1, areal2,
               expected_polygon_count, expected_point_count, expected_area,
-              true, settings);
+              tolerance, true);
     }
 };
 
@@ -134,7 +131,7 @@ BOOST_AUTO_TEST_CASE( test_sym_difference_polygon_multipolygon )
          from_wkt<MPG>("MULTIPOLYGON(((0 0,0 10,10 10,10 0,0 0)),\
                        ((20 0,20 10,30 10,30 0,20 0)))"),
          1,
-         6,
+         9,
          300);
 }
 

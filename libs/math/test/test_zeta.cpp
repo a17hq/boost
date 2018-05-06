@@ -4,9 +4,6 @@
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include "pch_light.hpp"
-#ifndef BOOST_MATH_OVERFLOW_ERROR_POLICY
-#  define BOOST_MATH_OVERFLOW_ERROR_POLICY ignore_error
-#endif
 #include "test_zeta.hpp"
 
 //
@@ -82,13 +79,6 @@ void expected_results()
    add_expected_result(
       ".*",                          // compiler
       ".*",                          // stdlib
-      ".*Solaris.*",                 // platform
-      "real_concept",                // test type(s)
-      ".*",                          // test data group
-      ".*", 60, 15);                  // test function
-   add_expected_result(
-      ".*",                          // compiler
-      ".*",                          // stdlib
       ".*",                          // platform
       "real_concept",                // test type(s)
       ".*",                          // test data group
@@ -112,7 +102,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::endl;
+      "to pass.</note>" << std::cout;
 #endif
 
    test_zeta(0.1F, "float");
@@ -124,7 +114,7 @@ BOOST_AUTO_TEST_CASE( test_main )
    std::cout << "<note>The long double tests have been disabled on this platform "
       "either because the long double overloads of the usual math functions are "
       "not available at all, or because they are too inaccurate for these tests "
-      "to pass.</note>" << std::endl;
+      "to pass.</note>" << std::cout;
 #endif
    
 }

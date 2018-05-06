@@ -4,13 +4,13 @@
 //  Boost Software License, Version 1.0. (See accompanying file 
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#include "test.hpp"
+#include "check_integral_constant.hpp"
 #ifdef TEST_STD
 #  include <type_traits>
 #else
 #  include <boost/type_traits/has_trivial_constructor.hpp>
 #endif
-#include "test.hpp"
-#include "check_integral_constant.hpp"
 
 
 class bug11324_base
@@ -27,22 +27,6 @@ public:
    explicit bug11324_derived(char arg) : data(arg) {}
 };
 
-struct private_construct
-{
-   private_construct(int);
-private:
-   private_construct();
-};
-
-#ifndef BOOST_NO_CXX11_DELETED_FUNCTIONS
-
-struct deleted_construct
-{
-   deleted_construct(int);
-   deleted_construct() = delete;
-};
-
-#endif
 
 TT_TEST_BEGIN(has_trivial_constructor)
 
@@ -183,8 +167,7 @@ BOOST_CHECK_INTEGRAL_CONSTANT(::tt::has_trivial_constructor<int[3][2]>::value, t
 BOOST_CHECK_INTEGRAL_CONSTANT(::tt::has_trivial_constructor<int[2][4][5][6][3]>::value, true);
 BOOST_CHECK_INTEGRAL_CONSTANT(::tt::has_trivial_constructor<UDT>::value, false);
 BOOST_CHECK_INTEGRAL_CONSTANT(::tt::has_trivial_constructor<empty_UDT>::value, false);
-// Can't construct type void:
-BOOST_CHECK_INTEGRAL_CONSTANT(::tt::has_trivial_constructor<void>::value, false);
+BOOST_CHECK_INTEGRAL_CONSTANT(::tt::has_trivial_constructor<void>::value, true);
 // cases we would like to succeed but can't implement in the language:
 BOOST_CHECK_SOFT_INTEGRAL_CONSTANT(::tt::has_trivial_constructor<empty_POD_UDT>::value, true, false);
 BOOST_CHECK_SOFT_INTEGRAL_CONSTANT(::tt::has_trivial_constructor<POD_UDT>::value, true, false);
@@ -203,12 +186,6 @@ BOOST_CHECK_SOFT_INTEGRAL_CONSTANT(::tt::has_trivial_constructor<wrap<trivial_ex
 
 BOOST_CHECK_INTEGRAL_CONSTANT(::tt::has_trivial_constructor<test_abc1>::value, false);
 BOOST_CHECK_INTEGRAL_CONSTANT(::tt::has_trivial_constructor<bug11324_derived>::value, false);
-
-BOOST_CHECK_INTEGRAL_CONSTANT(::tt::has_trivial_constructor<private_construct>::value, false);
-#ifndef BOOST_NO_CXX11_DELETED_FUNCTIONS
-BOOST_CHECK_INTEGRAL_CONSTANT(::tt::has_trivial_constructor<deleted_construct>::value, false);
-BOOST_CHECK_INTEGRAL_CONSTANT((::tt::has_trivial_constructor<std::pair<deleted_construct, int> >::value), false);
-#endif
 
 TT_TEST_END
 

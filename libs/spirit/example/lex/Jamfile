@@ -7,7 +7,8 @@
 #==============================================================================
 project spirit-lexer-example
     : requirements 
-        <c++-template-depth>300
+        <toolset>gcc:<c++-template-depth>300
+        <toolset>darwin:<cxxflags>-ftemplate-depth-300
     :
     :
     ;

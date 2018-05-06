@@ -22,7 +22,6 @@
 #pragma warning(disable:1418)
 #endif
 
-#if !(defined(BOOST_MSVC) && defined(CI_SUPPRESS_KNOWN_ISSUES))
 
 enum UIntEnum { UIntEnum_max = UINT_MAX };
 
@@ -37,8 +36,6 @@ void test_promote_to_uint()
     assert_is_uint(+UIntEnum_max);
     test_cv< UIntEnum, unsigned int >();
 }
-
-#endif
 
 int main()
 {

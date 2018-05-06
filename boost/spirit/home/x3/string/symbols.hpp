@@ -198,7 +198,6 @@ namespace boost { namespace spirit { namespace x3
         }
 
     private:
-
         template <typename Iterator>
         value_type* find_impl(Iterator begin, Iterator end)
         {
@@ -214,14 +213,13 @@ namespace boost { namespace spirit { namespace x3
         }
 
     public:
-
         template <typename Iterator, typename Context, typename Attribute>
         bool parse(Iterator& first, Iterator const& last
           , Context const& context, unused_type, Attribute& attr) const
         {
             x3::skip_over(first, last, context);
 
-            if (value_type const* val_ptr
+            if (value_type* val_ptr
                 = lookup->find(first, last, get_case_compare<Encoding>(context)))
             {
                 x3::traits::move_to(*val_ptr, attr);
@@ -343,13 +341,11 @@ namespace boost { namespace spirit { namespace x3
 
     using standard::symbols;
 
-#ifndef BOOST_SPIRIT_NO_STANDARD_WIDE
     namespace standard_wide
     {
         template <typename T = unused_type>
         using symbols = symbols_parser<char_encoding::standard_wide, T>;
     }
-#endif
 
     namespace ascii
     {

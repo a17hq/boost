@@ -33,6 +33,5 @@ sh comp_ptr_multimap.sh
 sh comp_ptr_set.sh
 sh comp_ptr_multiset.sh
 sh comp_indirect_fun.sh
-sh comp_compatible_smart_ptr.sh
 
 

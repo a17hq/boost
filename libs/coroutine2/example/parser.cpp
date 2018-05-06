@@ -4,7 +4,6 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-#include <cctype>
 #include <cstdio>
 #include <exception>
 #include <functional>
@@ -101,6 +100,7 @@ int main() {
         std::istringstream is("1+1");
         // invert control flow
         coro_t::pull_type seq(
+                boost::coroutines2::fixedsize_stack(),
                 [&is]( coro_t::push_type & yield) {
                 Parser p( is,
                     [&yield](char ch){
@@ -108,11 +108,14 @@ int main() {
                     });
                 p.run();
                 });
+
         // user-code pulls parsed data from parser
         for(char c:seq){
             printf("Parsed: %c\n",c);
         }
+
         std::cout << "\nDone" << std::endl;
+
         return EXIT_SUCCESS;
     } catch ( std::exception const& ex) {
         std::cerr << "exception: " << ex.what() << std::endl;

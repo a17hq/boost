@@ -2,7 +2,7 @@
 // ping.cpp
 // ~~~~~~~~
 //
-// Copyright (c) 2003-2018 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2015 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -18,17 +18,18 @@
 #include "ipv4_header.hpp"
 
 using boost::asio::ip::icmp;
-using boost::asio::steady_timer;
-namespace chrono = boost::asio::chrono;
+using boost::asio::deadline_timer;
+namespace posix_time = boost::posix_time;
 
 class pinger
 {
 public:
-  pinger(boost::asio::io_context& io_context, const char* destination)
-    : resolver_(io_context), socket_(io_context, icmp::v4()),
-      timer_(io_context), sequence_number_(0), num_replies_(0)
+  pinger(boost::asio::io_service& io_service, const char* destination)
+    : resolver_(io_service), socket_(io_service, icmp::v4()),
+      timer_(io_service), sequence_number_(0), num_replies_(0)
   {
-    destination_ = *resolver_.resolve(icmp::v4(), destination, "").begin();
+    icmp::resolver::query query(icmp::v4(), destination, "");
+    destination_ = *resolver_.resolve(query);
 
     start_send();
     start_receive();
@@ -53,12 +54,12 @@ private:
     os << echo_request << body;
 
     // Send the request.
-    time_sent_ = steady_timer::clock_type::now();
+    time_sent_ = posix_time::microsec_clock::universal_time();
     socket_.send_to(request_buffer.data(), destination_);
 
     // Wait up to five seconds for a reply.
     num_replies_ = 0;
-    timer_.expires_at(time_sent_ + chrono::seconds(5));
+    timer_.expires_at(time_sent_ + posix_time::seconds(5));
     timer_.async_wait(boost::bind(&pinger::handle_timeout, this));
   }
 
@@ -68,7 +69,7 @@ private:
       std::cout << "Request timed out" << std::endl;
 
     // Requests must be sent no less than one second apart.
-    timer_.expires_at(time_sent_ + chrono::seconds(1));
+    timer_.expires_at(time_sent_ + posix_time::seconds(1));
     timer_.async_wait(boost::bind(&pinger::start_send, this));
   }
 
@@ -106,14 +107,12 @@ private:
         timer_.cancel();
 
       // Print out some information about the reply packet.
-      chrono::steady_clock::time_point now = chrono::steady_clock::now();
-      chrono::steady_clock::duration elapsed = now - time_sent_;
+      posix_time::ptime now = posix_time::microsec_clock::universal_time();
       std::cout << length - ipv4_hdr.header_length()
         << " bytes from " << ipv4_hdr.source_address()
         << ": icmp_seq=" << icmp_hdr.sequence_number()
         << ", ttl=" << ipv4_hdr.time_to_live()
-        << ", time="
-        << chrono::duration_cast<chrono::milliseconds>(elapsed).count()
+        << ", time=" << (now - time_sent_).total_milliseconds() << " ms"
         << std::endl;
     }
 
@@ -132,9 +131,9 @@ private:
   icmp::resolver resolver_;
   icmp::endpoint destination_;
   icmp::socket socket_;
-  steady_timer timer_;
+  deadline_timer timer_;
   unsigned short sequence_number_;
-  chrono::steady_clock::time_point time_sent_;
+  posix_time::ptime time_sent_;
   boost::asio::streambuf reply_buffer_;
   std::size_t num_replies_;
 };
@@ -152,9 +151,9 @@ int main(int argc, char* argv[])
       return 1;
     }
 
-    boost::asio::io_context io_context;
-    pinger p(io_context, argv[1]);
-    io_context.run();
+    boost::asio::io_service io_service;
+    pinger p(io_service, argv[1]);
+    io_service.run();
   }
   catch (std::exception& e)
   {

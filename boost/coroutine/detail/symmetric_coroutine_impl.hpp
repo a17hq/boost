@@ -36,12 +36,13 @@ public:
     typedef parameters< R >                           param_type;
 
     symmetric_coroutine_impl( preallocated const& palloc,
-                              bool unwind) BOOST_NOEXCEPT :
+                              bool unwind, bool preserve_fpu) BOOST_NOEXCEPT :
         flags_( 0),
         caller_(),
         callee_( trampoline< symmetric_coroutine_impl< R > >, palloc)
     {
         if ( unwind) flags_ |= flag_force_unwind;
+        if ( preserve_fpu) flags_ |= flag_preserve_fpu;
     }
 
     virtual ~symmetric_coroutine_impl() {}
@@ -51,6 +52,9 @@ public:
 
     bool unwind_requested() const BOOST_NOEXCEPT
     { return 0 != ( flags_ & flag_unwind_stack); }
+
+    bool preserve_fpu() const BOOST_NOEXCEPT
+    { return 0 != ( flags_ & flag_preserve_fpu); }
 
     bool is_started() const BOOST_NOEXCEPT
     { return 0 != ( flags_ & flag_started); }
@@ -70,7 +74,8 @@ public:
             param_type to( unwind_t::force_unwind);
             caller_.jump(
                 callee_,
-                & to);
+                reinterpret_cast< intptr_t >( & to),
+                preserve_fpu() );
             flags_ &= ~flag_running;
             flags_ &= ~flag_unwind_stack;
 
@@ -92,10 +97,11 @@ public:
         flags_ &= ~flag_running;
         param_type to;
         param_type * from(
-            static_cast< param_type * >(
+            reinterpret_cast< param_type * >(
                 callee_.jump(
                     caller_,
-                    & to) ) );
+                    reinterpret_cast< intptr_t >( & to),
+                    preserve_fpu() ) ) );
         flags_ |= flag_running;
         if ( from->do_unwind) throw forced_unwind();
         BOOST_ASSERT( from->data);
@@ -143,7 +149,8 @@ protected:
         flags_ |= flag_running;
         caller_.jump(
             callee_,
-            to);
+            reinterpret_cast< intptr_t >( to),
+            preserve_fpu() );
         flags_ &= ~flag_running;
     }
 
@@ -158,10 +165,11 @@ protected:
         other->caller_ = caller_;
         flags_ &= ~flag_running;
         param_type * from(
-            static_cast< param_type * >(
+            reinterpret_cast< param_type * >(
                 callee_.jump(
                     other->callee_,
-                    to) ) );
+                    reinterpret_cast< intptr_t >( to),
+                    preserve_fpu() ) ) );
         flags_ |= flag_running;
         if ( from->do_unwind) throw forced_unwind();
         BOOST_ASSERT( from->data);
@@ -176,12 +184,13 @@ public:
     typedef parameters< R & >                         param_type;
 
     symmetric_coroutine_impl( preallocated const& palloc,
-                              bool unwind) BOOST_NOEXCEPT :
+                              bool unwind, bool preserve_fpu) BOOST_NOEXCEPT :
         flags_( 0),
         caller_(),
         callee_( trampoline< symmetric_coroutine_impl< R > >, palloc)
     {
         if ( unwind) flags_ |= flag_force_unwind;
+        if ( preserve_fpu) flags_ |= flag_preserve_fpu;
     }
 
     virtual ~symmetric_coroutine_impl() {}
@@ -191,6 +200,9 @@ public:
 
     bool unwind_requested() const BOOST_NOEXCEPT
     { return 0 != ( flags_ & flag_unwind_stack); }
+
+    bool preserve_fpu() const BOOST_NOEXCEPT
+    { return 0 != ( flags_ & flag_preserve_fpu); }
 
     bool is_started() const BOOST_NOEXCEPT
     { return 0 != ( flags_ & flag_started); }
@@ -210,7 +222,8 @@ public:
             param_type to( unwind_t::force_unwind);
             caller_.jump(
                 callee_,
-                & to);
+                reinterpret_cast< intptr_t >( & to),
+                preserve_fpu() );
             flags_ &= ~flag_running;
             flags_ &= ~flag_unwind_stack;
 
@@ -232,10 +245,11 @@ public:
         flags_ &= ~flag_running;
         param_type to;
         param_type * from(
-            static_cast< param_type * >(
+            reinterpret_cast< param_type * >(
                 callee_.jump(
                     caller_,
-                    & to) ) );
+                    reinterpret_cast< intptr_t >( & to),
+                    preserve_fpu() ) ) );
         flags_ |= flag_running;
         if ( from->do_unwind) throw forced_unwind();
         BOOST_ASSERT( from->data);
@@ -283,7 +297,8 @@ protected:
         flags_ |= flag_running;
         caller_.jump(
             callee_,
-            to);
+            reinterpret_cast< intptr_t >( to),
+            preserve_fpu() );
         flags_ &= ~flag_running;
     }
 
@@ -298,10 +313,11 @@ protected:
         other->caller_ = caller_;
         flags_ &= ~flag_running;
         param_type * from(
-            static_cast< param_type * >(
+            reinterpret_cast< param_type * >(
                 callee_.jump(
                     other->callee_,
-                    to) ) );
+                    reinterpret_cast< intptr_t >( to),
+                    preserve_fpu() ) ) );
         flags_ |= flag_running;
         if ( from->do_unwind) throw forced_unwind();
         BOOST_ASSERT( from->data);
@@ -316,12 +332,13 @@ public:
     typedef parameters< void >                          param_type;
 
     symmetric_coroutine_impl( preallocated const& palloc,
-                              bool unwind) BOOST_NOEXCEPT :
+                              bool unwind, bool preserve_fpu) BOOST_NOEXCEPT :
         flags_( 0),
         caller_(),
         callee_( trampoline_void< symmetric_coroutine_impl< void > >, palloc)
     {
         if ( unwind) flags_ |= flag_force_unwind;
+        if ( preserve_fpu) flags_ |= flag_preserve_fpu;
     }
 
     virtual ~symmetric_coroutine_impl() {}
@@ -331,6 +348,9 @@ public:
 
     inline bool unwind_requested() const BOOST_NOEXCEPT
     { return 0 != ( flags_ & flag_unwind_stack); }
+
+    inline bool preserve_fpu() const BOOST_NOEXCEPT
+    { return 0 != ( flags_ & flag_preserve_fpu); }
 
     inline bool is_started() const BOOST_NOEXCEPT
     { return 0 != ( flags_ & flag_started); }
@@ -350,7 +370,8 @@ public:
             param_type to( unwind_t::force_unwind);
             caller_.jump(
                 callee_,
-                & to);
+                reinterpret_cast< intptr_t >( & to),
+                preserve_fpu() );
             flags_ &= ~flag_running;
             flags_ &= ~flag_unwind_stack;
 
@@ -367,7 +388,8 @@ public:
         flags_ |= flag_running;
         caller_.jump(
             callee_,
-            & to);
+            reinterpret_cast< intptr_t >( & to),
+            preserve_fpu() );
         flags_ &= ~flag_running;
     }
 
@@ -379,10 +401,11 @@ public:
         flags_ &= ~flag_running;
         param_type to;
         param_type * from(
-            static_cast< param_type * >(
+            reinterpret_cast< param_type * >(
                 callee_.jump(
                      caller_,
-                    & to) ) );
+                    reinterpret_cast< intptr_t >( & to),
+                    preserve_fpu() ) ) );
         flags_ |= flag_running;
         if ( from->do_unwind) throw forced_unwind();
     }
@@ -431,10 +454,11 @@ protected:
         other->caller_ = caller_;
         flags_ &= ~flag_running;
         param_type * from(
-            static_cast< param_type * >(
+            reinterpret_cast< param_type * >(
                 callee_.jump(
                     other->callee_,
-                    to) ) );
+                    reinterpret_cast< intptr_t >( to),
+                    preserve_fpu() ) ) );
         flags_ |= flag_running;
         if ( from->do_unwind) throw forced_unwind();
     }

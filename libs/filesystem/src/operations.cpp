@@ -101,7 +101,6 @@ using std::wstring;
       // See MinGW's windef.h
 #     define WINVER 0x501
 #   endif
-#   include <cwchar>
 #   include <io.h>
 #   include <windows.h>
 #   include <winnt.h>
@@ -264,10 +263,10 @@ namespace
 
   //  error handling helpers  ----------------------------------------------------------//
 
-  bool error(err_t error_num, error_code* ec, const char* message);
-  bool error(err_t error_num, const path& p, error_code* ec, const char* message);
+  bool error(err_t error_num, error_code* ec, const string& message);
+  bool error(err_t error_num, const path& p, error_code* ec, const string& message);
   bool error(err_t error_num, const path& p1, const path& p2, error_code* ec,
-    const char* message);
+    const string& message);
 
   const error_code ok;
 
@@ -275,7 +274,7 @@ namespace
   //  Interface changed 30 Jan 15 to have caller supply error_num as ::SetLastError()
   //  values were apparently getting cleared before they could be retrieved by error().
 
-  bool error(err_t error_num, error_code* ec, const char* message)
+  bool error(err_t error_num, error_code* ec, const string& message)
   {
     if (!error_num)
     {
@@ -292,7 +291,7 @@ namespace
     return error_num != 0;
   }
 
-  bool error(err_t error_num, const path& p, error_code* ec, const char* message)
+  bool error(err_t error_num, const path& p, error_code* ec, const string& message)
   {
     if (!error_num)
     {
@@ -310,7 +309,7 @@ namespace
   }
 
   bool error(err_t error_num, const path& p1, const path& p2, error_code* ec,
-    const char* message)
+    const string& message)
   {
     if (!error_num)
     {
@@ -329,27 +328,16 @@ namespace
 
   //  general helpers  -----------------------------------------------------------------//
 
-  bool is_empty_directory(const path& p, error_code* ec)
+  bool is_empty_directory(const path& p)
   {
-    return (ec != 0 ? fs::directory_iterator(p, *ec) : fs::directory_iterator(p))
-      == end_dir_itr;
+    return fs::directory_iterator(p)== end_dir_itr;
   }
 
-  bool not_found_error(int errval); // forward declaration
-
-  // only called if directory exists
-  bool remove_directory(const path& p) // true if succeeds or not found
-  { 
-    return BOOST_REMOVE_DIRECTORY(p.c_str())
-      || not_found_error(BOOST_ERRNO);  // mitigate possible file system race. See #11166
-  }
+  bool remove_directory(const path& p) // true if succeeds
+    { return BOOST_REMOVE_DIRECTORY(p.c_str()); }
   
-  // only called if file exists
-  bool remove_file(const path& p) // true if succeeds or not found
-  {
-    return BOOST_DELETE_FILE(p.c_str())
-      || not_found_error(BOOST_ERRNO);  // mitigate possible file system race. See #11166
-  }
+  bool remove_file(const path& p) // true if succeeds
+    { return BOOST_DELETE_FILE(p.c_str()); }
   
   // called by remove and remove_all_aux
   bool remove_file_or_directory(const path& p, fs::file_type type, error_code* ec)
@@ -384,25 +372,16 @@ namespace
     error_code* ec)
   {
     boost::uintmax_t count = 1;
+
     if (type == fs::directory_file)  // but not a directory symlink
     {
-      fs::directory_iterator itr;
-      if (ec != 0)
-      {
-        itr = fs::directory_iterator(p, *ec);
-        if (*ec)
-          return count;
-      }
-      else
-        itr = fs::directory_iterator(p);
-      for (; itr != end_dir_itr; ++itr)
+      for (fs::directory_iterator itr(p);
+            itr != end_dir_itr; ++itr)
       {
         fs::file_type tmp_type = query_file_type(itr->path(), ec);
         if (ec != 0 && *ec)
           return count;
         count += remove_all_aux(itr->path(), tmp_type, ec);
-        if (ec != 0 && *ec)
-          return count;
       }
     }
     remove_file_or_directory(p, type, ec);
@@ -519,27 +498,24 @@ namespace
       || errval == ERROR_BAD_NETPATH;  // "//nosuch" on Win32
   }
 
-  static bool equal_extension( wchar_t const* p, wchar_t const (&x1)[ 5 ], wchar_t const (&x2)[ 5 ] )
-  {
-    return
-      (p[0] == x1[0] || p[0] == x2[0]) &&
-      (p[1] == x1[1] || p[1] == x2[1]) &&
-      (p[2] == x1[2] || p[2] == x2[2]) &&
-      (p[3] == x1[3] || p[3] == x2[3]) &&
-      p[4] == 0;
-  }
+// some distributions of mingw as early as GLIBCXX__ 20110325 have _stricmp, but the
+// offical 4.6.2 release with __GLIBCXX__ 20111026  doesn't. Play it safe for now, and
+// only use _stricmp if _MSC_VER is defined
+#if defined(_MSC_VER) // || (defined(__GLIBCXX__) && __GLIBCXX__ >= 20110325)
+#  define BOOST_FILESYSTEM_STRICMP _stricmp
+#else
+#  define BOOST_FILESYSTEM_STRICMP strcmp
+#endif
 
   perms make_permissions(const path& p, DWORD attr)
   {
     perms prms = fs::owner_read | fs::group_read | fs::others_read;
     if  ((attr & FILE_ATTRIBUTE_READONLY) == 0)
       prms |= fs::owner_write | fs::group_write | fs::others_write;
-    path ext = p.extension();
-    wchar_t const* q = ext.c_str();
-    if (equal_extension(q, L".exe", L".EXE")
-      || equal_extension(q, L".com", L".COM")
-      || equal_extension(q, L".bat", L".BAT")
-      || equal_extension(q, L".cmd", L".CMD"))
+    if (BOOST_FILESYSTEM_STRICMP(p.extension().string().c_str(), ".exe") == 0
+      || BOOST_FILESYSTEM_STRICMP(p.extension().string().c_str(), ".com") == 0
+      || BOOST_FILESYSTEM_STRICMP(p.extension().string().c_str(), ".bat") == 0
+      || BOOST_FILESYSTEM_STRICMP(p.extension().string().c_str(), ".cmd") == 0)
       prms |= fs::owner_exe | fs::group_exe | fs::others_exe;
     return prms;
   }
@@ -643,7 +619,7 @@ namespace
     {
       return fs::file_status(fs::file_not_found, fs::no_perms);
     }
-    else if (errval == ERROR_SHARING_VIOLATION)
+    else if ((errval == ERROR_SHARING_VIOLATION))
     {
       return fs::file_status(fs::type_unknown);
     }
@@ -701,7 +677,7 @@ namespace
 
   PtrCreateHardLinkW create_hard_link_api = PtrCreateHardLinkW(
     ::GetProcAddress(
-      ::GetModuleHandleW(L"kernel32.dll"), "CreateHardLinkW"));
+      ::GetModuleHandle(TEXT("kernel32.dll")), "CreateHardLinkW"));
 
   typedef BOOLEAN (WINAPI *PtrCreateSymbolicLinkW)(
     /*__in*/ LPCWSTR lpSymlinkFileName,
@@ -711,7 +687,7 @@ namespace
 
   PtrCreateSymbolicLinkW create_symbolic_link_api = PtrCreateSymbolicLinkW(
     ::GetProcAddress(
-      ::GetModuleHandleW(L"kernel32.dll"), "CreateSymbolicLinkW"));
+      ::GetModuleHandle(TEXT("kernel32.dll")), "CreateSymbolicLinkW"));
 
 #endif
 
@@ -951,20 +927,6 @@ namespace detail
  BOOST_FILESYSTEM_DECL
   bool create_directories(const path& p, system::error_code* ec)
   {
-   if (p.empty())
-   {
-     if (ec == 0)
-       BOOST_FILESYSTEM_THROW(filesystem_error(
-         "boost::filesystem::create_directories", p,
-         system::errc::make_error_code(system::errc::invalid_argument)));
-     else
-       ec->assign(system::errc::invalid_argument, system::generic_category());
-     return false;
-   }
-
-    if (p.filename_is_dot() || p.filename_is_dot_dot())
-      return create_directories(p.parent_path(), ec);
-    
     error_code local_ec;
     file_status p_status = status(p, local_ec);
 
@@ -1015,8 +977,7 @@ namespace detail
     //  attempt to create directory failed
     int errval(BOOST_ERRNO);  // save reason for failure
     error_code dummy;
-
-    if (is_directory(p, dummy))
+    if (errval == BOOST_ERROR_ALREADY_EXISTS && is_directory(p, dummy))
     {
       if (ec != 0)
         ec->clear();
@@ -1029,7 +990,6 @@ namespace detail
         p, error_code(errval, system_category())));
     else
       ec->assign(errval, system_category());
-
     return false;
   }
 
@@ -1322,7 +1282,7 @@ namespace detail
         p, ec, "boost::filesystem::is_empty"))
       return false;        
     return S_ISDIR(path_stat.st_mode)
-      ? is_empty_directory(p, ec)
+      ? is_empty_directory(p)
       : path_stat.st_size == 0;
 #   else
 
@@ -1334,7 +1294,7 @@ namespace detail
     if (ec != 0) ec->clear();
     return 
       (fad.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-        ? is_empty_directory(p, ec)
+        ? is_empty_directory(p)
         : (!fad.nFileSizeHigh && !fad.nFileSizeLow);
 #   endif
   }
@@ -1440,7 +1400,7 @@ namespace detail
     else if (prms & remove_perms)
       prms = current_status.permissions() & ~prms;
 
-    // OS X <10.10, iOS <8.0 and some other platforms don't support fchmodat().
+    // Mac OS X Lion and some other platforms don't support fchmodat().
     // Solaris (SunPro and gcc) only support fchmodat() on Solaris 11 and higher,
     // and a runtime check is too much trouble.
     // Linux does not support permissions on symbolic links and has no plans to
@@ -1453,11 +1413,7 @@ namespace detail
     //   "http://man7.org/linux/man-pages/man2/fchmodat.2.html"
 #   if defined(AT_FDCWD) && defined(AT_SYMLINK_NOFOLLOW) \
       && !(defined(__SUNPRO_CC) || defined(__sun) || defined(sun)) \
-      && !(defined(linux) || defined(__linux) || defined(__linux__)) \
-      && !(defined(__MAC_OS_X_VERSION_MIN_REQUIRED) \
-           && __MAC_OS_X_VERSION_MIN_REQUIRED < 101000) \
-      && !(defined(__IPHONE_OS_VERSION_MIN_REQUIRED) \
-           && __IPHONE_OS_VERSION_MIN_REQUIRED < 80000)
+      && !(defined(linux) || defined(__linux) || defined(__linux__))
       if (::fchmodat(AT_FDCWD, p.c_str(), mode_cast(prms),
            !(prms & symlink_perms) ? 0 : AT_SYMLINK_NOFOLLOW))
 #   else  // fallback if fchmodat() not supported
@@ -1561,19 +1517,6 @@ namespace detail
 #     endif
     return symlink_path;
   }
-
-  BOOST_FILESYSTEM_DECL
-  path relative(const path& p, const path& base, error_code* ec)
-  {
-    error_code tmp_ec;
-    path wc_base(weakly_canonical(base, &tmp_ec));
-    if (error(tmp_ec.value(), base, ec, "boost::filesystem::relative"))
-      return path();
-    path wc_p(weakly_canonical(p, &tmp_ec));
-    if (error(tmp_ec.value(), base, ec, "boost::filesystem::relative"))
-      return path();
-    return wc_p.lexically_relative(wc_base);
-  }
   
   BOOST_FILESYSTEM_DECL
   bool remove(const path& p, error_code* ec)
@@ -1587,7 +1530,7 @@ namespace detail
     // Since POSIX remove() is specified to work with either files or directories, in a
     // perfect world it could just be called. But some important real-world operating
     // systems (Windows, Mac OS X, for example) don't implement the POSIX spec. So
-    // remove_file_or_directory() is always called to keep it simple.
+    // remove_file_or_directory() is always called to kep it simple.
     return remove_file_or_directory(p, type, ec);
   }
 
@@ -1625,7 +1568,7 @@ namespace detail
 #   ifdef BOOST_POSIX_API
     struct BOOST_STATVFS vfs;
     space_info info;
-    if (!error(::BOOST_STATVFS(p.c_str(), &vfs) ? BOOST_ERRNO : 0,
+    if (!error(::BOOST_STATVFS(p.c_str(), &vfs)!= 0,
       p, ec, "boost::filesystem::space"))
     {
       info.capacity 
@@ -1912,47 +1855,6 @@ namespace detail
 #   endif
   }
 
-  BOOST_FILESYSTEM_DECL
-  path weakly_canonical(const path& p, system::error_code* ec)
-  {
-    path head(p);
-    path tail;
-    system::error_code tmp_ec;
-    path::iterator itr = p.end();
-
-    for (; !head.empty(); --itr)
-    {
-      file_status head_status = status(head, tmp_ec);
-      if (error(head_status.type() == fs::status_error,
-        head, ec, "boost::filesystem::weakly_canonical"))
-        return path();
-      if (head_status.type() != fs::file_not_found)
-        break;
-      head.remove_filename();
-    }
-
-    bool tail_has_dots = false;
-    for (; itr != p.end(); ++itr)
-    { 
-      tail /= *itr;
-      // for a later optimization, track if any dot or dot-dot elements are present
-      if (itr->native().size() <= 2
-        && itr->native()[0] == dot
-        && (itr->native().size() == 1 || itr->native()[1] == dot))
-        tail_has_dots = true;
-    }
-    
-    if (head.empty())
-      return p.lexically_normal();
-    head = canonical(head, tmp_ec);
-    if (error(tmp_ec.value(), head, ec, "boost::filesystem::weakly_canonical"))
-      return path();
-    return tail.empty()
-      ? head
-      : (tail_has_dots  // optimization: only normalize if tail had dot or dot-dot element
-          ? (head/tail).lexically_normal()  
-          : head/tail);
-  }
 }  // namespace detail
 
 //--------------------------------------------------------------------------------------//

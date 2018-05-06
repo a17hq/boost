@@ -17,8 +17,8 @@
   */
 
 
-#include <boost/regex.hpp>
 #include <list>
+#include <boost/regex.hpp>
 
 
 unsigned tokenise(std::list<std::string>& l, std::string& s)

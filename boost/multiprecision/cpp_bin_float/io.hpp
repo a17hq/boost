@@ -8,12 +8,6 @@
 
 namespace boost{ namespace multiprecision{ namespace cpp_bf_io_detail{
 
-#ifdef BOOST_MSVC
-#pragma warning(push)
-#pragma warning(disable:4127) // conditional expression is constant
-#endif
-
-
 //
 // Multiplies a by b and shifts the result so it fits inside max_bits bits, 
 // returns by how much the result was shifted.
@@ -485,7 +479,7 @@ std::string cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::s
    if(exponent() <= cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::max_exponent)
    {
       // How far to left-shift in order to demormalise the mantissa:
-      boost::intmax_t shift = (boost::intmax_t)cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::bit_count - (boost::intmax_t)exponent() - 1;
+      boost::intmax_t shift = (int)cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::bit_count - exponent() - 1;
       boost::intmax_t digits_wanted = static_cast<int>(dig);
       boost::intmax_t base10_exp = exponent() >= 0 ? static_cast<boost::intmax_t>(std::floor(0.30103 * exponent())) : static_cast<boost::intmax_t>(std::ceil(0.30103 * exponent()));
       //
@@ -571,7 +565,7 @@ std::string cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::s
 #else
                   max_bits *= 2;
 #endif
-                  shift = (boost::intmax_t)cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::bit_count - exponent() - 1 - power10;
+                  shift = (int)cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::bit_count - exponent() - 1 - power10;
                   continue;
                }
             }
@@ -599,7 +593,7 @@ std::string cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::s
 #else
                   max_bits *= 2;
 #endif
-                  shift = (boost::intmax_t)cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::bit_count - exponent() - 1 - power10;
+                  shift = (int)cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::bit_count - exponent() - 1 - power10;
                   continue;
                }
                if(shift)
@@ -612,7 +606,7 @@ std::string cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::s
 #else
                      max_bits *= 2;
 #endif
-                     shift = (boost::intmax_t)cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::bit_count - exponent() - 1 - power10;
+                     shift = (int)cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::bit_count - exponent() - 1 - power10;
                      continue;
                   }
                   i >>= shift;
@@ -646,7 +640,7 @@ std::string cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::s
             if(fixed)
                digits_wanted = digits_got;  // strange but true.
             power10 = digits_wanted - base10_exp - 1;
-            shift = (boost::intmax_t)cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::bit_count - exponent() - 1 - power10;
+            shift = (int)cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::bit_count - exponent() - 1 - power10;
             if(fixed)
                break;
             roundup = 0;
@@ -676,7 +670,7 @@ std::string cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::s
       switch(exponent())
       {
       case exponent_zero:
-         s = sign() ? "-0" : f & std::ios_base::showpos ? "+0" : "0";
+         s = "0";
          boost::multiprecision::detail::format_float_string(s, 0, dig, f, true);
          break;
       case exponent_nan:
@@ -689,10 +683,6 @@ std::string cpp_bin_float<Digits, DigitBase, Allocator, Exponent, MinE, MaxE>::s
    }
    return s;
 }
-
-#ifdef BOOST_MSVC
-#pragma warning(pop)
-#endif
 
 }}} // namespaces
 

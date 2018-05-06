@@ -39,23 +39,36 @@ void do_something_in_current_thread()
 {
 }
 
+//void do_something_with_current_thread(boost::thread&& th)
+//{
+//  th.join();
+//}
+
 int main()
 {
   {
-    int some_local_state=0;
+    int some_local_state;
     boost::strict_scoped_thread<> t( (boost::thread(func(some_local_state))));
 
     do_something_in_current_thread();
   }
   {
-    int some_local_state=0;
+    int some_local_state;
     boost::thread t(( func(some_local_state) ));
     boost::strict_scoped_thread<> g( (boost::move(t)) );
 
     do_something_in_current_thread();
   }
+//  {
+//    int some_local_state;
+//    boost::thread t(( func(some_local_state) ));
+//    boost::strict_scoped_thread<> g( (boost::move(t)) );
+//
+//    do_something_in_current_thread();
+//    do_something_with_current_thread(boost::thread(g));
+//  }
   {
-    int some_local_state=0;
+    int some_local_state;
     boost::scoped_thread<> t( (boost::thread(func(some_local_state))));
 
     if (t.joinable())
@@ -63,17 +76,14 @@ int main()
     else
       do_something_in_current_thread();
   }
-#if 0
   {
-    int some_local_state=0;
+    int some_local_state;
     boost::thread t(( func(some_local_state) ));
     boost::scoped_thread<> g( (boost::move(t)) );
-    if (g.joinable())
-      g.detach();
+    t.detach();
 
     do_something_in_current_thread();
   }
-#endif
   {
     boost::scoped_thread<> g( &f, 1, 2 );
     do_something_in_current_thread();

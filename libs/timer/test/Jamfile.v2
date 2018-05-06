@@ -7,8 +7,6 @@
 
 # See library home page at http://www.boost.org/libs/timer
 
-import testing ;
-
 path-constant parent : .. ;  # so that inspect will start in boost-root/libs/timer
                              # when run from another directory, such as boost-root/status
 
@@ -42,13 +40,11 @@ project
      ]
      [ compile original_timer_test.cpp
      ]
-     [ run chrono_conflict_test.cpp /boost/chrono//boost_chrono : : : <link>static
+     [ run /boost/tools/inspect//inspect/<variant>release
+       : $(parent) -text -brief # command line
+       : # input files
+       : <dependency>/boost/filesystem//boost_filesystem
+         <test-info>always_show_run_output # requirements
+       : inspect # test name
      ]
-#     [ run /boost/tools/inspect//inspect/<variant>release
-#       : $(parent) -text -brief # command line
-#       : # input files
-#       : <dependency>/boost/filesystem//boost_filesystem
-#         <test-info>always_show_run_output # requirements
-#       : inspect # test name
-#     ]
    ;

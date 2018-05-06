@@ -18,6 +18,14 @@
 #include <boost/spirit/include/classic_core.hpp>
 #include <boost/spirit/include/classic_multi_pass.hpp>
 
+#if defined(BOOST_HAS_UNISTD_H)
+#include <unistd.h>    // unlink()
+#endif
+
+#if defined(__MINGW32__)
+#include <io.h>    // unlink()
+#endif
+
 using namespace BOOST_SPIRIT_CLASSIC_NS;
 using namespace std;
 
@@ -38,14 +46,14 @@ int main ()
         typedef char char_t;
         typedef multi_pass<istreambuf_iterator<char_t> > iterator_t;
 
-        typedef skip_parser_iteration_policy<space_parser> it_policy_t;
-        typedef scanner_policies<it_policy_t> scan_policies_t;
-        typedef scanner<iterator_t, scan_policies_t> scanner_t;
+        typedef skip_parser_iteration_policy<space_parser> iter_policy_t;
+        typedef scanner_policies<iter_policy_t> scanner_policies_t;
+        typedef scanner<iterator_t, scanner_policies_t> scanner_t;
 
         typedef rule<scanner_t> rule_t;
 
-        it_policy_t iter_policy(space_p);
-        scan_policies_t policies(iter_policy);
+        iter_policy_t iter_policy(space_p);
+        scanner_policies_t policies(iter_policy);
         iterator_t first(make_multi_pass(std::istreambuf_iterator<char_t>(in)));
         scanner_t scan(first, make_multi_pass(std::istreambuf_iterator<char_t>()),
             policies);
@@ -56,6 +64,8 @@ int main ()
         result = !m ? 1 : 0;
     }
 
-    std::remove("./input_file.txt");
+#if !defined(__COMO_VERSION__)
+    unlink("./input_file.txt");
+#endif
     return result;
 }

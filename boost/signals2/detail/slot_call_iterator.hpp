@@ -14,7 +14,6 @@
 
 #include <boost/assert.hpp>
 #include <boost/aligned_storage.hpp>
-#include <boost/core/no_exceptions_support.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/optional.hpp>
 #include <boost/scoped_ptr.hpp>
@@ -39,7 +38,7 @@ namespace boost {
           disconnected_slot_count(0),
           m_active_slot(0)
         {}
-
+        
         ~slot_call_iterator_cache()
         {
           if(m_active_slot)
@@ -48,9 +47,9 @@ namespace boost {
             m_active_slot->dec_slot_refcount(lock);
           }
         }
-
+        
         template<typename M>
-        void set_active_slot(garbage_collecting_lock<M> &lock,
+        void set_active_slot(garbage_collecting_lock<M> &lock, 
           connection_body_base *active_slot)
         {
           if(m_active_slot)
@@ -59,7 +58,7 @@ namespace boost {
           if(m_active_slot)
             m_active_slot->inc_slot_refcount(lock);
         }
-
+        
         optional<ResultType> result;
         typedef auto_buffer<void_shared_ptr_variant, store_n_objects<10> > tracked_ptrs_type;
         tracked_ptrs_type tracked_ptrs;
@@ -78,12 +77,12 @@ namespace boost {
         : public boost::iterator_facade<slot_call_iterator_t<Function, Iterator, ConnectionBody>,
         typename Function::result_type,
         boost::single_pass_traversal_tag,
-        typename boost::add_reference<typename boost::add_const<typename Function::result_type>::type>::type >
+        typename boost::add_const<typename boost::add_reference<typename Function::result_type>::type>::type >
       {
         typedef boost::iterator_facade<slot_call_iterator_t<Function, Iterator, ConnectionBody>,
           typename Function::result_type,
           boost::single_pass_traversal_tag,
-          typename boost::add_reference<typename boost::add_const<typename Function::result_type>::type>::type >
+          typename boost::add_const<typename boost::add_reference<typename Function::result_type>::type>::type >
         inherited;
 
         typedef typename Function::result_type result_type;
@@ -105,16 +104,15 @@ namespace boost {
         dereference() const
         {
           if (!cache->result) {
-            BOOST_TRY
+            try
             {
               cache->result.reset(cache->f(*iter));
             }
-            BOOST_CATCH(expired_slot &)
+            catch(expired_slot &)
             {
               (*iter)->disconnect();
-              BOOST_RETHROW
+              throw;
             }
-            BOOST_CATCH_END
           }
           return cache->result.get();
         }
@@ -142,7 +140,7 @@ namespace boost {
           else
             cache->set_active_slot(lock, (*callable_iter).get());
         }
-
+        
         void lock_next_callable() const
         {
           if(iter == callable_iter)

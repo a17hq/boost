@@ -7,22 +7,18 @@
 
 #include "test_simple_seg_storage.hpp"
 #include "track_allocator.hpp"
-#include "random_shuffle.hpp"
 
 #include <boost/pool/simple_segregated_storage.hpp>
 #include <boost/assert.hpp>
 #include <boost/integer/common_factor_ct.hpp>
-#if defined(BOOST_MSVC) && (BOOST_MSVC <= 1600)
+#if defined(BOOST_MSVC) && (BOOST_MSVC == 1400)
 #pragma warning(push)
-#pragma warning(disable: 4244)
-// ..\..\boost/random/uniform_int_distribution.hpp(171) :
-//   warning C4127: conditional expression is constant
-#pragma warning(disable: 4127)
+#pragma warning(disable:4244)
 #endif
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int.hpp>
 #include <boost/random/variate_generator.hpp>
-#if defined(BOOST_MSVC) && (BOOST_MSVC <= 1600)
+#if defined(BOOST_MSVC) && (BOOST_MSVC == 1400)
 #pragma warning(pop)
 #endif
 
@@ -230,7 +226,7 @@ int main()
         std::vector<void*> vpv;
         for(std::size_t i=0; i < 6; ++i) { vpv.push_back(tstore.malloc()); }
         BOOST_ASSERT(tstore.empty());
-        pool_test_random_shuffle(vpv.begin(), vpv.end());
+        std::random_shuffle(vpv.begin(), vpv.end());
 
         for(std::size_t i=0; i < 6; ++i)
         {

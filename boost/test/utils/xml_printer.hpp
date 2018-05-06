@@ -1,4 +1,4 @@
-//  (C) Copyright Gennadiy Rozental 2001.
+//  (C) Copyright Gennadiy Rozental 2004-2014.
 //  Distributed under the Boost Software License, Version 1.0.
 //  (See accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
@@ -17,6 +17,7 @@
 
 // Boost.Test
 #include <boost/test/utils/basic_cstring/basic_cstring.hpp>
+#include <boost/test/utils/fixed_mapping.hpp>
 #include <boost/test/utils/custom_manip.hpp>
 #include <boost/test/utils/foreach.hpp>
 #include <boost/test/utils/basic_cstring/io.hpp>
@@ -33,7 +34,6 @@
 
 namespace boost {
 namespace unit_test {
-namespace utils {
 
 // ************************************************************************** //
 // **************               xml print helpers              ************** //
@@ -42,31 +42,21 @@ namespace utils {
 inline void
 print_escaped( std::ostream& where_to, const_string value )
 {
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST) && !defined(BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX)
-    static std::map<char,char const*> const char_type{{
-        {'<' , "lt"},
-        {'>' , "gt"},
-        {'&' , "amp"},
-        {'\'', "apos"},
-        {'"' , "quot"}
-    }};
-#else
-    static std::map<char,char const*> char_type;
+    static fixed_mapping<char,char const*> char_type(
+        '<' , "lt",
+        '>' , "gt",
+        '&' , "amp",
+        '\'', "apos" ,
+        '"' , "quot",
 
-    if( char_type.empty() ) {
-        char_type['<'] = "lt";
-        char_type['>'] = "gt";
-        char_type['&'] = "amp";
-        char_type['\'']= "apos";
-        char_type['"'] = "quot";
-    }
-#endif
+        0
+    );
 
     BOOST_TEST_FOREACH( char, c, value ) {
-        std::map<char,char const*>::const_iterator found_ref = char_type.find( c );
+        char const* ref = char_type[c];
 
-        if( found_ref != char_type.end() )
-            where_to << '&' << found_ref->second << ';';
+        if( ref )
+            where_to << '&' << ref << ';';
         else
             where_to << c;
     }
@@ -134,7 +124,6 @@ operator<<( custom_printer<cdata> const& p, const_string value )
 
 //____________________________________________________________________________//
 
-} // namespace utils
 } // namespace unit_test
 } // namespace boost
 

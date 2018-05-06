@@ -176,7 +176,6 @@ void tiled_multiply_carray_outer(T0* first,
 enum { max_value = 1000};
 
 template<class F, class T, class N, class R>
-BOOST_CXX14_CONSTEXPR
 R solve_differential_equation(F f, T lower, T upper, N steps, R start) {
     typedef typename F::template result<T, R>::type f_result;
     T h = (upper - lower) / (1.0*steps);
@@ -198,13 +197,13 @@ using namespace boost::units;
 struct f {
     template<class Arg1, class Arg2> struct result;
     
-    BOOST_CONSTEXPR double operator()(const double& x, const double& y) const {
+    double operator()(const double& x, const double& y) const {
         return(1.0 - x + 4.0 * y);
     }
 
     boost::units::quantity<boost::units::si::velocity>
-    BOOST_CONSTEXPR operator()(const quantity<si::time>& x,
-                               const quantity<si::length>& y) const {
+    operator()(const quantity<si::time>& x,
+               const quantity<si::length>& y) const {
         using namespace boost::units;
         using namespace si;
         return(1.0 * meters / second -
@@ -331,7 +330,7 @@ int main() {
     }
     for(int i = 0; i < max_value; ++i) {
         for(int j = 0; j < max_value; ++j) {
-            const double diff =
+            double diff =
                 std::abs(ublas_result(i,j) - cresult[i * max_value + j]);
             if(diff > ublas_result(i,j) /1e14) {
                 std::cout << std::setprecision(15) << "Uh Oh. ublas_result("
@@ -349,13 +348,13 @@ int main() {
         std::cout << "solving y' = 1 - x + 4 * y with double: ";
         boost::timer timer;
         for(int i = 0; i < 1000; ++i) {
-            const double x = .1 * i;
+            double x = .1 * i;
             values[i] = solve_differential_equation(f(), 0.0, x, i * 100, 1.0);
         }
         std::cout << timer.elapsed() << " seconds" << std::endl;
         for(int i = 0; i < 1000; ++i) {
-            const double x = .1 * i;
-            const double value = 1.0/4.0 * x - 3.0/16.0 + 19.0/16.0 * std::exp(4 * x);
+            double x = .1 * i;
+            double value = 1.0/4.0 * x - 3.0/16.0 + 19.0/16.0 * std::exp(4 * x);
             if(std::abs(values[i] - value) > value / 1e9) {
                 std::cout << std::setprecision(15) << "i = : " << i
                           << ", value = " << value << " approx = "  << values[i]
@@ -371,7 +370,7 @@ int main() {
         std::cout << "solving y' = 1 - x + 4 * y with quantity: ";
         boost::timer timer;
         for(int i = 0; i < 1000; ++i) {
-            const quantity<si::time> x = .1 * i * seconds;
+            quantity<si::time> x = .1 * i * seconds;
             values[i] = solve_differential_equation(
                 f(),
                 0.0 * seconds,
@@ -381,8 +380,8 @@ int main() {
         }
         std::cout << timer.elapsed() << " seconds" << std::endl;
         for(int i = 0; i < 1000; ++i) {
-            const double x = .1 * i;
-            const quantity<si::length> value =
+            double x = .1 * i;
+            quantity<si::length> value =
                 (1.0/4.0 * x - 3.0/16.0 + 19.0/16.0 * std::exp(4 * x)) * meters;
             if(abs(values[i] - value) > value / 1e9) {
                 std::cout << std::setprecision(15) << "i = : " << i

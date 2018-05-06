@@ -12,7 +12,7 @@
 #include <sstream>
 #include <string>
 
-int main()
+int main( int argc, char** argv )
 {
     namespace karma = boost::spirit::karma;
     std::string output;

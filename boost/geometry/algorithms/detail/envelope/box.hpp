@@ -4,12 +4,10 @@
 // Copyright (c) 2008-2015 Bruno Lalande, Paris, France.
 // Copyright (c) 2009-2015 Mateusz Loskot, London, UK.
 
-// This file was modified by Oracle on 2015, 2016, 2017.
-// Modifications copyright (c) 2015-2017, Oracle and/or its affiliates.
+// This file was modified by Oracle on 2015.
+// Modifications copyright (c) 2015, Oracle and/or its affiliates.
 
-// Contributed and/or modified by Vissarion Fysikopoulos, on behalf of Oracle
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
@@ -99,10 +97,8 @@ struct envelope_indexed_box_on_spheroid
 
 struct envelope_box
 {
-    template<typename BoxIn, typename BoxOut, typename Strategy>
-    static inline void apply(BoxIn const& box_in,
-                             BoxOut& mbr,
-                             Strategy const&)
+    template<typename BoxIn, typename BoxOut>
+    static inline void apply(BoxIn const& box_in, BoxOut& mbr)
     {
         envelope_indexed_box
             <
@@ -119,10 +115,8 @@ struct envelope_box
 
 struct envelope_box_on_spheroid
 {
-    template <typename BoxIn, typename BoxOut, typename Strategy>
-    static inline void apply(BoxIn const& box_in,
-                             BoxOut& mbr,
-                             Strategy const&)
+    template <typename BoxIn, typename BoxOut>
+    static inline void apply(BoxIn const& box_in, BoxOut& mbr)
     {
         BoxIn box_in_normalized = detail::return_normalized<BoxIn>(box_in);
 
@@ -147,15 +141,9 @@ namespace dispatch
 {
 
 
-template <typename Box>
-struct envelope<Box, box_tag, cartesian_tag>
+template <typename Box, typename CS_Tag>
+struct envelope<Box, box_tag, CS_Tag>
     : detail::envelope::envelope_box
-{};
-
-
-template <typename Box>
-struct envelope<Box, box_tag, spherical_polar_tag>
-    : detail::envelope::envelope_box_on_spheroid
 {};
 
 

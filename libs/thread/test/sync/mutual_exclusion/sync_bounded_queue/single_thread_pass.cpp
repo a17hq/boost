@@ -89,15 +89,12 @@ int main()
   }
   {
     // empty queue push rvalue succeeds
-      boost::sync_bounded_queue<int> q(3);
+      boost::sync_bounded_queue<int> q(2);
       q.push(1);
-      BOOST_TEST_EQ(q.size(), 1u);
       q.push(2);
-      BOOST_TEST_EQ(q.size(), 2u);
-      q.push(2);
-      BOOST_TEST_EQ(q.size(), 3u);
       BOOST_TEST(! q.empty());
       BOOST_TEST( q.full());
+      BOOST_TEST_EQ(q.size(), 2u);
       BOOST_TEST(! q.closed());
   }
   {
@@ -320,15 +317,12 @@ int main()
   }
   {
     // empty queue push rvalue succeeds
-      boost::sync_bounded_queue<int> q(3);
+      boost::sync_bounded_queue<int> q(2);
       q.push_back(1);
-      BOOST_TEST_EQ(q.size(), 1u);
       q.push_back(2);
-      BOOST_TEST_EQ(q.size(), 2u);
-      q.push_back(3);
-      BOOST_TEST_EQ(q.size(), 3u);
       BOOST_TEST(! q.empty());
       BOOST_TEST( q.full());
+      BOOST_TEST_EQ(q.size(), 2u);
       BOOST_TEST(! q.closed());
   }
   {

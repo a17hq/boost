@@ -14,7 +14,7 @@
 
 void foo()
 {
-    BOOST_CONSTEXPR_OR_CONST boost::units::quantity<boost::units::si::dimensionless> d = boost::units::quantity< boost::units::si::dimensionless >();
+    boost::units::quantity<boost::units::si::dimensionless> d = boost::units::quantity< boost::units::si::dimensionless >();
     boost::ignore_unused(d);
 }
 

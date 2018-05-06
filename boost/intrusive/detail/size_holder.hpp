@@ -21,8 +21,6 @@
 #  pragma once
 #endif
 
-#include <boost/intrusive/detail/workaround.hpp>
-
 namespace boost {
 namespace intrusive {
 namespace detail {
@@ -33,26 +31,23 @@ struct size_holder
    static const bool constant_time_size = ConstantSize;
    typedef SizeType  size_type;
 
-   BOOST_INTRUSIVE_FORCEINLINE SizeType get_size() const
+   SizeType get_size() const
    {  return size_;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE void set_size(SizeType size)
+   void set_size(SizeType size)
    {  size_ = size; }
 
-   BOOST_INTRUSIVE_FORCEINLINE void decrement()
+   void decrement()
    {  --size_; }
 
-   BOOST_INTRUSIVE_FORCEINLINE void increment()
+   void increment()
    {  ++size_; }
 
-   BOOST_INTRUSIVE_FORCEINLINE void increase(SizeType n)
+   void increase(SizeType n)
    {  size_ += n; }
 
-   BOOST_INTRUSIVE_FORCEINLINE void decrease(SizeType n)
+   void decrease(SizeType n)
    {  size_ -= n; }
-
-   BOOST_INTRUSIVE_FORCEINLINE void swap(size_holder &other)
-   {  SizeType tmp(size_); size_ = other.size_; other.size_ = tmp; }
 
    SizeType size_;
 };
@@ -63,25 +58,23 @@ struct size_holder<false, SizeType, Tag>
    static const bool constant_time_size = false;
    typedef SizeType  size_type;
 
-   BOOST_INTRUSIVE_FORCEINLINE size_type get_size() const
+   size_type get_size() const
    {  return 0;  }
 
-   BOOST_INTRUSIVE_FORCEINLINE void set_size(size_type)
+   void set_size(size_type)
    {}
 
-   BOOST_INTRUSIVE_FORCEINLINE void decrement()
+   void decrement()
    {}
 
-   BOOST_INTRUSIVE_FORCEINLINE void increment()
+   void increment()
    {}
 
-   BOOST_INTRUSIVE_FORCEINLINE void increase(SizeType)
+   void increase(SizeType)
    {}
 
-   BOOST_INTRUSIVE_FORCEINLINE void decrease(SizeType)
+   void decrease(SizeType)
    {}
-
-   BOOST_INTRUSIVE_FORCEINLINE void swap(size_holder){}
 };
 
 }  //namespace detail{

@@ -1,5 +1,5 @@
 [/
-  Copyright (c) Vladimir Batov 2009-2016
+  Copyright (c) Vladimir Batov 2009-2014
   Distributed under the Boost Software License, Version 1.0.
   See copy at http://www.boost.org/LICENSE_1_0.txt.
 ]
@@ -28,10 +28,10 @@
 
 ['Boost.Convert] consists of two components:
 
-* the `boost::convert()` interface;
+* the `boost::convert()` user interface;
 * an extendible collection of pluggable converters.
 
-The `boost::convert()` interface
+The `boost::convert()` user interface
 
 * advertises, provides and ensures certain ['consistent behavior];
 * unifies and provides ['one consistent interface] to various conversion facilities.

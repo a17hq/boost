@@ -17,13 +17,10 @@
 #include <boost/preprocessor/repetition/enum_params.hpp>
 #include <boost/preprocessor/repetition/enum_binary_params.hpp>
 #include <boost/preprocessor/repetition/enum_params_with_a_default.hpp>
-#include <boost/mpl/vector_c.hpp>
-#include <boost/fusion/adapted/mpl.hpp>
-#include <boost/fusion/adapted/mpl/mpl_iterator.hpp>
 
 #define BOOST_PP_ITERATION_PARAMS_1                                           \
     (3, (1, FUSION_MAX_VECTOR_SIZE,                                           \
-    "boost/fusion/view/nview/detail/cpp03/nview_impl.hpp"))                   \
+    "boost/fusion/view/nview/detail/cpp03/nview_impl.hpp"))                         \
     /**/
 
 ///////////////////////////////////////////////////////////////////////////////

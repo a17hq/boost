@@ -24,16 +24,16 @@
  *  -------------------------------------------------  *
  *  |  16 |  17 |  18 |  19 |  20 |  21 |  22 |  23 |  *
  *  -------------------------------------------------  *
- *  | 0x0 | 0x4 | 0x8 | 0xc | 0x10| 0x14| 0x18| 0x1c|  *
+ *  | 0x40| 0x44| 0x48| 0x4c| 0x50| 0x54| 0x58| 0x5c|  *
  *  -------------------------------------------------  *
- *  | sjlj|hiddn|  v1 |  v2 |  v3 |  v4 |  v5 |  v6 |  *
+ *  | sjlj|  v1 |  v2 |  v3 |  v4 |  v5 |  v6 |  v7 |  *
  *  -------------------------------------------------  *
  *  -------------------------------------------------  *
- *  |  24 |  25 |  26 |  27 |  28 |  29 |  30 |  31 |  *
+ *  |  24 |  25 |  26 |                             |  *
  *  -------------------------------------------------  *
- *  | 0x20| 0x24| 0x28| 0x2c| 0x30| 0x34| 0x38| 0x3c|  *
+ *  | 0x60| 0x64| 0x68|                             |  *
  *  -------------------------------------------------  *
- *  |  v7 |  v8 |  lr |  pc | FCTX| DATA|           |  *
+ *  |  v8 |  lr |  pc |                             |  *
  *  -------------------------------------------------  *
  *                                                     *
  *******************************************************/
@@ -46,21 +46,16 @@ _make_fcontext:
     bic  a1, a1, #15
 
     @ reserve space for context-data on context-stack
-    sub  a1, a1, #124
+    sub  a1, a1, #108
 
     @ third arg of make_fcontext() == address of context-function
-    str  a3, [a1, #108]
-
-    @ compute address of returned transfer_t
-    add  a2, a1, #112
-    mov  a3, a2
-    str  a3, [a1, #68]
+    str  a3, [a1,#104]
 
     @ compute abs address of label finish
     adr  a2, finish
     @ save address of finish as return-address for context-function
     @ will be entered after context-function returns
-    str  a2, [a1, #104]
+    str  a2, [a1,#100]
 
     bx  lr @ return pointer to context-data
 

@@ -102,10 +102,6 @@ std::vector<T> make_vector(T t0, T t1) {
     return result;
 }
 
-#ifdef BOOST_MSVC
-#pragma warning(disable:4521) // multiple copy constructors specified
-#endif
-
 struct test_class
 {
 
@@ -185,41 +181,16 @@ struct make_arg_impl<binding<Concept> >
 };
 
 template<class Concept>
-struct make_arg_impl<any<Concept, _a>&>
+struct make_arg_impl<any<Concept, _a> >
 {
-    static any<Concept, _a>& apply()
+    static any<Concept, _a> apply()
     {
-        static any<Concept, _a> result(
+        return any<Concept, _a>(
             test_class(),
             make_binding< ::boost::mpl::map<
                 ::boost::mpl::pair<_a, test_class>,
                 ::boost::mpl::pair<_b, int>
         > >());
-        return result;
-    }
-};
-
-template<class Concept>
-struct make_arg_impl<any<Concept, _b>&>
-{
-    static any<Concept, _b>& apply()
-    {
-        static any<Concept, _b> result(
-            (int)id_int,
-            make_binding< ::boost::mpl::map<
-                ::boost::mpl::pair<_a, test_class>,
-                ::boost::mpl::pair<_b, int>
-        > >());
-        return result;
-    }
-};
-
-template<class Concept>
-struct make_arg_impl<any<Concept, _a> >
-{
-    static any<Concept, _a> apply()
-    {
-        return make_arg_impl<any<Concept, _a>&>::apply();
     }
 };
 
@@ -228,7 +199,12 @@ struct make_arg_impl<any<Concept, _b> >
 {
     static any<Concept, _b> apply()
     {
-        return make_arg_impl<any<Concept, _b>&>::apply();
+        return any<Concept, _b>(
+            (int)id_int,
+            make_binding< ::boost::mpl::map<
+                ::boost::mpl::pair<_a, test_class>,
+                ::boost::mpl::pair<_b, int>
+        > >());
     }
 };
 
@@ -275,14 +251,6 @@ struct make_arg_impl<T&>
         return result;
     }
 };
-template<class T>
-struct make_arg_impl<const T&>
-{
-    static T& apply()
-    {
-        return make_arg_impl<T&>::apply();
-    }
-};
 
 #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
 
@@ -291,7 +259,8 @@ struct make_arg_impl<T&&>
 {
     static T&& apply()
     {
-        return std::move(make_arg_impl<T&>::apply());
+        static T result = make_arg_impl<T>::apply();
+        return std::move(result);
     }
 };
 
@@ -355,22 +324,12 @@ struct tester<Concept, void(T0, T1, T2)>
     }
 };
 
-#ifdef BOOST_NO_CXX11_RVALUE_REFERENCES
-// We need copy_constructible in order to get an rvalue.
-#define CONSTRUCT_COMMON(p) common<p>
-#else
-// Don't include the copy constructor if we don't
-// need it, as it can hide the non-const copy constructor.
-#define CONSTRUCT_COMMON(p) destructible<p>, typeid_<p>
-#endif
-
 #define TEST_CONSTRUCT(sig, args, expected_) \
 {\
     typedef ::boost::mpl::vector<\
-        CONSTRUCT_COMMON(_a), \
+        common<_a>, \
         common<_b>,\
-        constructible<sig>,\
-        extra\
+        constructible<sig>\
     > C;\
     std::vector<int> result = tester<C, void args>::apply();\
     std::vector<int> expected = make_vector expected_;\
@@ -378,12 +337,7 @@ struct tester<Concept, void(T0, T1, T2)>
         expected.begin(), expected.end());\
 }
 
-typedef ::boost::mpl::vector<
-    ::boost::mpl::vector<>,
-    ::boost::type_erasure::relaxed
-> maybe_relaxed;
-
-BOOST_AUTO_TEST_CASE_TEMPLATE(test_default, extra, maybe_relaxed)
+BOOST_AUTO_TEST_CASE(test_default)
 {
     TEST_CONSTRUCT(_a(), (binding<C>), ());
     TEST_CONSTRUCT(_a(), (binding<C>&), ());
@@ -391,7 +345,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_default, extra, maybe_relaxed)
 }
 
 // test all forms of direct construction that take 1 argument
-BOOST_AUTO_TEST_CASE_TEMPLATE(test_construct1, extra, maybe_relaxed)
+BOOST_AUTO_TEST_CASE(test_construct1)
 {
     // construction from int
     TEST_CONSTRUCT(_a(int&), (binding<C>, int&), (lvalue | id_int));
@@ -426,7 +380,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_construct1, extra, maybe_relaxed)
 
     // Test same any type
 
-#ifndef BOOST_NO_CXX11_REF_QUALIFIERS
+#ifndef BOOST_NO_FUNCTION_REFERENCE_QUALIFIERS
     // ambiguous with the copy constructor in C++03
     TEST_CONSTRUCT(_a(_a&), (any<C, _a>&), (lvalue | id_copy));
     TEST_CONSTRUCT(_a(_a&), (binding<C>, any<C, _a>&), (lvalue | id_copy));
@@ -447,7 +401,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_construct1, extra, maybe_relaxed)
     TEST_CONSTRUCT(_a(const _a&), (const binding<C>&, any<C, _a>&), (const_lvalue | id_copy));
     TEST_CONSTRUCT(_a(const _a&), (const binding<C>&, const any<C, _a>&), (const_lvalue | id_copy));
     
-#ifndef BOOST_NO_CXX11_REF_QUALIFIERS
+#ifndef BOOST_NO_FUNCTION_REFERENCE_QUALIFIERS
 
 #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
     TEST_CONSTRUCT(_a(_a&&), (any<C, _a>), (rvalue | id_copy));
@@ -490,7 +444,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_construct1, extra, maybe_relaxed)
     TEST_CONSTRUCT(_a(_b), (const binding<C>&, any<C, _b>&), (rvalue | id_int));
     TEST_CONSTRUCT(_a(_b), (const binding<C>&, const any<C, _b>&), (rvalue | id_int));
     
-#ifndef BOOST_NO_CXX11_REF_QUALIFIERS
+#ifndef BOOST_NO_FUNCTION_REFERENCE_QUALIFIERS
 
 #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
     TEST_CONSTRUCT(_a(_b&&), (any<C, _b>), (rvalue | id_int));
@@ -615,7 +569,7 @@ BOOST_AUTO_TEST_CASE_TEMPLATE(test_construct1, extra, maybe_relaxed)
 }
 
 // test constructors with 2 parameters
-BOOST_AUTO_TEST_CASE_TEMPLATE(test_construct2, extra, maybe_relaxed)
+BOOST_AUTO_TEST_CASE(test_construct2)
 {
     TEST_CONSTRUCT(_a(int, int), (binding<C>, int, int), (rvalue | id_int, rvalue | id_int));
     TEST_CONSTRUCT(_a(int, int), (binding<C>, int, int&), (rvalue | id_int, rvalue | id_int));

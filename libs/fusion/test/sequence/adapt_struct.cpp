@@ -32,17 +32,13 @@
 #include <iostream>
 #include <string>
 
-namespace namespaced_type {
-  typedef int integer;
-}
-
 namespace ns
 {
     struct point
     {
         int x;
         int y;
-        namespaced_type::integer z;
+        int z;
     };
 
 #if !BOOST_WORKAROUND(__GNUC__,<4)
@@ -108,7 +104,7 @@ namespace ns
     BOOST_FUSION_ADAPT_STRUCT(
         ns::bar,
         foo_.x, // test that adapted members can actually be expressions
-        (auto , y)
+        y
     )
 
     BOOST_FUSION_ADAPT_STRUCT(
@@ -123,8 +119,8 @@ namespace ns
     BOOST_FUSION_ADAPT_STRUCT(
         ns::point,
         (int, x)
-        (auto, y)
-        (namespaced_type::integer, z)
+        (int, y)
+        (BOOST_FUSION_ADAPT_AUTO, z)
     )
 
 #   if !BOOST_WORKAROUND(__GNUC__,<4)
@@ -132,18 +128,17 @@ namespace ns
         ns::point_with_private_attributes,
         (int, x)
         (int, y)
-        (auto, z)
+        (BOOST_FUSION_ADAPT_AUTO, z)
     )
 #   endif
 
     struct s { int m; };
-    BOOST_FUSION_ADAPT_STRUCT(s, (auto, m))
+    BOOST_FUSION_ADAPT_STRUCT(s, (BOOST_FUSION_ADAPT_AUTO, m))
 
     BOOST_FUSION_ADAPT_STRUCT(
         ns::bar,
-        (auto, foo_.x) // test that adapted members can actually be expressions
-        (BOOST_FUSION_ADAPT_AUTO, y) // Mixing auto & BOOST_FUSION_ADAPT_AUTO 
-                                     // to test backward compatibility
+        (BOOST_FUSION_ADAPT_AUTO, foo_.x) // test that adapted members can actually be expressions
+        (BOOST_FUSION_ADAPT_AUTO, y)
     )
 
     BOOST_FUSION_ADAPT_STRUCT(
@@ -191,9 +186,9 @@ main()
     }
 
     {
-        vector<int, float, int> v1(4, 2.f, 2);
+        vector<int, float, int> v1(4, 2, 2);
         point v2 = {5, 3, 3};
-        vector<long, double, int> v3(5, 4., 4);
+        vector<long, double, int> v3(5, 4, 4);
         BOOST_TEST(v1 < v2);
         BOOST_TEST(v1 <= v2);
         BOOST_TEST(v2 > v1);
@@ -248,7 +243,7 @@ main()
 #endif
 
     {
-        fusion::vector<int, float> v1(4, 2.f);
+        fusion::vector<int, float> v1(4, 2);
         ns::bar v2 = {{5}, 3};
         BOOST_TEST(v1 < v2);
         BOOST_TEST(v1 <= v2);

@@ -12,8 +12,6 @@
 #include <boost/thread/thread_only.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/condition_variable.hpp>
-#include <iterator>
-#include <cstddef>
 
 BOOST_AUTO_TEST_CASE(test_lock_two_uncontended)
 {
@@ -302,17 +300,13 @@ BOOST_AUTO_TEST_CASE(test_lock_five_in_range)
     }
 }
 
-class dummy_iterator
+class dummy_iterator:
+    public std::iterator<std::forward_iterator_tag,
+                         dummy_mutex>
 {
 private:
     dummy_mutex* p;
 public:
-    typedef std::forward_iterator_tag iterator_category;
-    typedef dummy_mutex value_type;
-    typedef std::ptrdiff_t difference_type;
-    typedef dummy_mutex* pointer;
-    typedef dummy_mutex& reference;
-
     explicit dummy_iterator(dummy_mutex* p_):
         p(p_)
     {}

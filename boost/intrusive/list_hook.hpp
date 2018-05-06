@@ -50,8 +50,7 @@ struct make_list_base_hook
       >::type packed_options;
 
    typedef generic_hook
-   < CircularListAlgorithms
-   , list_node_traits<typename packed_options::void_pointer>
+   < circular_list_algorithms<list_node_traits<typename packed_options::void_pointer> >
    , typename packed_options::tag
    , packed_options::link_mode
    , ListBaseHookId
@@ -178,8 +177,7 @@ struct make_list_member_hook
       >::type packed_options;
 
    typedef generic_hook
-   < CircularListAlgorithms
-   , list_node_traits<typename packed_options::void_pointer>
+   < circular_list_algorithms<list_node_traits<typename packed_options::void_pointer> >
    , member_tag
    , packed_options::link_mode
    , NoBaseHookId

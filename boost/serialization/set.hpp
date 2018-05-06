@@ -29,7 +29,6 @@
 
 #include <boost/serialization/collections_save_imp.hpp>
 #include <boost/serialization/split_free.hpp>
-#include <boost/move/utility_core.hpp>
 
 namespace boost { 
 namespace serialization {
@@ -55,8 +54,7 @@ inline void load_set_collection(Archive & ar, Container &s)
         detail::stack_construct<Archive, type> t(ar, item_version);
         // borland fails silently w/o full namespace
         ar >> boost::serialization::make_nvp("item", t.reference());
-        typename Container::iterator result =
-            s.insert(hint, boost::move(t.reference()));
+        typename Container::iterator result = s.insert(hint, t.reference());
         ar.reset_object_address(& (* result), & t.reference());
         hint = result;
     }

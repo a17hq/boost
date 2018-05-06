@@ -10,6 +10,8 @@
 
 #include <boost/container/detail/config_begin.hpp>
 #include <boost/container/list.hpp>
+#include <boost/container/allocator.hpp>
+#include <boost/container/node_allocator.hpp>
 #include <boost/container/adaptive_pool.hpp>
 
 #include "dummy_test_allocator.hpp"
@@ -32,9 +34,25 @@ template class boost::container::list
 
 template class boost::container::list
    < test::movable_and_copyable_int
+   , test::dummy_test_allocator<test::movable_and_copyable_int> >;
+
+template class boost::container::list
+   < test::movable_and_copyable_int
+   , std::allocator<test::movable_and_copyable_int> >;
+
+template class boost::container::list
+   < test::movable_and_copyable_int
+   , allocator<test::movable_and_copyable_int> >;
+
+template class boost::container::list
+   < test::movable_and_copyable_int
    , adaptive_pool<test::movable_and_copyable_int> >;
 
-namespace dtl {
+template class boost::container::list
+   < test::movable_and_copyable_int
+   , node_allocator<test::movable_and_copyable_int> >;
+
+namespace container_detail {
 
 template class iterator_from_iiterator
    <intrusive_list_type< std::allocator<int> >::container_type::iterator, true >;
@@ -171,6 +189,16 @@ int main ()
    //       std:allocator
    if(test_cont_variants< std::allocator<void> >()){
       std::cerr << "test_cont_variants< std::allocator<void> > failed" << std::endl;
+      return 1;
+   }
+   //       boost::container::allocator
+   if(test_cont_variants< allocator<void> >()){
+      std::cerr << "test_cont_variants< allocator<void> > failed" << std::endl;
+      return 1;
+   }
+   //       boost::container::node_allocator
+   if(test_cont_variants< node_allocator<void> >()){
+      std::cerr << "test_cont_variants< node_allocator<void> > failed" << std::endl;
       return 1;
    }
    //       boost::container::adaptive_pool

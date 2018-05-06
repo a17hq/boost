@@ -23,14 +23,6 @@
 #define __has_extension __has_feature
 #endif
 
-#ifndef __has_attribute
-#define __has_attribute(x) 0
-#endif
-
-#ifndef __has_cpp_attribute
-#define __has_cpp_attribute(x) 0
-#endif
-
 #if !__has_feature(cxx_exceptions) && !defined(BOOST_NO_EXCEPTIONS)
 #  define BOOST_NO_EXCEPTIONS
 #endif
@@ -43,25 +35,14 @@
 #  define BOOST_NO_TYPEID
 #endif
 
-#if !__has_feature(cxx_thread_local)
-#  define BOOST_NO_CXX11_THREAD_LOCAL
-#endif
-
-#ifdef __is_identifier
-#if !__is_identifier(__int64) && !defined(__GNUC__)
+#if defined(__int64) && !defined(__GNUC__)
 #  define BOOST_HAS_MS_INT64
 #endif
-#endif
-
-#if __has_include(<stdint.h>)
-#  define BOOST_HAS_STDINT_H
-#endif
-
 
 #define BOOST_HAS_NRVO
 
 // Branch prediction hints
-#if !defined (__c2__) && defined(__has_builtin)
+#if defined(__has_builtin)
 #if __has_builtin(__builtin_expect)
 #define BOOST_LIKELY(x) __builtin_expect(x, 1)
 #define BOOST_UNLIKELY(x) __builtin_expect(x, 0)
@@ -72,25 +53,14 @@
 #define BOOST_HAS_LONG_LONG
 
 //
-// We disable this if the compiler is really nvcc with C++03 as it
-// doesn't actually support __int128 as of CUDA_VERSION=7500
+// We disable this if the compiler is really nvcc as it
+// doesn't actually support __int128 as of CUDA_VERSION=5000
 // even though it defines __SIZEOF_INT128__.
 // See https://svn.boost.org/trac/boost/ticket/10418
-//     https://svn.boost.org/trac/boost/ticket/11852
 // Only re-enable this for nvcc if you're absolutely sure
-// of the circumstances under which it's supported.
-// Similarly __SIZEOF_INT128__ is defined when targetting msvc
-// compatibility even though the required support functions are absent.
+// of the circumstances under which it's supported:
 //
-#if defined(__CUDACC__)
-#  if defined(BOOST_GCC_CXX11)
-#    define BOOST_NVCC_CXX11
-#  else
-#    define BOOST_NVCC_CXX03
-#  endif
-#endif
-
-#if defined(__SIZEOF_INT128__) && !defined(BOOST_NVCC_CXX03) && !defined(_MSC_VER)
+#if defined(__SIZEOF_INT128__) && !defined(__CUDACC__)
 #  define BOOST_HAS_INT128
 #endif
 
@@ -98,15 +68,11 @@
 //
 // Dynamic shared object (DSO) and dynamic-link library (DLL) support
 //
-#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32) || defined(__CYGWIN__)
-#  define BOOST_HAS_DECLSPEC
-#  define BOOST_SYMBOL_EXPORT __attribute__((__dllexport__))
-#  define BOOST_SYMBOL_IMPORT __attribute__((__dllimport__))
-#else
+#if !defined(_WIN32) && !defined(__WIN32__) && !defined(WIN32)
 #  define BOOST_SYMBOL_EXPORT __attribute__((__visibility__("default")))
 #  define BOOST_SYMBOL_IMPORT
+#  define BOOST_SYMBOL_VISIBLE __attribute__((__visibility__("default")))
 #endif
-#define BOOST_SYMBOL_VISIBLE __attribute__((__visibility__("default")))
 
 //
 // The BOOST_FALLTHROUGH macro can be used to annotate implicit fall-through
@@ -126,14 +92,9 @@
 //
 // Currently clang on Windows using VC++ RTL does not support C++11's char16_t or char32_t
 //
-#if (defined(_MSC_VER) && (_MSC_VER < 1900)) || !(defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L)
+#if defined(_MSC_VER) || !(defined(__GXX_EXPERIMENTAL_CXX0X__) || __cplusplus >= 201103L)
 #  define BOOST_NO_CXX11_CHAR16_T
 #  define BOOST_NO_CXX11_CHAR32_T
-#endif
-
-#if defined(_MSC_VER) && (_MSC_VER >= 1800) && !defined(__GNUC__)
-#define BOOST_HAS_EXPM1
-#define BOOST_HAS_LOG1P
 #endif
 
 #if !__has_feature(cxx_constexpr)
@@ -290,41 +251,15 @@
 #  define BOOST_NO_CXX14_VARIABLE_TEMPLATES
 #endif
 
-#if !defined(__cpp_structured_bindings) || (__cpp_structured_bindings < 201606)
-#  define BOOST_NO_CXX17_STRUCTURED_BINDINGS
-#endif
-
-// Clang 3.9+ in c++1z
-#if !__has_cpp_attribute(fallthrough) || __cplusplus < 201406L
-#  define BOOST_NO_CXX17_INLINE_VARIABLES
-#  define BOOST_NO_CXX17_FOLD_EXPRESSIONS
-#endif
-
-#if __cplusplus < 201103L
-#define BOOST_NO_CXX11_SFINAE_EXPR
-#endif
-
 #if __cplusplus < 201400
 // All versions with __cplusplus above this value seem to support this:
 #  define BOOST_NO_CXX14_DIGIT_SEPARATORS
 #endif
-//
-// __builtin_unreachable:
-#if defined(__has_builtin) && __has_builtin(__builtin_unreachable)
-#define BOOST_UNREACHABLE_RETURN(x) __builtin_unreachable();
-#endif
 
-#if (__clang_major__ == 3) && (__clang_minor__ == 0)
-// Apparently a clang bug:
-#  define BOOST_NO_CXX11_FIXED_LENGTH_VARIADIC_TEMPLATE_EXPANSION_PACKS
-#endif
 
-// Clang has supported the 'unused' attribute since the first release.
-#define BOOST_ATTRIBUTE_UNUSED __attribute__((__unused__))
-
-// Type aliasing hint.
-#if __has_attribute(__may_alias__)
-#  define BOOST_MAY_ALIAS __attribute__((__may_alias__))
+// Unused attribute:
+#if defined(__GNUC__) && (__GNUC__ >= 4)
+#  define BOOST_ATTRIBUTE_UNUSED __attribute__((unused))
 #endif
 
 #ifndef BOOST_COMPILER

@@ -2,7 +2,7 @@
 // deadline_timer.cpp
 // ~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2018 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2015 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -22,8 +22,7 @@
 
 #include <boost/bind.hpp>
 #include "archetypes/async_result.hpp"
-#include <boost/asio/executor_work_guard.hpp>
-#include <boost/asio/io_context.hpp>
+#include <boost/asio/io_service.hpp>
 #include <boost/asio/placeholders.hpp>
 #include <boost/asio/detail/thread.hpp>
 
@@ -80,12 +79,12 @@ ptime now()
 
 void deadline_timer_test()
 {
-  boost::asio::io_context ioc;
+  boost::asio::io_service ios;
   int count = 0;
 
   ptime start = now();
 
-  boost::asio::deadline_timer t1(ioc, seconds(1));
+  boost::asio::deadline_timer t1(ios, seconds(1));
   t1.wait();
 
   // The timer must block until after its expiry time.
@@ -95,7 +94,7 @@ void deadline_timer_test()
 
   start = now();
 
-  boost::asio::deadline_timer t2(ioc, seconds(1) + microseconds(500000));
+  boost::asio::deadline_timer t2(ios, seconds(1) + microseconds(500000));
   t2.wait();
 
   // The timer must block until after its expiry time.
@@ -123,13 +122,13 @@ void deadline_timer_test()
 
   start = now();
 
-  boost::asio::deadline_timer t3(ioc, seconds(5));
+  boost::asio::deadline_timer t3(ios, seconds(5));
   t3.async_wait(boost::bind(increment, &count));
 
   // No completions can be delivered until run() is called.
   BOOST_ASIO_CHECK(count == 0);
 
-  ioc.run();
+  ios.run();
 
   // The run() call will not return until all operations have finished, and
   // this should not be until after the timer's expiry time.
@@ -141,14 +140,14 @@ void deadline_timer_test()
   count = 3;
   start = now();
 
-  boost::asio::deadline_timer t4(ioc, seconds(1));
+  boost::asio::deadline_timer t4(ios, seconds(1));
   t4.async_wait(boost::bind(decrement_to_zero, &t4, &count));
 
   // No completions can be delivered until run() is called.
   BOOST_ASIO_CHECK(count == 3);
 
-  ioc.restart();
-  ioc.run();
+  ios.reset();
+  ios.run();
 
   // The run() call will not return until all operations have finished, and
   // this should not be until after the timer's final expiry time.
@@ -160,17 +159,17 @@ void deadline_timer_test()
   count = 0;
   start = now();
 
-  boost::asio::deadline_timer t5(ioc, seconds(10));
+  boost::asio::deadline_timer t5(ios, seconds(10));
   t5.async_wait(boost::bind(increment_if_not_cancelled, &count,
         boost::asio::placeholders::error));
-  boost::asio::deadline_timer t6(ioc, seconds(1));
+  boost::asio::deadline_timer t6(ios, seconds(1));
   t6.async_wait(boost::bind(cancel_timer, &t5));
 
   // No completions can be delivered until run() is called.
   BOOST_ASIO_CHECK(count == 0);
 
-  ioc.restart();
-  ioc.run();
+  ios.reset();
+  ios.run();
 
   // The timer should have been cancelled, so count should not have changed.
   // The total run time should not have been much more than 1 second (and
@@ -185,8 +184,8 @@ void deadline_timer_test()
   t5.async_wait(boost::bind(increment_if_not_cancelled, &count,
         boost::asio::placeholders::error));
 
-  ioc.restart();
-  ioc.run();
+  ios.reset();
+  ios.run();
 
   // The timer should not have been cancelled, so count should have changed.
   // The total time since the timer was created should be more than 10 seconds.
@@ -201,16 +200,16 @@ void deadline_timer_test()
   // Start two waits on a timer, one of which will be cancelled. The one
   // which is not cancelled should still run to completion and increment the
   // counter.
-  boost::asio::deadline_timer t7(ioc, seconds(3));
+  boost::asio::deadline_timer t7(ios, seconds(3));
   t7.async_wait(boost::bind(increment_if_not_cancelled, &count,
         boost::asio::placeholders::error));
   t7.async_wait(boost::bind(increment_if_not_cancelled, &count,
         boost::asio::placeholders::error));
-  boost::asio::deadline_timer t8(ioc, seconds(1));
+  boost::asio::deadline_timer t8(ios, seconds(1));
   t8.async_wait(boost::bind(cancel_one_timer, &t7));
 
-  ioc.restart();
-  ioc.run();
+  ios.reset();
+  ios.run();
 
   // One of the waits should not have been cancelled, so count should have
   // changed. The total time since the timer was created should be more than 3
@@ -227,11 +226,11 @@ void timer_handler(const boost::system::error_code&)
 
 void deadline_timer_cancel_test()
 {
-  static boost::asio::io_context io_context;
+  static boost::asio::io_service io_service;
   struct timer
   {
     boost::asio::deadline_timer t;
-    timer() : t(io_context) { t.expires_at(boost::posix_time::pos_infin); }
+    timer() : t(io_service) { t.expires_at(boost::posix_time::pos_infin); }
   } timers[50];
 
   timers[2].t.async_wait(&timer_handler);
@@ -268,11 +267,11 @@ void asio_handler_deallocate(void* pointer, std::size_t,
 
 void deadline_timer_custom_allocation_test()
 {
-  static boost::asio::io_context io_context;
+  static boost::asio::io_service io_service;
   struct timer
   {
     boost::asio::deadline_timer t;
-    timer() : t(io_context) {}
+    timer() : t(io_service) {}
   } timers[100];
 
   int allocation_count = 0;
@@ -292,26 +291,25 @@ void deadline_timer_custom_allocation_test()
   for (int i = 0; i < 50; ++i)
     timers[i].t.cancel();
 
-  io_context.run();
+  io_service.run();
 
   BOOST_ASIO_CHECK(allocation_count == 0);
 }
 
-void io_context_run(boost::asio::io_context* ioc)
+void io_service_run(boost::asio::io_service* ios)
 {
-  ioc->run();
+  ios->run();
 }
 
 void deadline_timer_thread_test()
 {
-  boost::asio::io_context ioc;
-  boost::asio::executor_work_guard<boost::asio::io_context::executor_type> work
-    = boost::asio::make_work_guard(ioc);
-  boost::asio::deadline_timer t1(ioc);
-  boost::asio::deadline_timer t2(ioc);
+  boost::asio::io_service ios;
+  boost::asio::io_service::work w(ios);
+  boost::asio::deadline_timer t1(ios);
+  boost::asio::deadline_timer t2(ios);
   int count = 0;
 
-  boost::asio::detail::thread th(boost::bind(io_context_run, &ioc));
+  boost::asio::detail::thread th(boost::bind(io_service_run, &ios));
 
   t2.expires_from_now(boost::posix_time::seconds(2));
   t2.wait();
@@ -322,7 +320,7 @@ void deadline_timer_thread_test()
   t2.expires_from_now(boost::posix_time::seconds(4));
   t2.wait();
 
-  ioc.stop();
+  ios.stop();
   th.join();
 
   BOOST_ASIO_CHECK(count == 1);
@@ -330,47 +328,14 @@ void deadline_timer_thread_test()
 
 void deadline_timer_async_result_test()
 {
-  boost::asio::io_context ioc;
-  boost::asio::deadline_timer t1(ioc);
+  boost::asio::io_service ios;
+  boost::asio::deadline_timer t1(ios);
 
   t1.expires_from_now(boost::posix_time::seconds(1));
   int i = t1.async_wait(archetypes::lazy_handler());
   BOOST_ASIO_CHECK(i == 42);
 
-  ioc.run();
-}
-
-#if defined(BOOST_ASIO_HAS_MOVE)
-boost::asio::deadline_timer make_timer(boost::asio::io_context& ioc, int* count)
-{
-  boost::asio::deadline_timer t(ioc);
-  t.expires_from_now(boost::posix_time::seconds(1));
-  t.async_wait(boost::bind(increment, count));
-  return t;
-}
-#endif // defined(BOOST_ASIO_HAS_MOVE)
-
-void deadline_timer_move_test()
-{
-#if defined(BOOST_ASIO_HAS_MOVE)
-  boost::asio::io_context io_context1;
-  boost::asio::io_context io_context2;
-  int count = 0;
-
-  boost::asio::deadline_timer t1 = make_timer(io_context1, &count);
-  boost::asio::deadline_timer t2 = make_timer(io_context2, &count);
-  boost::asio::deadline_timer t3 = std::move(t1);
-
-  t2 = std::move(t1);
-
-  io_context2.run();
-
-  BOOST_ASIO_CHECK(count == 1);
-
-  io_context1.run();
-
-  BOOST_ASIO_CHECK(count == 2);
-#endif // defined(BOOST_ASIO_HAS_MOVE)
+  ios.run();
 }
 
 BOOST_ASIO_TEST_SUITE
@@ -381,7 +346,6 @@ BOOST_ASIO_TEST_SUITE
   BOOST_ASIO_TEST_CASE(deadline_timer_custom_allocation_test)
   BOOST_ASIO_TEST_CASE(deadline_timer_thread_test)
   BOOST_ASIO_TEST_CASE(deadline_timer_async_result_test)
-  BOOST_ASIO_TEST_CASE(deadline_timer_move_test)
 )
 #else // defined(BOOST_ASIO_HAS_BOOST_DATE_TIME)
 BOOST_ASIO_TEST_SUITE

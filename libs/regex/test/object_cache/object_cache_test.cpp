@@ -16,8 +16,7 @@
   *   DESCRIPTION: Test code for a generic object cache.
   */
 #include <boost/regex/pending/object_cache.hpp>
-#include <boost/detail/lightweight_main.hpp>
-#include "../test_macros.hpp"
+#include <boost/test/included/test_exec_monitor.hpp>
 
 class test_object
 {
@@ -44,7 +43,7 @@ int test_object::s_count = 0;
 
 static const int max_cache_size = 5;
 
-int cpp_main(int /*argc*/, char * /*argv*/[])
+int test_main(int /*argc*/, char * /*argv*/[])
 {
    int i;
    for(i = 0; i < 20; ++i)
@@ -73,5 +72,7 @@ int cpp_main(int /*argc*/, char * /*argv*/[])
    BOOST_CHECK(current_count == test_object::count());
    return 0;
 }
+
+#include <boost/test/included/test_exec_monitor.hpp>
 
 

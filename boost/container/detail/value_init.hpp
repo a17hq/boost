@@ -26,7 +26,7 @@
 
 namespace boost {
 namespace container {
-namespace dtl {
+namespace container_detail {
 
 template<class T>
 struct value_init
@@ -37,12 +37,10 @@ struct value_init
 
    operator T &() { return m_t; }
 
-   T &get() { return m_t; }
-
    T m_t;
 };
 
-}  //namespace dtl {
+}  //namespace container_detail {
 }  //namespace container {
 }  //namespace boost {
 

@@ -34,12 +34,6 @@ typedef boost::chrono::nanoseconds ns;
 
 boost::shared_mutex m;
 
-#ifdef BOOST_THREAD_PLATFORM_WIN32
-const ms max_diff(250);
-#else
-const ms max_diff(75);
-#endif
-
 void f()
 {
 #if defined BOOST_THREAD_USES_CHRONO
@@ -51,7 +45,7 @@ void f()
     t1 = Clock::now();
   }
   ns d = t1 - t0 - ms(250);
-  BOOST_TEST(d < max_diff);
+  BOOST_TEST(d < ns(2500000)+ms(1000)); // within 2.5ms
 #else
   //time_point t0 = Clock::now();
   //time_point t1;
@@ -61,7 +55,7 @@ void f()
     //t1 = Clock::now();
   }
   //ns d = t1 - t0 - ms(250);
-  //BOOST_TEST(d < max_diff);
+  //BOOST_TEST(d < ns(2500000)+ms(1000)); // within 2.5ms
 #endif
 }
 

@@ -13,8 +13,7 @@
 #include <string>
 #include <list>
 #include <algorithm>
-#include <iterator>
-#include <cstddef>
+#include <boost/iterator.hpp>
 #include <boost/config.hpp>
 #include <boost/concept_check.hpp>
 #include <boost/mpl/list.hpp>
@@ -480,16 +479,12 @@ void CheckDistance(void)
 namespace test_impl {
 
     class check_singular_iterator
+        : public boost::iterator<std::forward_iterator_tag, int>
     {
         bool singular_;
         int count_;
 
     public:
-        typedef std::forward_iterator_tag iterator_category;
-        typedef int value_type;
-        typedef std::ptrdiff_t difference_type;
-        typedef int* pointer;
-        typedef int& reference;
 
         check_singular_iterator() : singular_(true), count_(0) {}
         explicit check_singular_iterator(int x) : singular_(false), count_(x) {}

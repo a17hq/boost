@@ -9,8 +9,6 @@
 #define FUSION_CONS_07172005_0843
 
 #include <boost/fusion/support/config.hpp>
-#include <boost/fusion/support/void.hpp>
-#include <boost/fusion/support/detail/enabler.hpp>
 #include <boost/fusion/container/list/cons_fwd.hpp>
 #include <boost/fusion/support/detail/access.hpp>
 #include <boost/fusion/sequence/intrinsic/begin.hpp>
@@ -36,6 +34,7 @@
 
 namespace boost { namespace fusion
 {
+    struct void_;
     struct cons_tag;
     struct forward_traversal_tag;
     struct fusion_sequence_tag;
@@ -83,8 +82,7 @@ namespace boost { namespace fusion
                     traits::is_sequence<Sequence>
                   , mpl::not_<is_base_of<cons, Sequence> >
                   , mpl::not_<is_convertible<Sequence, Car> > > // use copy to car instead
-              , detail::enabler_
-            >::type = detail::enabler
+            >::type* /*dummy*/ = 0
         )
             : car(*fusion::begin(seq))
             , cdr(fusion::next(fusion::begin(seq)), mpl::true_()) {}

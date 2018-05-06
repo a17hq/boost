@@ -59,7 +59,6 @@ int main()
     threads.remove_thread(th);
     BOOST_TEST(! threads.is_thread_in(th));
     th->join();
-    delete th;
   }
   {
     {

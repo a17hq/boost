@@ -18,7 +18,7 @@
 #include <list>
 
 template<typename T>
-struct is_ {
+struct is_ : public std::unary_function<T, bool> {
     is_ ( T v ) : val_ ( v ) {}
     ~is_ () {}
     bool operator () ( T comp ) const { return val_ == comp; }

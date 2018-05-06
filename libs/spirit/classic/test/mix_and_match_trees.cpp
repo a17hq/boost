@@ -75,7 +75,7 @@ struct my_grammar : grammar<my_grammar>
 
 int main()
 {
-    const char * begin = NULL, * end = NULL;
+    const char * begin, * end;
 
     pt_parse(begin, end, my_grammar());
     ast_parse(begin, end, my_grammar());

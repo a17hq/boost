@@ -15,6 +15,10 @@
 
 void compile_and_link_test()
 {
+   float f = 0;
+   double d = 0;
+   long double l = 0;
+   int i = 0;
    unsigned ui = 0;
 
    check_result<float>(boost::math::tr1::assoc_laguerre(ui, ui, f));

@@ -28,10 +28,6 @@
 #include <boost/thread/future.hpp>
 #include <boost/detail/lightweight_test.hpp>
 
-#ifdef BOOST_MSVC
-#pragma warning(disable: 4127) // conditional expression is constant
-#endif
-
 int p1()
 {
   return 123;

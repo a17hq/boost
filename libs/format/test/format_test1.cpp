@@ -10,11 +10,15 @@
 
 // ------------------------------------------------------------------------------
 
-#include <boost/detail/lightweight_test.hpp>
-#include <boost/format.hpp>
+#include "boost/format.hpp"
 
-int main(int, char* [])
+#define BOOST_INCLUDE_MAIN 
+#include <boost/test/test_tools.hpp>
+
+
+int test_main(int, char* [])
 {
+
   using boost::format;
   using boost::str;
 
@@ -38,5 +42,5 @@ int main(int, char* [])
   if(str( format("%%##%#x ##%%1 %s00") % 20 % "Escaped OK" ) != "%##0x14 ##%1 Escaped OK00")
       BOOST_ERROR("Basic p-parsing Failed") ;
 
-  return boost::report_errors();
+  return 0;
 }

@@ -13,7 +13,6 @@
 #include <boost/cstdint.hpp>
 #include <boost/thread.hpp>
 #include <boost/locale/config.hpp>
-#include <boost/locale/hold_ptr.hpp>
 
 #include <unicode/locid.h>
 #include <unicode/numfmt.h>
@@ -44,7 +43,7 @@ namespace locale {
 
 
                 for(int i=0;i<4;i++) {
-                    hold_ptr<icu::DateFormat> fmt(icu::DateFormat::createDateInstance(styles[i],locale));
+                    std::auto_ptr<icu::DateFormat> fmt(icu::DateFormat::createDateInstance(styles[i],locale));
                     icu::SimpleDateFormat *sfmt = dynamic_cast<icu::SimpleDateFormat*>(fmt.get());
                     if(sfmt) {
                         sfmt->toPattern(date_format_[i]);
@@ -52,7 +51,7 @@ namespace locale {
                 }
 
                 for(int i=0;i<4;i++) {
-                    hold_ptr<icu::DateFormat> fmt(icu::DateFormat::createTimeInstance(styles[i],locale));
+                    std::auto_ptr<icu::DateFormat> fmt(icu::DateFormat::createTimeInstance(styles[i],locale));
                     icu::SimpleDateFormat *sfmt = dynamic_cast<icu::SimpleDateFormat*>(fmt.get());
                     if(sfmt) {
                         sfmt->toPattern(time_format_[i]);
@@ -61,7 +60,7 @@ namespace locale {
 
                 for(int i=0;i<4;i++) {
                     for(int j=0;j<4;j++) {
-                        hold_ptr<icu::DateFormat> fmt(
+                        std::auto_ptr<icu::DateFormat> fmt(
                             icu::DateFormat::createDateTimeInstance(styles[i],styles[j],locale));
                         icu::SimpleDateFormat *sfmt = dynamic_cast<icu::SimpleDateFormat*>(fmt.get());
                         if(sfmt) {
@@ -90,7 +89,7 @@ namespace locale {
                 if(ptr)
                     return ptr;
                 UErrorCode err=U_ZERO_ERROR;
-                hold_ptr<icu::NumberFormat> ap;
+                std::auto_ptr<icu::NumberFormat> ap;
 
                 switch(type) {
                 case fmt_number:
@@ -156,7 +155,7 @@ namespace locale {
                 if(p)
                     return p;
 
-                hold_ptr<icu::DateFormat> fmt(icu::DateFormat::createDateTimeInstance(
+                std::auto_ptr<icu::DateFormat> fmt(icu::DateFormat::createDateTimeInstance(
                     icu::DateFormat::kMedium,
                     icu::DateFormat::kMedium,
                     locale_));

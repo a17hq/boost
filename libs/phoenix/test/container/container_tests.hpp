@@ -1,6 +1,5 @@
 /*=============================================================================
     Copyright (c) 2004 Angus Leeming
-    Copyright (c) 2017 Kohei Takahashi
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying 
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -17,15 +16,8 @@
 #include <deque>
 #include <list>
 #include <map>
-#include <set>
 #include <vector>
 #include <utility>
-#ifndef BOOST_NO_CXX11_HDR_UNORDERED_MAP
-#include <unordered_map>
-#endif
-#ifndef BOOST_NO_CXX11_HDR_UNORDERED_SET
-#include <unordered_set>
-#endif
 
 #ifdef BOOST_MSVC
 #pragma warning(disable : 4800)
@@ -34,31 +26,11 @@
 using std::cerr;
 namespace phx = boost::phoenix;
 
-template <typename T> inline T const build_assoc();
-
 std::deque<int> const build_deque();
 std::list<int> const build_list();
 std::map<int, int> const build_map();
 std::multimap<int, int> const build_multimap();
 std::vector<int> const build_vector();
-std::set<int> const build_set();
-std::multiset<int> const build_multiset();
-template <> inline std::map<int, int> const build_assoc() { return build_map(); }
-template <> inline std::multimap<int, int> const build_assoc() { return build_multimap(); }
-template <> inline std::set<int> const build_assoc() { return build_set(); }
-template <> inline std::multiset<int> const build_assoc() { return build_multiset(); }
-#ifndef BOOST_NO_CXX11_HDR_UNORDERED_MAP
-std::unordered_map<int, int> const build_unordered_map();
-std::unordered_multimap<int, int> const build_unordered_multimap();
-template <> inline std::unordered_map<int, int> const build_assoc() { return build_unordered_map(); }
-template <> inline std::unordered_multimap<int, int> const build_assoc() { return build_unordered_multimap(); }
-#endif
-#ifndef BOOST_NO_CXX11_HDR_UNORDERED_SET
-std::unordered_set<int> const build_unordered_set();
-std::unordered_multiset<int> const build_unordered_multiset();
-template <> inline std::unordered_set<int> const build_assoc() { return build_unordered_set(); }
-template <> inline std::unordered_multiset<int> const build_assoc() { return build_unordered_multiset(); }
-#endif
 
 inline bool
 test(bool fail)
@@ -356,27 +328,6 @@ void test_map_erase(Container c)
 }
 
 template <typename Container>
-void test_set_erase(Container c)
-{
-    test_erase(c);
-    if (boost::report_errors() != 0)
-      return;
-
-    using phx::arg_names::arg1;
-    using phx::arg_names::arg2;
-    using phx::erase;
-
-    typename Container::value_type const value = *c.begin();
-    typename Container::key_type const key = value;
-    typename Container::size_type const removed =
-        erase(arg1, arg2)(c, key);
-    if (test(removed != 1)) {
-        cerr << "Failed " << typeid(Container).name() << " test_set_erase 1\n";
-        return;
-    }
-}
-
-template <typename Container>
 void test_front(Container c)
 {
     using phx::arg_names::arg1;
@@ -456,18 +407,19 @@ void test_insert(Container c)
     }
 }
 
-template <typename Map>
-inline void test_map_insert(Map c)
+inline void test_map_insert(std::map<int, int> c)
 {
     using phx::arg_names::arg1;
     using phx::arg_names::arg2;
     using phx::arg_names::arg3;
 
-    typename Map::value_type const value = *c.begin();
-    typename Map::iterator c_begin = c.begin();
+    typedef std::map<int, int> Map;
+
+    Map::value_type const value = *c.begin();
+    Map::iterator c_begin = c.begin();
     // wrapper for
     // iterator insert(iterator where, const value_type& val);
-    typename Map::iterator it =
+    Map::iterator it =
         phx::insert(arg1, arg2, arg3)(c, c_begin, value);
 
     if (test(it != c.begin() /*|| *it != *(++it)*/)) {
@@ -477,8 +429,8 @@ inline void test_map_insert(Map c)
 
     // wrapper for
     // pair<iterator, bool> insert(const value_type& val);
-    typename Map::value_type const value2(1400, 2200);
-    std::pair<typename Map::iterator, bool> result =
+    Map::value_type const value2(1400, 2200);
+    std::pair<Map::iterator, bool> result =
       phx::insert(arg1, arg2)(c, value2);
     if (test(!result.second)) {
         cerr << "Failed " << typeid(Map).name() << " test_map_insert 2\n";
@@ -488,8 +440,8 @@ inline void test_map_insert(Map c)
     // wrapper for
     // template<class InIt>
     // void insert(InIt first, InIt last);
-    Map const const_c = build_assoc<Map>();
-    typename Map::size_type size = c.size();
+    Map const const_c = build_map();
+    Map::size_type size = c.size();
     phx::insert(arg1, const_c.begin(), const_c.end())(c);
     if (test(c.size() != size + const_c.size())) {
         cerr << "Failed " << typeid(Map).name() << " test_map_insert 3\n";
@@ -497,19 +449,20 @@ inline void test_map_insert(Map c)
     }
 }
 
-template <typename Multimap>
-inline void test_multimap_insert(Multimap c)
+inline void test_multimap_insert(std::multimap<int, int> c)
 {
     using phx::arg_names::arg1;
     using phx::arg_names::arg2;
     using phx::arg_names::arg3;
 
-    typename Multimap::value_type const value = *c.begin();
-    typename Multimap::iterator c_begin = c.begin();
+    typedef std::multimap<int, int> Multimap;
+
+    Multimap::value_type const value = *c.begin();
+    Multimap::iterator c_begin = c.begin();
     std::size_t old_size = c.size();
     // wrapper for
     // iterator insert(iterator where, const value_type& val);
-    typename Multimap::iterator it =
+    Multimap::iterator it =
         phx::insert(arg1, arg2, arg3)(c, c_begin, value);
 
     if (test(*it != value || c.size() != old_size + 1)) {
@@ -520,7 +473,7 @@ inline void test_multimap_insert(Multimap c)
 
     // wrapper for
     // iterator insert(const value_type& val);
-    typename Multimap::value_type const value2(1400, 2200);
+    Multimap::value_type const value2(1400, 2200);
     it = phx::insert(arg1, arg2)(c, value2);
     if (test(it == c.end())) {
         cerr << "Failed " << typeid(Multimap).name()
@@ -531,97 +484,12 @@ inline void test_multimap_insert(Multimap c)
     // wrapper for
     // template<class InIt>
     // void insert(InIt first, InIt last);
-    Multimap const const_c = build_assoc<Multimap>();
-    typename Multimap::size_type size = c.size();
+    Multimap const const_c = build_multimap();
+    Multimap::size_type size = c.size();
     phx::insert(arg1, const_c.begin(), const_c.end())(c);
     if (test(c.size() != size + const_c.size())) {
         cerr << "Failed " << typeid(Multimap).name()
        << " test_multimap_insert 3\n";
-        return;
-    }
-}
-
-template <typename Set>
-inline void test_set_insert(Set c)
-{
-    using phx::arg_names::arg1;
-    using phx::arg_names::arg2;
-    using phx::arg_names::arg3;
-
-    typename Set::value_type const value = *c.begin();
-    typename Set::iterator c_begin = c.begin();
-    // wrapper for
-    // iterator insert(iterator where, const value_type& val);
-    typename Set::iterator it =
-        phx::insert(arg1, arg2, arg3)(c, c_begin, value);
-
-    if (test(it != c.begin() /*|| *it != *(++it)*/)) {
-        cerr << "Failed " << typeid(Set).name() << " test_set_insert 1\n";
-        return;
-    }
-
-    // wrapper for
-    // pair<iterator, bool> insert(const value_type& val);
-    typename Set::value_type const value2(1400);
-    std::pair<typename Set::iterator, bool> result =
-      phx::insert(arg1, arg2)(c, value2);
-    if (test(!result.second)) {
-        cerr << "Failed " << typeid(Set).name() << " test_set_insert 2\n";
-        return;
-    }
-
-    // wrapper for
-    // template<class InIt>
-    // void insert(InIt first, InIt last);
-    Set const const_c = build_assoc<Set>();
-    typename Set::size_type size = c.size();
-    phx::insert(arg1, const_c.begin(), const_c.end())(c);
-    if (test(c.size() != size + const_c.size())) {
-        cerr << "Failed " << typeid(Set).name() << " test_set_insert 3\n";
-        return;
-    }
-}
-
-template <typename Multiset>
-inline void test_multiset_insert(Multiset c)
-{
-    using phx::arg_names::arg1;
-    using phx::arg_names::arg2;
-    using phx::arg_names::arg3;
-
-    typename Multiset::value_type const value = *c.begin();
-    typename Multiset::iterator c_begin = c.begin();
-    std::size_t old_size = c.size();
-    // wrapper for
-    // iterator insert(iterator where, const value_type& val);
-    typename Multiset::iterator it =
-        phx::insert(arg1, arg2, arg3)(c, c_begin, value);
-
-    if (test(*it != value || c.size() != old_size + 1)) {
-        cerr << "Failed " << typeid(Multiset).name()
-       << " test_multiset_insert 1\n";
-        return;
-    }
-
-    // wrapper for
-    // iterator insert(const value_type& val);
-    typename Multiset::value_type const value2(1400);
-    it = phx::insert(arg1, arg2)(c, value2);
-    if (test(it == c.end())) {
-        cerr << "Failed " << typeid(Multiset).name()
-       << " test_multiset_insert 2\n";
-        return;
-    }
-
-    // wrapper for
-    // template<class InIt>
-    // void insert(InIt first, InIt last);
-    Multiset const const_c = build_assoc<Multiset>();
-    typename Multiset::size_type size = c.size();
-    phx::insert(arg1, const_c.begin(), const_c.end())(c);
-    if (test(c.size() != size + const_c.size())) {
-        cerr << "Failed " << typeid(Multiset).name()
-       << " test_multiset_insert 3\n";
         return;
     }
 }

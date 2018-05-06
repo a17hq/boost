@@ -103,7 +103,7 @@ namespace boost { namespace program_options { namespace detail {
     void
     cmdline::init(const vector<string>& args)
     {
-        this->m_args = args;        
+        this->args = args;        
         m_style = command_line_style::default_style;
         m_desc = 0;
         m_positional = 0;
@@ -244,7 +244,6 @@ namespace boost { namespace program_options { namespace detail {
         style_parsers.push_back(boost::bind(&cmdline::parse_terminator, this, _1));
 
         vector<option> result;
-        vector<string>& args = m_args;
         while(!args.empty())
         {
             bool ok = false;
@@ -312,6 +311,9 @@ namespace boost { namespace program_options { namespace detail {
             }
 
             if (!xd)
+                continue;
+
+            if (xd->semantic()->adjacent_tokens_only())
                 continue;
 
             unsigned min_tokens = xd->semantic()->min_tokens();
@@ -435,6 +437,9 @@ namespace boost { namespace program_options { namespace detail {
             // (the value in --foo=1) counts as a separate token, and if present
             // must be consumed. The following tokens on the command line may be
             // left unconsumed.
+
+            // We don't check if those tokens look like option, or not!
+
             unsigned min_tokens = d.semantic()->min_tokens();
             unsigned max_tokens = d.semantic()->max_tokens();
             
@@ -448,8 +453,9 @@ namespace boost { namespace program_options { namespace detail {
                         invalid_command_line_syntax(invalid_command_line_syntax::extra_parameter));
                 }
                 
-                // Grab min_tokens values from other_tokens, but only if those tokens
-                // are not recognized as options themselves.
+                // If an option wants, at minimum, N tokens, we grab them there,
+                // when adding these tokens as values to current option we check
+                // if they look like options
                 if (opt.value.size() <= min_tokens) 
                 {
                     min_tokens -= static_cast<unsigned>(opt.value.size());
@@ -459,7 +465,7 @@ namespace boost { namespace program_options { namespace detail {
                     min_tokens = 0;
                 }
 
-                // Everything's OK, move the values to the result.
+                // Everything's OK, move the values to the result.            
                 for(;!other_tokens.empty() && min_tokens--; ) 
                 {
                     // check if extra parameter looks like a known option

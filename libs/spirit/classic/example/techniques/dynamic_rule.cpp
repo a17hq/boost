@@ -22,7 +22,7 @@
 
 #include <boost/spirit/include/classic_assign_actor.hpp>
 
-int main()
+int main(int argc, char* argv[])
 {
     using namespace BOOST_SPIRIT_CLASSIC_NS;
     using namespace std;

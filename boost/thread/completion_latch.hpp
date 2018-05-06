@@ -96,6 +96,7 @@ namespace boost
     leavers_(0)
     {
     }
+    template <typename F>
     completion_latch(std::size_t count, void(*funct)()) :
       count_(count), funct_(funct), waiters_(0), leavers_(0)
     {

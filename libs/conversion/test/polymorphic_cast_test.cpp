@@ -25,17 +25,12 @@
 static bool expect_assertion = false;
 static int assertion_failed_count = 0;
 
-//assertion handler throws it to exit like assert, but to be able to catch it and stop
-//usage: BOOST_TEST_THROWS( function_with_assert(), expected_assertion );
-struct expected_assertion {};
-
 // BOOST_ASSERT custom handler
 void boost::assertion_failed( char const * expr, char const * function, char const * file, long line )
 {
     if( expect_assertion )
     {
         ++assertion_failed_count;
-        throw expected_assertion();
     }
     else
     {
@@ -159,7 +154,7 @@ static void test_polymorphic_pointer_cast()
 
         if( sp_base2 != 0 )
         {
-            BOOST_TEST_EQ( sp_base2->kind2(), "Base2" );
+            BOOST_TEST_EQ( base2->kind2(), "Base2" );
         }
     }
     catch( std::bad_cast const& )
@@ -283,7 +278,7 @@ static void test_polymorphic_downcast_fail()
     int old_count = assertion_failed_count;
     expect_assertion = true;
 
-    BOOST_TEST_THROWS( boost::polymorphic_downcast<Derived*>( base ), expected_assertion ); // should assert
+    boost::polymorphic_downcast<Derived*>( base ); // should assert
 
     BOOST_TEST_EQ( assertion_failed_count, old_count + 1 );
     expect_assertion = false;
@@ -298,7 +293,7 @@ static void test_polymorphic_pointer_downcast_builtin_fail()
     int old_count = assertion_failed_count;
     expect_assertion = true;
 
-    BOOST_TEST_THROWS( boost::polymorphic_pointer_downcast<Derived>( base ), expected_assertion ); // should assert
+    boost::polymorphic_pointer_downcast<Derived>( base ); // should assert
 
     BOOST_TEST_EQ( assertion_failed_count, old_count + 1 );
     expect_assertion = false;
@@ -313,7 +308,7 @@ static void test_polymorphic_pointer_downcast_boost_shared_fail()
     int old_count = assertion_failed_count;
     expect_assertion = true;
 
-    BOOST_TEST_THROWS( boost::polymorphic_pointer_downcast<Derived>( base ), expected_assertion ); // should assert
+    boost::polymorphic_pointer_downcast<Derived>( base ); // should assert
 
     BOOST_TEST_EQ( assertion_failed_count, old_count + 1 );
     expect_assertion = false;
@@ -328,7 +323,7 @@ static void test_polymorphic_pointer_downcast_std_shared_fail()
     int old_count = assertion_failed_count;
     expect_assertion = true;
 
-    BOOST_TEST_THROWS( boost::polymorphic_pointer_downcast<Derived>( base ), expected_assertion ); // should assert
+    boost::polymorphic_pointer_downcast<Derived>( base ); // should assert
 
     BOOST_TEST_EQ( assertion_failed_count, old_count + 1 );
     expect_assertion = false;
@@ -343,7 +338,7 @@ static void test_polymorphic_pointer_downcast_intrusive_fail()
     int old_count = assertion_failed_count;
     expect_assertion = true;
 
-    BOOST_TEST_THROWS( boost::polymorphic_pointer_downcast<Derived>( base ), expected_assertion); // should assert
+    boost::polymorphic_pointer_downcast<Derived>( base ); // should assert
 
     BOOST_TEST_EQ( assertion_failed_count, old_count + 1 );
     expect_assertion = false;

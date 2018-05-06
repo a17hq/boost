@@ -17,8 +17,6 @@
 #include <boost/type_index.hpp>
 #include <iostream>
 #include <stdexcept>
-#include <cstdlib>
-    
 //<-
 // Making `#include <cassert>` visible in docs, while actually using hand-made check
 // instead of `assert`. This is required to verify correct behavior even if NDEBUG

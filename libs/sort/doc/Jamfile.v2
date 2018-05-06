@@ -158,8 +158,3 @@ explicit images ;
 #  : inspect # test name
 # ;
 
-###############################################################################
-alias boostdoc ;
-explicit boostdoc ;
-alias boostrelease : standalone ;
-explicit boostrelease ;

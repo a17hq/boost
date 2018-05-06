@@ -13,7 +13,7 @@
 #include <boost/thread/detail/config.hpp>
 #include <boost/thread/detail/delete.hpp>
 #include <boost/thread/detail/move.hpp>
-#include <boost/thread/thread.hpp>
+#include <boost/thread/scoped_thread.hpp>
 #include <boost/thread/concurrent_queues/sync_queue.hpp>
 #include <boost/thread/executors/work.hpp>
 #include <boost/thread/csbl/vector.hpp>
@@ -30,14 +30,15 @@ namespace executors
     /// type-erasure to store the works to do
     typedef  executors::work work;
   private:
-    typedef thread thread_t;
+    /// the kind of stored threads are scoped threads to ensure that the threads are joined.
     /// A move aware vector type
+    typedef scoped_thread<> thread_t;
     typedef csbl::vector<thread_t> thread_vector;
 
-    /// A move aware vector
-    thread_vector threads;
     /// the thread safe work queue
     concurrent::sync_queue<work > work_queue;
+    /// A move aware vector
+    thread_vector threads;
 
   public:
     /**
@@ -60,7 +61,7 @@ namespace executors
       catch (...)
       {
         std::terminate();
-        //return false;
+        return false;
       }
     }
     /**
@@ -86,18 +87,9 @@ namespace executors
         for(;;)
         {
           work task;
-          try
-          {
-            queue_op_status st = work_queue.wait_pull(task);
-            if (st == queue_op_status::closed) {
-              return;
-            }
-            task();
-          }
-          catch (boost::thread_interrupted&)
-          {
-            return;
-          }
+          queue_op_status st = work_queue.wait_pull(task);
+          if (st == queue_op_status::closed) return;
+          task();
         }
       }
       catch (...)
@@ -230,8 +222,7 @@ namespace executors
     {
       // signal to all the worker threads that there will be no more submissions.
       close();
-      // joins all the threads before destroying the thread pool resources (e.g. the queue).
-      join();
+      // joins all the threads as the threads were scoped_threads
     }
 
     /**
@@ -241,7 +232,6 @@ namespace executors
     {
       for (unsigned i = 0; i < threads.size(); ++i)
       {
-        threads[i].interrupt();
         threads[i].join();
       }
     }
@@ -274,28 +264,23 @@ namespace executors
      * \b Throws: \c sync_queue_is_closed if the thread pool is closed.
      * Whatever exception that can be throw while storing the closure.
      */
-    void submit(BOOST_THREAD_RV_REF(work) closure)  {
-      work_queue.push(boost::move(closure));
-    }
 
 #if defined(BOOST_NO_CXX11_RVALUE_REFERENCES)
     template <typename Closure>
     void submit(Closure & closure)
     {
-      submit(work(closure));
+      work_queue.push(work(closure));
     }
 #endif
     void submit(void (*closure)())
     {
-      submit(work(closure));
+      work_queue.push(work(closure));
     }
 
     template <typename Closure>
-    void submit(BOOST_THREAD_FWD_REF(Closure) closure)
+    void submit(BOOST_THREAD_RV_REF(Closure) closure)
     {
-      //submit(work(boost::forward<Closure>(closure)));
-      work w((boost::forward<Closure>(closure)));
-      submit(boost::move(w));
+      work_queue.push(work(boost::forward<Closure>(closure)));
     }
 
     /**

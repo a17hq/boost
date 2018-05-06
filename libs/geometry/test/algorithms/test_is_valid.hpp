@@ -1,10 +1,9 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 // Unit Test
 
-// Copyright (c) 2014-2017, Oracle and/or its affiliates.
+// Copyright (c) 2014-2015, Oracle and/or its affiliates.
 
 // Contributed and/or modified by Menelaos Karavelas, on behalf of Oracle
-// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Licensed under the Boost Software License version 1.0.
 // http://www.boost.org/users/license.html
@@ -288,7 +287,7 @@ struct validity_tester_linear
     {
         bool const irrelevant = true;
         bg::is_valid_default_policy<irrelevant, AllowSpikes> visitor;
-        return bg::is_valid(geometry, visitor, bg::default_strategy());
+        return bg::is_valid(geometry, visitor);
     }
 
     template <typename Geometry>
@@ -297,7 +296,7 @@ struct validity_tester_linear
         bool const irrelevant = true;
         std::ostringstream oss;
         bg::failing_reason_policy<irrelevant, AllowSpikes> visitor(oss);
-        bg::is_valid(geometry, visitor, bg::default_strategy());
+        bg::is_valid(geometry, visitor);
         return oss.str();
     }
 };
@@ -310,7 +309,7 @@ struct validity_tester_areal
     static inline bool apply(Geometry const& geometry)
     {
         bg::is_valid_default_policy<AllowDuplicates> visitor;
-        return bg::is_valid(geometry, visitor, bg::default_strategy());
+        return bg::is_valid(geometry, visitor);
     }
 
     template <typename Geometry>
@@ -318,31 +317,7 @@ struct validity_tester_areal
     {
         std::ostringstream oss;
         bg::failing_reason_policy<AllowDuplicates> visitor(oss);
-        bg::is_valid(geometry, visitor, bg::default_strategy());
-        return oss.str();
-    }
-
-};
-
-
-template <bool AllowDuplicates>
-struct validity_tester_geo_areal
-{
-    template <typename Geometry>
-    static inline bool apply(Geometry const& geometry)
-    {
-        bg::is_valid_default_policy<AllowDuplicates> visitor;
-        bg::strategy::intersection::geographic_segments<> s;
-        return bg::is_valid(geometry, visitor, s);
-    }
-
-    template <typename Geometry>
-    static inline std::string reason(Geometry const& geometry)
-    {
-        std::ostringstream oss;
-        bg::failing_reason_policy<AllowDuplicates> visitor(oss);
-        bg::strategy::intersection::geographic_segments<> s;
-        bg::is_valid(geometry, visitor, s);
+        bg::is_valid(geometry, visitor);
         return oss.str();
     }
 
@@ -400,7 +375,7 @@ public:
                              bool expected_result)
     {
         std::stringstream sstr;
-        sstr << case_id << "-original"; // which is: CCW open
+        sstr << case_id << "-original";
         base_test(sstr.str(), geometry, expected_result);
 
         if ( is_convertible_to_closed<Geometry>::apply(geometry) )

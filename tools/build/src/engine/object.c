@@ -259,9 +259,7 @@ OBJECT * object_new_range( char const * const string, int const size )
         strtotal += size + 1;
         memcpy( m->data, string, size );
         m->data[ size ] = '\0';
-#ifndef NDEBUG
         m->header.magic = OBJECT_MAGIC;
-#endif
         return (OBJECT *)m->data;
     }
 #else

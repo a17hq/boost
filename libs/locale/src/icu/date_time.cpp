@@ -9,7 +9,6 @@
 #include <boost/locale/date_time_facet.hpp>
 #include <boost/locale/date_time.hpp>
 #include <boost/locale/formatting.hpp>
-#include <boost/locale/hold_ptr.hpp>
 #include "all_generator.hpp"
 
 #include <boost/thread.hpp>
@@ -34,7 +33,7 @@ namespace impl_icu {
     static void check_and_throw_dt(UErrorCode &e)
     {
         if(U_FAILURE(e)) {
-            throw date_time_error(u_errorName(e));
+            date_time_error(u_errorName(e));
         }
     }
     using period::marks::period_mark;
@@ -218,7 +217,7 @@ namespace impl_icu {
             // fieldDifference has side effect of moving calendar (WTF?)
             // So we clone it for performing this operation
             // 
-            hold_ptr<icu::Calendar> self(calendar_->clone());
+            std::auto_ptr<icu::Calendar> self(calendar_->clone());
 
             calendar_impl const *other_cal=dynamic_cast<calendar_impl const *>(other_ptr);
             if(other_cal){

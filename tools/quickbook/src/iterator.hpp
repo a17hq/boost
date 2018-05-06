@@ -9,44 +9,48 @@
 #if !defined(BOOST_SPIRIT_QUICKBOOK_ITERATOR_HPP)
 #define BOOST_SPIRIT_QUICKBOOK_ITERATOR_HPP
 
-#include <iterator>
-#include <boost/iterator/iterator_traits.hpp>
 #include <boost/operators.hpp>
+#include <boost/iterator/iterator_traits.hpp>
 #include <boost/range/iterator_range.hpp>
-#include "string_view.hpp"
+#include <iterator>
 
 namespace quickbook
 {
     template <typename Iterator>
     struct lookback_iterator
         : boost::forward_iterator_helper<
-              lookback_iterator<Iterator>,
-              typename boost::iterator_value<Iterator>::type,
-              typename boost::iterator_difference<Iterator>::type,
-              typename boost::iterator_pointer<Iterator>::type,
-              typename boost::iterator_reference<Iterator>::type>
+            lookback_iterator<Iterator>,
+            typename boost::iterator_value<Iterator>::type,
+            typename boost::iterator_difference<Iterator>::type,
+            typename boost::iterator_pointer<Iterator>::type,
+            typename boost::iterator_reference<Iterator>::type
+        >
     {
         lookback_iterator() {}
-        explicit lookback_iterator(Iterator i) : original_(i), base_(i) {}
-
+        explicit lookback_iterator(Iterator base)
+            : original_(base), base_(base) {}
+    
         friend bool operator==(
-            lookback_iterator const& x, lookback_iterator const& y)
+            lookback_iterator const& x,
+            lookback_iterator const& y)
         {
             return x.base_ == y.base_;
         }
-
+        
         lookback_iterator& operator++()
         {
             ++base_;
             return *this;
         }
-
+    
         typename boost::iterator_reference<Iterator>::type operator*() const
         {
             return *base_;
         }
-
-        Iterator base() const { return base_; }
+        
+        Iterator base() const {
+            return base_;
+        }
 
         typedef boost::iterator_range<std::reverse_iterator<Iterator> >
             lookback_range;
@@ -55,13 +59,11 @@ namespace quickbook
         {
             return lookback_range(base_, original_);
         }
-
-      private:
+    
+    private:
         Iterator original_;
         Iterator base_;
     };
-
-    typedef lookback_iterator<string_iterator> parse_iterator;
 }
 
 #endif

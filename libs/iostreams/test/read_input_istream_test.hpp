@@ -21,7 +21,8 @@ void read_input_istream_test()
     using namespace boost::iostreams;
     using namespace boost::iostreams::test;
 
-    test_file test;
+    test_file test;      
+    test_file test2;
 
     {
         test_file test2;

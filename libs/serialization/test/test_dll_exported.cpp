@@ -61,13 +61,12 @@ public:
     virtual ~polymorphic_derived1(){}
 };
 
-BOOST_CLASS_EXPORT_KEY(polymorphic_derived1)
-BOOST_CLASS_EXPORT_IMPLEMENT(polymorphic_derived1)
+BOOST_CLASS_EXPORT(polymorphic_derived1)
 
 // MWerks users can do this to make their code work
 BOOST_SERIALIZATION_MWERKS_BASE_AND_DERIVED(polymorphic_base, polymorphic_derived1)
 
-#define POLYMORPHIC_DERIVED2_IMPORT
+#define POLYMORPHIC_DERIVED_IMPORT
 #include "polymorphic_derived2.hpp"
 
 // save exported polymorphic class
@@ -86,9 +85,8 @@ void save_exported(const char *testfile)
     oa << BOOST_SERIALIZATION_NVP(rb2);
     oa << BOOST_SERIALIZATION_NVP(rd21);
 
-    delete rd21;
-    delete rb2;
     delete rb1;
+    delete rb2;
 }
 
 // save exported polymorphic class
@@ -130,9 +128,9 @@ void load_exported(const char *testfile)
             ::type::get_const_instance().get_derived_extended_type_info(*rd21),
         "restored pointer d2 not of correct type"
     );
-    delete rd21;
-    delete rb2;
     delete rb1;
+    delete rb2;
+    delete rd21;
 }
 
 int

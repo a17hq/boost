@@ -220,7 +220,7 @@ void var_compare(const VariantType& v, ExpectedType expected)
 
 void run()
 {   
-   boost::variant<string, short> v0;
+   variant<string, short> v0;
 
    var_compare(v0, string(""));
 
@@ -230,7 +230,7 @@ void run()
    v0 = "penny lane";
    var_compare(v0, string("penny lane"));
 
-   boost::variant<jas, string, int> v1, v2 = jas(195);
+   variant<jas, string, int> v1, v2 = jas(195);
    var_compare(v1, jas(364));
 
    v1 = jas(500);
@@ -240,7 +240,7 @@ void run()
    var_compare(v2, jas(500));
 
 
-   boost::variant<string, int> v3;
+   variant<string, int> v3;
    var_compare(v3, string(""));
 }
 

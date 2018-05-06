@@ -6,11 +6,10 @@
     http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
 
-#include <boost/detail/lightweight_test.hpp>
 #include "glob.hpp"
+#include <boost/detail/lightweight_test.hpp>
 
-void glob_tests()
-{
+void glob_tests() {
     BOOST_TEST(quickbook::glob("", ""));
 
     BOOST_TEST(!quickbook::glob("*", ""));
@@ -91,35 +90,6 @@ void glob_tests()
     BOOST_TEST(!quickbook::glob("1234*1234*1234", "12341231231234123123123"));
 }
 
-void invalid_glob_tests()
-{
-    // Note that glob only throws an exception when the pattern matches up to
-    // the point where the error occurs.
-    BOOST_TEST_THROWS(quickbook::glob("[", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("[^", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("[xyz", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("[xyz\\", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("[x\\y", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("[a-", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("[a-z", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("[a-\\", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("[a-\\a", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("xyx[", "xyxa"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("]", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("abc]", "abcd"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("]def", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("[]", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("[[]", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("[]]", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("**", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("[/]", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("[\\/]", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("[ -/]", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("[ -\\/]", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("\\", "a"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::glob("\\\\", "a"), quickbook::glob_error);
-}
-
 void check_glob_tests()
 {
     BOOST_TEST(!quickbook::check_glob(""));
@@ -129,14 +99,7 @@ void check_glob_tests()
     BOOST_TEST(quickbook::check_glob("abc[x]"));
     BOOST_TEST(quickbook::check_glob("[x]abd"));
     BOOST_TEST_THROWS(quickbook::check_glob("["), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::check_glob("[^"), quickbook::glob_error);
     BOOST_TEST_THROWS(quickbook::check_glob("[xyz"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::check_glob("[xyz\\"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::check_glob("[x\\y"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::check_glob("[a-"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::check_glob("[a-z"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::check_glob("[a-\\"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::check_glob("[a-\\a"), quickbook::glob_error);
     BOOST_TEST_THROWS(quickbook::check_glob("xyx["), quickbook::glob_error);
     BOOST_TEST_THROWS(quickbook::check_glob("]"), quickbook::glob_error);
     BOOST_TEST_THROWS(quickbook::check_glob("abc]"), quickbook::glob_error);
@@ -146,9 +109,6 @@ void check_glob_tests()
     BOOST_TEST_THROWS(quickbook::check_glob("[]]"), quickbook::glob_error);
     BOOST_TEST_THROWS(quickbook::check_glob("**"), quickbook::glob_error);
     BOOST_TEST_THROWS(quickbook::check_glob("[/]"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::check_glob("[\\/]"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::check_glob("[ -/]"), quickbook::glob_error);
-    BOOST_TEST_THROWS(quickbook::check_glob("[ -\\/]"), quickbook::glob_error);
     BOOST_TEST_THROWS(quickbook::check_glob("\\"), quickbook::glob_error);
     BOOST_TEST_THROWS(quickbook::check_glob("\\\\"), quickbook::glob_error);
 }
@@ -156,7 +116,6 @@ void check_glob_tests()
 int main()
 {
     glob_tests();
-    invalid_glob_tests();
     check_glob_tests();
 
     return boost::report_errors();

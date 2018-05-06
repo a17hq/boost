@@ -14,7 +14,7 @@
 #include <boost/numeric/odeint.hpp>
 
 //[my_vector
-template< size_t MAX_N >
+template< int MAX_N >
 class my_vector
 {
     typedef std::vector< double > vector;
@@ -103,10 +103,7 @@ int main()
     state_type x(3);
     x[0] = 5.0 ; x[1] = 10.0 ; x[2] = 10.0;
 
-    // make sure resizing is ON
-    BOOST_STATIC_ASSERT( is_resizeable<state_type>::value == true );
-
-    // my_vector works with range_algebra as it implements
+    // my_vector works with range_algebra as it implements 
     // the required parts of a container interface
     // no further work is required
 

@@ -33,8 +33,6 @@ BOOST_FUSION_DEFINE_STRUCT(
 
 BOOST_FUSION_DEFINE_STRUCT(BOOST_PP_EMPTY(), s, (int, m))
 
-BOOST_FUSION_DEFINE_STRUCT(BOOST_PP_EMPTY(), empty_struct, )
-
 // Testing non-constexpr compatible types
 BOOST_FUSION_DEFINE_STRUCT(
     (ns),
@@ -73,9 +71,9 @@ main()
     }
 
     {
-        vector<int, float> v1(4, 2.f);
+        vector<int, float> v1(4, 2);
         ns::point v2(5, 3);
-        vector<long, double> v3(5, 4.0);
+        vector<long, double> v3(5, 4);
         BOOST_TEST(v1 < v2);
         BOOST_TEST(v1 <= v2);
         BOOST_TEST(v2 > v1);

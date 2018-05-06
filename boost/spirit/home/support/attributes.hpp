@@ -28,6 +28,7 @@
 #include <boost/fusion/include/for_each.hpp>
 #include <boost/fusion/include/is_view.hpp>
 #include <boost/fusion/include/mpl.hpp>
+#include <boost/foreach.hpp>
 #include <boost/utility/value_init.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/is_convertible.hpp>
@@ -278,6 +279,11 @@ namespace boost { namespace spirit { namespace traits
       : mpl::false_
     {};
 
+    template <typename T, typename Domain>
+    struct not_is_variant<boost::optional<T>, Domain>
+      : not_is_variant<T, Domain>
+    {};
+
     // we treat every type as if it where the variant (as this meta function is
     // invoked for variant types only)
     template <typename T>
@@ -288,11 +294,6 @@ namespace boost { namespace spirit { namespace traits
     template <typename T>
     struct variant_type<boost::optional<T> >
       : variant_type<T>
-    {};
-
-    template <typename T, typename Domain>
-    struct not_is_variant_or_variant_in_optional
-      : not_is_variant<typename variant_type<T>::type, Domain>
     {};
 
     ///////////////////////////////////////////////////////////////////////////
@@ -338,7 +339,7 @@ namespace boost { namespace spirit { namespace traits
 
     template <typename Variant, typename Expected>
     struct compute_compatible_component_variant<Variant, Expected, mpl::false_
-      , typename enable_if<detail::has_types<typename variant_type<Variant>::type> >::type>
+      , typename enable_if<detail::has_types<Variant> >::type>
     {
         typedef typename traits::variant_type<Variant>::type variant_type;
         typedef typename variant_type::types types;
@@ -371,7 +372,7 @@ namespace boost { namespace spirit { namespace traits
     template <typename Expected, typename Attribute, typename Domain>
     struct compute_compatible_component
       : compute_compatible_component_variant<Attribute, Expected
-          , typename not_is_variant_or_variant_in_optional<Attribute, Domain>::type> {};
+          , typename spirit::traits::not_is_variant<Attribute, Domain>::type> {};
 
     template <typename Expected, typename Domain>
     struct compute_compatible_component<Expected, unused_type, Domain>
@@ -1031,7 +1032,8 @@ namespace boost { namespace spirit { namespace traits
     template <typename T>
     void swap_impl(T& a, T& b)
     {
-        boost::swap(a, b);
+        using namespace std;
+        swap(a, b);
     }
 
     template <typename A>
@@ -1058,13 +1060,12 @@ namespace boost { namespace spirit { namespace traits
         typedef T type;
     };
 
-#if !defined(BOOST_FUSION_HAS_VARIADIC_VECTOR)
     template <typename T>
     struct strip_single_element_vector<fusion::vector1<T> >
     {
         typedef T type;
     };
-#endif
+
     template <typename T>
     struct strip_single_element_vector<fusion::vector<T> >
     {
@@ -1152,7 +1153,7 @@ namespace boost { namespace spirit { namespace traits
         static void call(boost::optional<T>& val)
         {
             if (val)
-                val = none;   // leave optional uninitialized
+                val = none_t();   // leave optional uninitialized
         }
     };
 

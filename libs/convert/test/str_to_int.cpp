@@ -1,11 +1,11 @@
 // Boost.Convert test and usage example
-// Copyright (c) 2009-2016 Vladimir Batov.
+// Copyright (c) 2009-2014 Vladimir Batov.
 // Use, modification and distribution are subject to the Boost Software License,
 // Version 1.0. See http://www.boost.org/LICENSE_1_0.txt.
 
 #include "./test.hpp"
 
-#if defined(BOOST_CONVERT_IS_NOT_SUPPORTED)
+#ifdef BOOST_CONVERT_INTEL_SFINAE_BROKEN
 int main(int, char const* []) { return 0; }
 #else
 
@@ -108,29 +108,25 @@ str_to_int(Converter const& cnv)
     // Testing value() on valid result.
     ////////////////////////////////////////////////////////////////////////////
 
-    int a21 = boost::convert<int>(std_str,   cnv).value();
-    int a22 = boost::convert<int>(c_str,     cnv).value();
-    int a25 = boost::convert<int>(array_str, cnv).value();
+    int a021 = boost::convert<int>(std_str,   cnv).value();
+    int a022 = boost::convert<int>(c_str,     cnv).value();
+    int a025 = boost::convert<int>(array_str, cnv).value();
 
-    BOOST_TEST(a21 ==  -11);
-    BOOST_TEST(a22 == -123);
-    BOOST_TEST(a25 == 3456);
+    BOOST_TEST(a021 ==  -11);
+    BOOST_TEST(a022 == -123);
+    BOOST_TEST(a025 == 3456);
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Testing empty string.
-    ////////////////////////////////////////////////////////////////////////////
-
-    int a31 = boost::convert<int>(std::string(), cnv).value_or(-1);
-    int a32 = boost::convert<int>(std::string(""), cnv).value_or(-1);
-    int a33 = boost::convert<int>("", cnv).value_or(-1);
-
-    BOOST_ASSERT(a31 == -1);
-    BOOST_ASSERT(a32 == -1);
-    BOOST_ASSERT(a33 == -1);
+//    for (int k = INT_MIN; k <= INT_MAX; ++k)
+//    {
+//        string str = boost::convert<string>(k, boost::cnv::strtol()).value();
+//        int k_back = boost::convert<int>(str, cnv).value();
+//
+//        BOOST_TEST(k == k_back);
+//    }
 }
 
 int
-main(int, char const* [])
+main(int argc, char const* argv[])
 {
     boost::cnv::lexical_cast lxcast_cnv;
     boost::cnv::cstream      stream_cnv;
